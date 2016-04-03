@@ -78,7 +78,11 @@ public class SessionState {
     }
 
     public func destroy(callback: (NSError?) -> Void) {
-        store.delete(id, callback: callback)
+        store.delete(id) { error in
+            self.state = JSON([String: SessionStateObjectType]())
+            self.isDirty = false
+            callback(error)
+        }
     }
 
     public subscript(key: String) -> JSON {
