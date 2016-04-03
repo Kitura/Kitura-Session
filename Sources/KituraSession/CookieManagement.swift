@@ -94,8 +94,10 @@ internal class CookieManagement {
         var properties: [String: PropValue] = [NSHTTPCookieName: name,
                           NSHTTPCookieValue: sessionId,
                           NSHTTPCookieDomain: cookieHost,
-                          NSHTTPCookiePath: path,
-                          NSHTTPCookieSecure: secure ? "Yes" : ""]
+                          NSHTTPCookiePath: path]
+        if  secure  {
+            properties[NSHTTPCookieSecure] = "Yes"
+        }
         if  maxAge > 0.0  {
             properties[NSHTTPCookieExpires] = NSDate(timeIntervalSinceNow: maxAge)
         }
