@@ -33,6 +33,7 @@ print("InMemoryStore: Stored session \(sessionId)")
     }
 
     internal func touch(sessionId: String, callback: (error: NSError?) -> Void) {
+print("InMemoryStore: Touched session \(sessionId)")
         callback(error: nil)
     }
 
