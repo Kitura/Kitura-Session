@@ -82,8 +82,7 @@ internal class CookieManagement {
         return (sessionId, newSession)
     }
 
-    internal func addCookie(sessionId: String, response: RouterResponse) {
-        let cookieHost = "localhost"
+    internal func addCookie(sessionId: String, domain: String, response: RouterResponse) {
 
         #if os(Linux)
             typealias PropValue = Any
@@ -93,7 +92,7 @@ internal class CookieManagement {
 
         var properties: [String: PropValue] = [NSHTTPCookieName: name,
                           NSHTTPCookieValue: sessionId,
-                          NSHTTPCookieDomain: cookieHost,
+                          NSHTTPCookieDomain: domain,
                           NSHTTPCookiePath: path]
         if  secure  {
             properties[NSHTTPCookieSecure] = "Yes"

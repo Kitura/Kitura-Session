@@ -59,7 +59,7 @@ public class Session: RouterMiddleware {
             let preFlushHandler: PreFlushLifecycleHandler = {request, response in
                 if  let session = request.session {
                     if  newSession  &&  !session.isEmpty  {
-                        self.cookieManager.addCookie(session.id, response: response)
+                        self.cookieManager.addCookie(session.id, domain: request.hostname, response: response)
                     }
                     if  session.isDirty  {
                         session.save() {error in
