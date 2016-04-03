@@ -68,10 +68,20 @@ public class Session: RouterMiddleware {
                             }
                         }
                     }
+                    else  {
+                        if  !session.isEmpty  {
+                            self.store.touch(session.id) {error in
+                                if  error != nil  {
+                                    Log.error("Failed to \"touch\" session for session \(session.id)")
+                                }
+                            }
+                        }
+                    }
                 }
                 previousPreFlushHandler!(request: request, response: response)
             }
             previousPreFlushHandler = response.setPreFlushHandler(preFlushHandler)
+
             if  newSession {
                 request.session = session
                 next()
@@ -81,12 +91,11 @@ public class Session: RouterMiddleware {
                     if  let error = error  {
                         // Failed to load data from store,
                         Log.error("Failed to load session data from store. Error=\(error)")
-                        next()
                     }
                     else {
                         request.session = session
-
                     }
+                    next()
                 }
             }
         }
