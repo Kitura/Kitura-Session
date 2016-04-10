@@ -38,7 +38,7 @@ print("InMemoryStore: Touched session \(sessionId)")
     }
 
     internal func delete(sessionId: String, callback: (error: NSError?) -> Void) {
-        store.removeValueForKey(sessionId)
+        store.removeValue(forKey: sessionId)
 print("InMemoryStore: Deleted session \(sessionId)")
         callback(error: nil)
     }

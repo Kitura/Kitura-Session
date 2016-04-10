@@ -38,7 +38,7 @@ public class SessionState {
     internal var isEmpty: Bool { return state.isEmpty }
 
     //
-    // Actualt session state
+    // Actual session state
     private var state: JSON
 
     //
@@ -83,6 +83,11 @@ public class SessionState {
             self.isDirty = false
             callback(error)
         }
+    }
+
+    public func remove(key: String) {
+        state[key] = nil
+        isDirty = true
     }
 
     public subscript(key: String) -> JSON {
