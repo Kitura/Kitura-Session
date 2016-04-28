@@ -52,14 +52,14 @@ public class Session: RouterMiddleware {
     }
 
     public func handle(request: RouterRequest, response: RouterResponse, next: () -> Void) {
-        let (sessionId, newSession) = cookieManager.getSessionId(request, response: response)
+        let (sessionId, newSession) = cookieManager.getSessionId(request: request, response: response)
         if  let sessionId = sessionId  {
             let session = SessionState(id: sessionId, store: store)
             var previousPreFlushHandler: PreFlushLifecycleHandler? = nil
             let preFlushHandler: PreFlushLifecycleHandler = {request, response in
                 if  let session = request.session {
                     if  newSession  &&  !session.isEmpty  {
-                        self.cookieManager.addCookie(session.id, domain: request.hostname, response: response)
+                        self.cookieManager.addCookie(sessionId: session.id, domain: request.hostname, response: response)
                     }
                     if  session.isDirty  {
                         session.save() {error in
@@ -70,7 +70,7 @@ public class Session: RouterMiddleware {
                     }
                     else  {
                         if  !session.isEmpty  {
-                            self.store.touch(session.id) {error in
+                            self.store.touch(sessionId: session.id) {error in
                                 if  error != nil  {
                                     Log.error("Failed to \"touch\" session for session \(session.id)")
                                 }
