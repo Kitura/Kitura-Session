@@ -22,24 +22,20 @@ internal class InMemoryStore: Store {
     private var store = [String: NSData]()
 
     internal func load(sessionId: String, callback: (data: NSData?, error: NSError?) -> Void) {
-print("InMemoryStore: Loaded session \(sessionId)")
         callback(data: store[sessionId], error: nil)
     }
 
     internal func save(sessionId: String, data: NSData, callback: (error: NSError?) -> Void) {
         store[sessionId] = data
-print("InMemoryStore: Stored session \(sessionId)")
         callback(error: nil)
     }
 
     internal func touch(sessionId: String, callback: (error: NSError?) -> Void) {
-print("InMemoryStore: Touched session \(sessionId)")
         callback(error: nil)
     }
 
     internal func delete(sessionId: String, callback: (error: NSError?) -> Void) {
         store.removeValue(forKey: sessionId)
-print("InMemoryStore: Deleted session \(sessionId)")
         callback(error: nil)
     }
 }

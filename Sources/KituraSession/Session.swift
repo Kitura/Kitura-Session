@@ -38,7 +38,7 @@ public class Session: RouterMiddleware {
     /// Initializes a new Session management middleware
     ///
     /// - Parameter secret: The string used to encrypt the session id cookie
-    public init(secret: String, cookie: [CookieParm]?=nil, store: Store?=nil) {
+    public init(secret: String, cookie: [CookieParameter]?=nil, store: Store?=nil) {
         if  let store = store {
             self.store = store
         }
@@ -104,15 +104,4 @@ public class Session: RouterMiddleware {
             next()
         }
     }
-}
-
-public enum CookieParm {
-    case Name(String), Path(String), Secure(Bool), MaxAge(NSTimeInterval)
-}
-
-public protocol Store {
-    func load(sessionId: String, callback: (data: NSData?, error: NSError?) -> Void)
-    func save(sessionId: String, data: NSData, callback: (error: NSError?) -> Void)
-    func touch(sessionId: String, callback: (error: NSError?) -> Void)
-    func delete(sessionId: String, callback: (error: NSError?) -> Void)
 }
