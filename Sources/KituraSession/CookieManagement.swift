@@ -40,7 +40,7 @@ internal class CookieManagement {
     //
     // Max age of Cookie
     private let maxAge: NSTimeInterval
-    internal init(secret: String, cookieParms: [CookieParm]?) {
+    internal init(secret: String, cookieParms: [CookieParameter]?) {
         var name = "kitura-session-id"
         var path = "/"
         var secure = false

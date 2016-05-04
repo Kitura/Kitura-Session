@@ -14,11 +14,8 @@
  * limitations under the License.
  **/
 
-import PackageDescription
+import Foundation
 
-let package = Package(
-    name: "Kitura-Session",
-    dependencies: [
-        .Package(url: "https://github.com/IBM-Swift/Kitura.git", majorVersion: 0, minor: 12),
-    ]
-)
+public enum CookieParameter {
+    case Name(String), Path(String), Secure(Bool), MaxAge(NSTimeInterval)
+}
