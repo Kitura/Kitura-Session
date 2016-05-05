@@ -40,6 +40,8 @@ internal class CookieManagement {
     //
     // Max age of Cookie
     private let maxAge: NSTimeInterval
+    
+    
     internal init(secret: String, cookieParms: [CookieParameter]?) {
         var name = "kitura-session-id"
         var path = "/"
@@ -67,6 +69,7 @@ internal class CookieManagement {
         self.maxAge = maxAge
     }
 
+    
     internal func getSessionId(request: RouterRequest, response: RouterResponse) -> (String?, Bool) {
         var sessionId: String? = nil
         var newSession = false
@@ -76,23 +79,24 @@ internal class CookieManagement {
         }
         else {
             // No Cookie
-            #if os(Linux)
+#if os(Linux)
             sessionId = NSUUID().UUIDString
-            #else
+#else
             sessionId = NSUUID().uuidString
-            #endif
+#endif
             newSession = true
         }
         return (sessionId, newSession)
     }
 
+    
     internal func addCookie(sessionId: String, domain: String, response: RouterResponse) {
 
-        #if os(Linux)
+#if os(Linux)
             typealias PropValue = Any
-        #else
+#else
             typealias PropValue = AnyObject
-        #endif
+#endif
 
         var properties: [String: PropValue] = [NSHTTPCookieName: name,
                           NSHTTPCookieValue: sessionId,
