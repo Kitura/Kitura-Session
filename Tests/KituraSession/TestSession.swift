@@ -42,7 +42,7 @@ class TestSession : XCTestCase, KituraTest {
     
     
     func testCookieParams1() {
-        let router = setupRouter1()
+        let router = setupAdvancedSessionRouter()
         performServerTest(router: router, asyncTasks: {
             self.performRequest(method: "get", path: "/1/session", callback: {response in
                 XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")
@@ -62,7 +62,7 @@ class TestSession : XCTestCase, KituraTest {
     }
     
 
-    func setupRouter1() -> Router {
+    func setupAdvancedSessionRouter() -> Router {
         let router = Router()
         
         router.all(middleware: Session(secret: "Very very secret.....", cookie: [.Name(cookie1Name), .Path("/1"), .MaxAge(2)]))
@@ -79,7 +79,7 @@ class TestSession : XCTestCase, KituraTest {
     
     
     func testCookieParams2() {
-        let router = setupRouter2()
+        let router = setupBasicSessionRouter()
         performServerTest(router: router, asyncTasks: {
             self.performRequest(method: "get", path: "/2/session", callback: {response in
                 XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")
@@ -100,24 +100,8 @@ class TestSession : XCTestCase, KituraTest {
     }
     
     
-    func setupRouter2() -> Router {
-        let router = Router()
-        
-        router.all(middleware: Session(secret: "Very very secret....."))
-        
-        router.get("/2/session") {request, response, next in
-            request.session?[sessionTestKey] = JSON(sessionTestValue)
-            response.status(HttpStatusCode.NO_CONTENT)
-            
-            next()
-        }
-        
-        return router
-    }
-    
-    
     func testSimpleSession() {
-        let router = setupRouter3()
+        let router = setupBasicSessionRouter()
         performServerTest(router: router, asyncTasks: {
             self.performRequest(method: "post", path: "/3/session", callback: {response in
                 XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")
@@ -151,7 +135,7 @@ class TestSession : XCTestCase, KituraTest {
     
 
     func testCookieName() {
-        let router = setupRouter3()
+        let router = setupBasicSessionRouter()
         performServerTest(router: router, asyncTasks: {
             self.performRequest(method: "post", path: "/3/session", callback: {response in
                 XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")
@@ -177,7 +161,7 @@ class TestSession : XCTestCase, KituraTest {
 
     
     func testCookieValue() {
-        let router = setupRouter3()
+        let router = setupBasicSessionRouter()
         performServerTest(router: router, asyncTasks: {
             self.performRequest(method: "post", path: "/3/session", callback: {response in
                 XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")
@@ -200,11 +184,18 @@ class TestSession : XCTestCase, KituraTest {
         })
     }
 
-    func setupRouter3() -> Router {
+    func setupBasicSessionRouter() -> Router {
         let router = Router()
         
         router.all(middleware: Session(secret: "Very very secret....."))
         
+        router.get("/2/session") {request, response, next in
+            request.session?[sessionTestKey] = JSON(sessionTestValue)
+            response.status(HttpStatusCode.NO_CONTENT)
+            
+            next()
+        }
+
         router.post("/3/session") {request, response, next in
             request.session?[sessionTestKey] = JSON(sessionTestValue)
             response.status(HttpStatusCode.NO_CONTENT)
