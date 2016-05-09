@@ -102,13 +102,13 @@ internal class CookieManagement {
         var properties: [String: PropValue] = [NSHTTPCookieName: name,
                                                NSHTTPCookieValue: sessionId,
                                                NSHTTPCookieDomain: domain,
-                                               NSHTTPCookiePath: path,
-                                               NSHTTPCookieVersion: "1"]
+                                               NSHTTPCookiePath: path]
         if  secure  {
             properties[NSHTTPCookieSecure] = "Yes"
         }
         if  maxAge > 0.0  {
             properties[NSHTTPCookieMaximumAge] = String(Int(maxAge))
+            properties[NSHTTPCookieVersion] = "1"
         }
         let cookie = NSHTTPCookie(properties: properties)
         response.cookies[name] = cookie
