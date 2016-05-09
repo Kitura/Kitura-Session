@@ -14,11 +14,11 @@
  * limitations under the License.
  **/
 
-import PackageDescription
+import XCTest
 
-let package = Package(
-    name: "Kitura-Session",
-    dependencies: [
-        .Package(url: "https://github.com/IBM-Swift/Kitura.git", majorVersion: 0, minor: 13),
-    ]
-)
+@testable import KituraSessionTestSuite
+
+
+XCTMain([
+            testCase(TestSession.allTests),
+    ])

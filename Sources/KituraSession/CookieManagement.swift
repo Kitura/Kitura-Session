@@ -20,23 +20,23 @@ import LoggerAPI
 import Foundation
 
 internal class CookieManagement {
-
+    
     //
     // Secret used to encrypt/decrypt a cookie
     private let secret: String
-
+    
     //
     // Cookie name
     private let name: String
-
+    
     //
     // Cookie path
     private let path: String
-
+    
     //
     // Cookie is secure
     private let secure: Bool
-
+    
     //
     // Max age of Cookie
     private let maxAge: NSTimeInterval
@@ -50,63 +50,65 @@ internal class CookieManagement {
         if  let cookieParms = cookieParms  {
             for  parm in cookieParms  {
                 switch(parm) {
-                    case .Name(let pName):
-                        name = pName
-                    case .Path(let pPath):
-                        path = pPath
-                    case .Secure(let pSecure):
-                        secure = pSecure
-                    case .MaxAge(let pMaxAge):
-                        maxAge = pMaxAge
+                case .Name(let pName):
+                    name = pName
+                case .Path(let pPath):
+                    path = pPath
+                case .Secure(let pSecure):
+                    secure = pSecure
+                case .MaxAge(let pMaxAge):
+                    maxAge = pMaxAge
                 }
             }
         }
-
+        
         self.secret = secret
         self.name = name
         self.path = path
         self.secure = secure
         self.maxAge = maxAge
+        
     }
-
+    
     
     internal func getSessionId(request: RouterRequest, response: RouterResponse) -> (String?, Bool) {
         var sessionId: String? = nil
         var newSession = false
-
+        
         if  let cookie = request.cookies[name]  {
             sessionId = cookie.value
         }
         else {
             // No Cookie
-#if os(Linux)
-            sessionId = NSUUID().UUIDString
-#else
-            sessionId = NSUUID().uuidString
-#endif
+            #if os(Linux)
+                sessionId = NSUUID().UUIDString
+            #else
+                sessionId = NSUUID().uuidString
+            #endif
             newSession = true
         }
         return (sessionId, newSession)
     }
-
+    
     
     internal func addCookie(sessionId: String, domain: String, response: RouterResponse) {
-
-#if os(Linux)
+        
+        #if os(Linux)
             typealias PropValue = Any
-#else
+        #else
             typealias PropValue = AnyObject
-#endif
-
+        #endif
+        
         var properties: [String: PropValue] = [NSHTTPCookieName: name,
-                          NSHTTPCookieValue: sessionId,
-                          NSHTTPCookieDomain: domain,
-                          NSHTTPCookiePath: path]
+                                               NSHTTPCookieValue: sessionId,
+                                               NSHTTPCookieDomain: domain,
+                                               NSHTTPCookiePath: path,
+                                               NSHTTPCookieVersion: "1"]
         if  secure  {
             properties[NSHTTPCookieSecure] = "Yes"
         }
         if  maxAge > 0.0  {
-            properties[NSHTTPCookieExpires] = NSDate(timeIntervalSinceNow: maxAge)
+            properties[NSHTTPCookieMaximumAge] = String(Int(maxAge))
         }
         let cookie = NSHTTPCookie(properties: properties)
         response.cookies[name] = cookie
