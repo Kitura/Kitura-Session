@@ -49,7 +49,7 @@ class TestSession : XCTestCase, KituraTest {
                 guard (response != nil) else {
                     return
                 }
-                XCTAssertEqual(response!.statusCode, HttpStatusCode.NO_CONTENT, "Session route did not match single path request")
+                XCTAssertEqual(response!.statusCode, HTTPStatusCode.NoContent, "Session route did not match single path request")
                 let (cookie1, cookie1Expire) = CookieUtils.cookieFrom(response: response!, named: cookie1Name)
                 XCTAssert(cookie1 != nil, "Cookie \(cookie1Name) wasn't found in the response.")
                 guard (cookie1 != nil) else {
@@ -69,7 +69,7 @@ class TestSession : XCTestCase, KituraTest {
         
         router.get("/1/session") {request, response, next in
             request.session?[sessionTestKey] = JSON(sessionTestValue)
-            response.status(HttpStatusCode.NO_CONTENT)
+            response.status(HTTPStatusCode.NoContent)
             
             next()
         }
@@ -86,7 +86,7 @@ class TestSession : XCTestCase, KituraTest {
                 guard (response != nil) else {
                     return
                 }
-                XCTAssertEqual(response!.statusCode, HttpStatusCode.NO_CONTENT, "Session route did not match single path request")
+                XCTAssertEqual(response!.statusCode, HTTPStatusCode.NoContent, "Session route did not match single path request")
                 let (cookie2, cookie2Expire) = CookieUtils.cookieFrom(response: response!, named: cookieDefaultName)
                 XCTAssertNotNil(cookie2, "Cookie \(cookieDefaultName) wasn't found in the response.")
                 guard (cookie2 != nil) else {
@@ -119,7 +119,7 @@ class TestSession : XCTestCase, KituraTest {
                     guard (response != nil) else {
                         return
                     }
-                    XCTAssertEqual(response!.statusCode, HttpStatusCode.OK, "HTTP Status code was \(response!.statusCode)")
+                    XCTAssertEqual(response!.statusCode, HTTPStatusCode.OK, "HTTP Status code was \(response!.statusCode)")
                     do {
                         let body = try response!.readString()
                         XCTAssertEqual(body!, sessionTestValue, "Body \(body) is not equal to \(sessionTestValue)")
@@ -153,7 +153,7 @@ class TestSession : XCTestCase, KituraTest {
                     guard (response != nil) else {
                         return
                     }
-                    XCTAssertEqual(response!.statusCode, HttpStatusCode.NO_CONTENT, "Session route did not match single path request")
+                    XCTAssertEqual(response!.statusCode, HTTPStatusCode.NoContent, "Session route did not match single path request")
                     },  headers: ["Cookie": "\(cookie1Name)=\(cookie3value); Zxcv=tyuiop"])
             })
         })
@@ -178,7 +178,7 @@ class TestSession : XCTestCase, KituraTest {
                     guard (response != nil) else {
                         return
                     }
-                    XCTAssertEqual(response!.statusCode, HttpStatusCode.NO_CONTENT, "Session route did not match single path request")
+                    XCTAssertEqual(response!.statusCode, HTTPStatusCode.NoContent, "Session route did not match single path request")
                     },  headers: ["Cookie": "\(cookieDefaultName)=lalala; Zxcv=tyuiop"])
             })
         })
@@ -191,14 +191,14 @@ class TestSession : XCTestCase, KituraTest {
         
         router.get("/2/session") {request, response, next in
             request.session?[sessionTestKey] = JSON(sessionTestValue)
-            response.status(HttpStatusCode.NO_CONTENT)
+            response.status(.NoContent)
             
             next()
         }
 
         router.post("/3/session") {request, response, next in
             request.session?[sessionTestKey] = JSON(sessionTestValue)
-            response.status(HttpStatusCode.NO_CONTENT)
+            response.status(.NoContent)
             
             next()
         }
@@ -207,10 +207,10 @@ class TestSession : XCTestCase, KituraTest {
             response.setHeader("Content-Type", value: "text/plain; charset=utf-8")
             do {
                 if let value = request.session?[sessionTestKey].string {
-                    try response.status(HttpStatusCode.OK).end("\(value)")
+                    try response.status(HTTPStatusCode.OK).end("\(value)")
                 }
                 else {
-                    response.status(HttpStatusCode.NO_CONTENT)
+                    response.status(HTTPStatusCode.NoContent)
                 }
             }
             catch {}
