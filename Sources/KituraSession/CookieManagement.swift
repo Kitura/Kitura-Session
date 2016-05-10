@@ -50,31 +50,31 @@ internal class CookieManagement {
         if  let cookieParms = cookieParms  {
             for  parm in cookieParms  {
                 switch(parm) {
-                case .Name(let pName):
+                case .name(let pName):
                     name = pName
-                case .Path(let pPath):
+                case .path(let pPath):
                     path = pPath
-                case .Secure(let pSecure):
+                case .secure(let pSecure):
                     secure = pSecure
-                case .MaxAge(let pMaxAge):
+                case .maxAge(let pMaxAge):
                     maxAge = pMaxAge
                 }
             }
         }
-        
+
         self.secret = secret
         self.name = name
         self.path = path
         self.secure = secure
         self.maxAge = maxAge
-        
+
     }
-    
-    
+
+
     internal func getSessionId(request: RouterRequest, response: RouterResponse) -> (String?, Bool) {
         var sessionId: String? = nil
         var newSession = false
-        
+
         if  let cookie = request.cookies[name]  {
             sessionId = cookie.value
         }

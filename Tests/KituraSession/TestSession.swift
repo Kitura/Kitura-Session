@@ -49,7 +49,7 @@ class TestSession : XCTestCase, KituraTest {
                 guard (response != nil) else {
                     return
                 }
-                XCTAssertEqual(response!.statusCode, HTTPStatusCode.NoContent, "Session route did not match single path request")
+                XCTAssertEqual(response!.statusCode, HTTPStatusCode.noContent, "Session route did not match single path request")
                 let (cookie1, cookie1Expire) = CookieUtils.cookieFrom(response: response!, named: cookie1Name)
                 XCTAssert(cookie1 != nil, "Cookie \(cookie1Name) wasn't found in the response.")
                 guard (cookie1 != nil) else {
@@ -60,24 +60,24 @@ class TestSession : XCTestCase, KituraTest {
             })
         })
     }
-    
+
 
     func setupAdvancedSessionRouter() -> Router {
         let router = Router()
-        
-        router.all(middleware: Session(secret: "Very very secret.....", cookie: [.Name(cookie1Name), .Path("/1"), .MaxAge(2)]))
-        
+
+        router.all(middleware: Session(secret: "Very very secret.....", cookie: [.name(cookie1Name), .path("/1"), .maxAge(2)]))
+
         router.get("/1/session") {request, response, next in
             request.session?[sessionTestKey] = JSON(sessionTestValue)
-            response.status(HTTPStatusCode.NoContent)
-            
+            response.status(.noContent)
+
             next()
         }
-        
+
         return router
     }
-    
-    
+
+
     func testCookieParams2() {
         let router = setupBasicSessionRouter()
         performServerTest(router: router, asyncTasks: {
@@ -86,7 +86,7 @@ class TestSession : XCTestCase, KituraTest {
                 guard (response != nil) else {
                     return
                 }
-                XCTAssertEqual(response!.statusCode, HTTPStatusCode.NoContent, "Session route did not match single path request")
+                XCTAssertEqual(response!.statusCode, HTTPStatusCode.noContent, "Session route did not match single path request")
                 let (cookie2, cookie2Expire) = CookieUtils.cookieFrom(response: response!, named: cookieDefaultName)
                 XCTAssertNotNil(cookie2, "Cookie \(cookieDefaultName) wasn't found in the response.")
                 guard (cookie2 != nil) else {
@@ -153,13 +153,13 @@ class TestSession : XCTestCase, KituraTest {
                     guard (response != nil) else {
                         return
                     }
-                    XCTAssertEqual(response!.statusCode, HTTPStatusCode.NoContent, "Session route did not match single path request")
+                    XCTAssertEqual(response!.statusCode, HTTPStatusCode.noContent, "Session route did not match single path request")
                     },  headers: ["Cookie": "\(cookie1Name)=\(cookie3value); Zxcv=tyuiop"])
             })
         })
     }
 
-    
+
     func testCookieValue() {
         let router = setupBasicSessionRouter()
         performServerTest(router: router, asyncTasks: {
@@ -178,7 +178,7 @@ class TestSession : XCTestCase, KituraTest {
                     guard (response != nil) else {
                         return
                     }
-                    XCTAssertEqual(response!.statusCode, HTTPStatusCode.NoContent, "Session route did not match single path request")
+                    XCTAssertEqual(response!.statusCode, HTTPStatusCode.noContent, "Session route did not match single path request")
                     },  headers: ["Cookie": "\(cookieDefaultName)=lalala; Zxcv=tyuiop"])
             })
         })
@@ -186,31 +186,31 @@ class TestSession : XCTestCase, KituraTest {
 
     func setupBasicSessionRouter() -> Router {
         let router = Router()
-        
+
         router.all(middleware: Session(secret: "Very very secret....."))
-        
+
         router.get("/2/session") {request, response, next in
             request.session?[sessionTestKey] = JSON(sessionTestValue)
-            response.status(.NoContent)
-            
+            response.status(.noContent)
+
             next()
         }
 
         router.post("/3/session") {request, response, next in
             request.session?[sessionTestKey] = JSON(sessionTestValue)
-            response.status(.NoContent)
-            
+            response.status(.noContent)
+
             next()
         }
-        
+
         router.get("/3/session") {request, response, next in
             response.setHeader("Content-Type", value: "text/plain; charset=utf-8")
             do {
                 if let value = request.session?[sessionTestKey].string {
-                    try response.status(HTTPStatusCode.OK).end("\(value)")
+                    try response.status(.OK).end("\(value)")
                 }
                 else {
-                    response.status(HTTPStatusCode.NoContent)
+                    response.status(.noContent)
                 }
             }
             catch {}

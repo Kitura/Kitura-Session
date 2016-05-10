@@ -17,5 +17,5 @@
 import Foundation
 
 public enum CookieParameter {
-    case Name(String), Path(String), Secure(Bool), MaxAge(NSTimeInterval)
+    case name(String), path(String), secure(Bool), maxAge(NSTimeInterval)
 }

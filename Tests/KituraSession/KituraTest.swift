@@ -51,13 +51,13 @@ extension KituraTest {
             }
         }
         allHeaders["Content-Type"] = "text/plain"
-        let req = HTTP.request([.Method(method), .Hostname("localhost"), .Port(8090), .Path(path), .Headers(allHeaders)], callback: callback)
+        let req = HTTP.request([.method(method), .hostname("localhost"), .port(8090), .path(path), .headers(allHeaders)], callback: callback)
         if let requestModifier = requestModifier {
             requestModifier(req)
         }
         req.end()
     }
-    
+
     private func setupServer(port: Int, delegate: HTTPServerDelegate) -> HTTPServer {
         return HTTPServer.listen(port: port, delegate: delegate,
                                  notOnMainQueue:true)
