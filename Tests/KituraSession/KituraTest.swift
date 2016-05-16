@@ -31,7 +31,7 @@ extension KituraTest {
     
     func performServerTest(router: HTTPServerDelegate, asyncTasks: () -> Void...) {
         let server = setupServer(port: 8090, delegate: router)
-        let requestQueue = Queue(type: QueueType.SERIAL)
+        let requestQueue = Queue(type: .serial)
         
         for asyncTask in asyncTasks {
             requestQueue.queueAsync(asyncTask)
