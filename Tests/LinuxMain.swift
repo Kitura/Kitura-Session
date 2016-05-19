@@ -14,8 +14,11 @@
  * limitations under the License.
  **/
 
-import Foundation
+import XCTest
 
-public enum CookieParameter {
-    case name(String), path(String), secure(Bool), maxAge(NSTimeInterval)
-}
+@testable import KituraSessionTestSuite
+
+
+XCTMain([
+            testCase(TestSession.allTests),
+    ])

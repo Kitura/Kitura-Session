@@ -20,27 +20,28 @@ import LoggerAPI
 import Foundation
 
 internal class CookieManagement {
-
-    //
-    // Secret used to encrypt/decrypt a cookie
-    private let secret: String
-
+    
     //
     // Cookie name
     private let name: String
-
+    
     //
     // Cookie path
     private let path: String
-
+    
     //
     // Cookie is secure
     private let secure: Bool
-
+    
     //
     // Max age of Cookie
     private let maxAge: NSTimeInterval
-    internal init(secret: String, cookieParms: [CookieParameter]?) {
+    
+    //
+    // Cookie encoder/decoder
+    private let crypto: CookieCryptography
+    
+    internal init(cookieCrypto: CookieCryptography, cookieParms: [CookieParameter]?) {
         var name = "kitura-session-id"
         var path = "/"
         var secure = false
@@ -48,63 +49,73 @@ internal class CookieManagement {
         if  let cookieParms = cookieParms  {
             for  parm in cookieParms  {
                 switch(parm) {
-                    case .Name(let pName):
-                        name = pName
-                    case .Path(let pPath):
-                        path = pPath
-                    case .Secure(let pSecure):
-                        secure = pSecure
-                    case .MaxAge(let pMaxAge):
-                        maxAge = pMaxAge
+                case .name(let pName):
+                    name = pName
+                case .path(let pPath):
+                    path = pPath
+                case .secure(let pSecure):
+                    secure = pSecure
+                case .maxAge(let pMaxAge):
+                    maxAge = pMaxAge
                 }
             }
         }
-
-        self.secret = secret
+        
         self.name = name
         self.path = path
         self.secure = secure
         self.maxAge = maxAge
+        
+        crypto = cookieCrypto
     }
-
+    
+    
     internal func getSessionId(request: RouterRequest, response: RouterResponse) -> (String?, Bool) {
         var sessionId: String? = nil
         var newSession = false
-
-        if  let cookie = request.cookies[name]  {
-            sessionId = cookie.value
+        
+        if  let cookie = request.cookies[name],
+            let decodedCookieValue = crypto.decode(cookie.value) {
+            sessionId = decodedCookieValue
+            newSession = false
         }
         else {
             // No Cookie
             #if os(Linux)
-            sessionId = NSUUID().UUIDString
+                sessionId = NSUUID().UUIDString
             #else
-            sessionId = NSUUID().uuidString
+                sessionId = NSUUID().uuidString
             #endif
             newSession = true
         }
         return (sessionId, newSession)
     }
-
-    internal func addCookie(sessionId: String, domain: String, response: RouterResponse) {
-
+    
+    
+    internal func addCookie(sessionId: String, domain: String, response: RouterResponse) -> Bool {
+        
         #if os(Linux)
             typealias PropValue = Any
         #else
             typealias PropValue = AnyObject
         #endif
-
+        
+        guard let encodedSessionId = crypto.encode(sessionId) else {
+            return false
+        }
         var properties: [String: PropValue] = [NSHTTPCookieName: name,
-                          NSHTTPCookieValue: sessionId,
-                          NSHTTPCookieDomain: domain,
-                          NSHTTPCookiePath: path]
+                                               NSHTTPCookieValue: encodedSessionId,
+                                               NSHTTPCookieDomain: domain,
+                                               NSHTTPCookiePath: path]
         if  secure  {
             properties[NSHTTPCookieSecure] = "Yes"
         }
         if  maxAge > 0.0  {
-            properties[NSHTTPCookieExpires] = NSDate(timeIntervalSinceNow: maxAge)
+            properties[NSHTTPCookieMaximumAge] = String(Int(maxAge))
+            properties[NSHTTPCookieVersion] = "1"
         }
         let cookie = NSHTTPCookie(properties: properties)
         response.cookies[name] = cookie
+        return true
     }
 }
