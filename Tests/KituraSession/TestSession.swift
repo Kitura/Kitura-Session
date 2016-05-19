@@ -121,13 +121,15 @@ class TestSession : XCTestCase, KituraTest {
                     }
                     XCTAssertEqual(response!.statusCode, HTTPStatusCode.OK, "HTTP Status code was \(response!.statusCode)")
                     do {
-                        let body = try response!.readString()
-                        XCTAssertEqual(body!, sessionTestValue, "Body \(body) is not equal to \(sessionTestValue)")
+                        guard let body = try response!.readString() else {
+                            XCTFail("No response body")
+                            return
+                        }
+                        XCTAssertEqual(body, sessionTestValue, "Body \(body) is not equal to \(sessionTestValue)")
                     }
                     catch{
                         XCTFail("No response body")
                     }
-                    
                 },  headers: ["Cookie": "\(cookieDefaultName)=\(cookie3value); Zxcv=tyuiop"])
            })
         })
@@ -204,7 +206,7 @@ class TestSession : XCTestCase, KituraTest {
         }
 
         router.get("/3/session") {request, response, next in
-            response.setHeader("Content-Type", value: "text/plain; charset=utf-8")
+            response.headers.append("Content-Type", value: "text/plain; charset=utf-8")
             do {
                 if let value = request.session?[sessionTestKey].string {
                     try response.status(.OK).end("\(value)")

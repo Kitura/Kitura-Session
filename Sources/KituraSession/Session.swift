@@ -48,7 +48,8 @@ public class Session: RouterMiddleware {
             self.store = InMemoryStore()
         }
 
-        cookieManager = CookieManagement(secret: secret, cookieParms: cookie)
+        let cookieCrypto = CookieCryptography(secret: secret)
+        cookieManager = CookieManagement(cookieCrypto: cookieCrypto, cookieParms: cookie)
     }
 
     public func handle(request: RouterRequest, response: RouterResponse, next: () -> Void) {
@@ -59,7 +60,11 @@ public class Session: RouterMiddleware {
             let preFlushHandler: PreFlushLifecycleHandler = {request, response in
                 if  let session = request.session {
                     if  newSession  &&  !session.isEmpty  {
-                        self.cookieManager.addCookie(sessionId: session.id, domain: request.hostname, response: response)
+                        guard self.cookieManager.addCookie(sessionId: session.id, domain: request.hostname, response: response) == true else {
+                            response.status(.internalServerError)
+                            next()
+                            return
+                        }
                     }
                     if  session.isDirty  {
                         session.save() {error in

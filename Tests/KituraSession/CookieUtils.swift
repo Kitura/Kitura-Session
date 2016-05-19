@@ -23,7 +23,7 @@ class CookieUtils {
     static func cookieFrom(response: ClientResponse, named: String) -> (NSHTTPCookie?, String?) {
         var resultCookie: NSHTTPCookie? = nil
         var resultExpire: String?
-        for (headerKey, headerValues) in response.headersAsArrays  {
+        for (headerKey, headerValues) in response.headers  {
             let lowercaseHeaderKey = headerKey.lowercased()
             if  lowercaseHeaderKey  ==  "set-cookie"  {
                 for headerValue in headerValues {

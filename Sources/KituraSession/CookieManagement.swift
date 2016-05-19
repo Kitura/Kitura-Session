@@ -22,10 +22,6 @@ import Foundation
 internal class CookieManagement {
     
     //
-    // Secret used to encrypt/decrypt a cookie
-    private let secret: String
-    
-    //
     // Cookie name
     private let name: String
     
@@ -41,8 +37,11 @@ internal class CookieManagement {
     // Max age of Cookie
     private let maxAge: NSTimeInterval
     
+    //
+    // Cookie encoder/decoder
+    private let crypto: CookieCryptography
     
-    internal init(secret: String, cookieParms: [CookieParameter]?) {
+    internal init(cookieCrypto: CookieCryptography, cookieParms: [CookieParameter]?) {
         var name = "kitura-session-id"
         var path = "/"
         var secure = false
@@ -61,22 +60,24 @@ internal class CookieManagement {
                 }
             }
         }
-
-        self.secret = secret
+        
         self.name = name
         self.path = path
         self.secure = secure
         self.maxAge = maxAge
-
+        
+        crypto = cookieCrypto
     }
-
-
+    
+    
     internal func getSessionId(request: RouterRequest, response: RouterResponse) -> (String?, Bool) {
         var sessionId: String? = nil
         var newSession = false
-
-        if  let cookie = request.cookies[name]  {
-            sessionId = cookie.value
+        
+        if  let cookie = request.cookies[name],
+            let decodedCookieValue = crypto.decode(cookie.value) {
+            sessionId = decodedCookieValue
+            newSession = false
         }
         else {
             // No Cookie
@@ -91,7 +92,7 @@ internal class CookieManagement {
     }
     
     
-    internal func addCookie(sessionId: String, domain: String, response: RouterResponse) {
+    internal func addCookie(sessionId: String, domain: String, response: RouterResponse) -> Bool {
         
         #if os(Linux)
             typealias PropValue = Any
@@ -99,8 +100,11 @@ internal class CookieManagement {
             typealias PropValue = AnyObject
         #endif
         
+        guard let encodedSessionId = crypto.encode(sessionId) else {
+            return false
+        }
         var properties: [String: PropValue] = [NSHTTPCookieName: name,
-                                               NSHTTPCookieValue: sessionId,
+                                               NSHTTPCookieValue: encodedSessionId,
                                                NSHTTPCookieDomain: domain,
                                                NSHTTPCookiePath: path]
         if  secure  {
@@ -112,5 +116,6 @@ internal class CookieManagement {
         }
         let cookie = NSHTTPCookie(properties: properties)
         response.cookies[name] = cookie
+        return true
     }
 }
