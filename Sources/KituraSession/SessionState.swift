@@ -48,7 +48,7 @@ public class SessionState {
     internal init(id: String, store: Store) {
         self.id = id
         self.store = store
-        state = JSON([String: SessionStateObjectType]() as AnyObject)
+        state = JSON([String: SessionStateObjectType]() as SessionStateObjectType)
     }
 
     public func reload(callback: (NSError?) -> Void) {
@@ -59,7 +59,7 @@ public class SessionState {
                 }
                 else {
                     // Not found in store
-                    self.state = JSON([String: SessionStateObjectType]() as AnyObject)
+                    self.state = JSON([String: SessionStateObjectType]() as SessionStateObjectType)
                 }
                 self.isDirty = false
             }
@@ -79,7 +79,7 @@ public class SessionState {
 
     public func destroy(callback: (NSError?) -> Void) {
         store.delete(sessionId: id) { error in
-            self.state = JSON([String: SessionStateObjectType]() as AnyObject)
+            self.state = JSON([String: SessionStateObjectType]() as SessionStateObjectType)
             self.isDirty = false
             callback(error)
         }

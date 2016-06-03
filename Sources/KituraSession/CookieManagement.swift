@@ -103,10 +103,10 @@ internal class CookieManagement {
         guard let encodedSessionId = crypto.encode(sessionId) else {
             return false
         }
-        var properties: [String: PropValue] = [NSHTTPCookieName: name as AnyObject,
-                                               NSHTTPCookieValue: encodedSessionId as AnyObject,
-                                               NSHTTPCookieDomain: domain as AnyObject,
-                                               NSHTTPCookiePath: path as AnyObject]
+        var properties: [String: PropValue] = [NSHTTPCookieName: name as PropValue,
+                                               NSHTTPCookieValue: encodedSessionId as PropValue,
+                                               NSHTTPCookieDomain: domain as PropValue,
+                                               NSHTTPCookiePath: path as PropValue]
         if  secure  {
             properties[NSHTTPCookieSecure] = "Yes"
         }
