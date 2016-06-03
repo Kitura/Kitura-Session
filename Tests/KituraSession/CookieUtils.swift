@@ -38,8 +38,8 @@ class CookieUtils {
                             var properties = [String: AnyObject]()
                         #endif
                         
-                        properties[NSHTTPCookieName]  =  nameValue[0]
-                        properties[NSHTTPCookieValue] =  nameValue[1]
+                        properties[NSHTTPCookieName]  =  nameValue[0] as AnyObject
+                        properties[NSHTTPCookieValue] =  nameValue[1] as AnyObject
                         
                         for  part in parts[1..<parts.count] {
                             var pieces = part.components(separatedBy: "=")
@@ -48,9 +48,9 @@ class CookieUtils {
                             case "secure", "httponly":
                                 properties[NSHTTPCookieSecure] = "Yes"
                             case "path" where pieces.count == 2:
-                                properties[NSHTTPCookiePath] = pieces[1]
+                                properties[NSHTTPCookiePath] = pieces[1] as AnyObject
                             case "domain" where pieces.count == 2:
-                                properties[NSHTTPCookieDomain] = pieces[1]
+                                properties[NSHTTPCookieDomain] = pieces[1] as AnyObject
                             case "expires" where pieces.count == 2:
                                 resultExpire = pieces[1]
                             default:
