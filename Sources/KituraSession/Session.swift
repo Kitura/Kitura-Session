@@ -56,8 +56,8 @@ public class Session: RouterMiddleware {
         let (sessionId, newSession) = cookieManager.getSessionId(request: request, response: response)
         if  let sessionId = sessionId  {
             let session = SessionState(id: sessionId, store: store)
-            var previousPreFlushHandler: PreFlushLifecycleHandler? = nil
-            let preFlushHandler: PreFlushLifecycleHandler = {request, response in
+            var previousOnEndInvoked: LifecycleHandler? = nil
+            let onEndInvoked = {
                 if  let session = request.session {
                     if  newSession  &&  !session.isEmpty  {
                         guard self.cookieManager.addCookie(sessionId: session.id, domain: request.hostname, response: response) == true else {
@@ -83,9 +83,9 @@ public class Session: RouterMiddleware {
                         }
                     }
                 }
-                previousPreFlushHandler!(request: request, response: response)
+                previousOnEndInvoked!()
             }
-            previousPreFlushHandler = response.setPreFlushHandler(preFlushHandler)
+            previousOnEndInvoked = response.setOnEndInvoked(onEndInvoked)
 
             if  newSession {
                 request.session = session

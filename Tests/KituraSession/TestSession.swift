@@ -30,7 +30,7 @@ let cookieDefaultName = "kitura-session-id"
 
 class TestSession : XCTestCase, KituraTest {
     
-    static var allTests : [(String, TestSession -> () throws -> Void)] {
+    static var allTests : [(String, (TestSession) -> () throws -> Void)] {
         return [
                    ("testCookieParams1", testCookieParams1),
                    ("testCookieParams2", testCookieParams2),
@@ -40,6 +40,11 @@ class TestSession : XCTestCase, KituraTest {
         ]
     }
     
+    #if os(Linux)
+        typealias PropValue = Any
+    #else
+        typealias PropValue = AnyObject
+    #endif
     
     func testCookieParams1() {
         let router = setupAdvancedSessionRouter()
@@ -68,7 +73,7 @@ class TestSession : XCTestCase, KituraTest {
         router.all(middleware: Session(secret: "Very very secret.....", cookie: [.name(cookie1Name), .path("/1"), .maxAge(2)]))
 
         router.get("/1/session") {request, response, next in
-            request.session?[sessionTestKey] = JSON(sessionTestValue)
+            request.session?[sessionTestKey] = JSON(sessionTestValue as PropValue)
             response.status(.noContent)
 
             next()
@@ -192,14 +197,14 @@ class TestSession : XCTestCase, KituraTest {
         router.all(middleware: Session(secret: "Very very secret....."))
 
         router.get("/2/session") {request, response, next in
-            request.session?[sessionTestKey] = JSON(sessionTestValue)
+            request.session?[sessionTestKey] = JSON(sessionTestValue as PropValue)
             response.status(.noContent)
 
             next()
         }
 
         router.post("/3/session") {request, response, next in
-            request.session?[sessionTestKey] = JSON(sessionTestValue)
+            request.session?[sessionTestKey] = JSON(sessionTestValue as PropValue)
             response.status(.noContent)
 
             next()
