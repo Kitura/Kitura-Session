@@ -20,8 +20,13 @@ import Foundation
 import XCTest
 
 class CookieUtils {
-    static func cookieFrom(response: ClientResponse, named: String) -> (NSHTTPCookie?, String?) {
-        var resultCookie: NSHTTPCookie? = nil
+    #if os(Linux)
+    typealias HTTPCookieType = NSHTTPCookie
+    #else
+    typealias HTTPCookieType = HTTPCookie
+    #endif
+    static func cookieFrom(response: ClientResponse, named: String) -> (HTTPCookieType?, String?) {
+        var resultCookie: HTTPCookieType? = nil
         var resultExpire: String?
         for (headerKey, headerValues) in response.headers  {
             let lowercaseHeaderKey = headerKey.lowercased()
@@ -35,34 +40,55 @@ class CookieUtils {
                         #if os(Linux)
                             var properties = [String: Any]()
                             typealias PropValue = Any
-                        #else
-                            var properties = [String: AnyObject]()
-                            typealias PropValue = AnyObject
-                        #endif
-                        
-                        properties[NSHTTPCookieName]  =  nameValue[0] as PropValue
-                        properties[NSHTTPCookieValue] =  nameValue[1] as PropValue
-                        
-                        for  part in parts[1..<parts.count] {
-                            var pieces = part.components(separatedBy: "=")
-                            let piece = pieces[0].lowercased()
-                            switch(piece) {
-                            case "secure", "httponly":
-                                properties[NSHTTPCookieSecure] = "Yes"
-                            case "path" where pieces.count == 2:
-                                properties[NSHTTPCookiePath] = pieces[1] as PropValue
-                            case "domain" where pieces.count == 2:
-                                properties[NSHTTPCookieDomain] = pieces[1] as PropValue
-                            case "expires" where pieces.count == 2:
-                                resultExpire = pieces[1]
-                            default:
-                                XCTFail("Malformed Set-Cookie header \(headerValue)")
+                            properties[NSHTTPCookieName]  =  nameValue[0] as PropValue
+                            properties[NSHTTPCookieValue] =  nameValue[1] as PropValue
+                            
+                            for  part in parts[1..<parts.count] {
+                                var pieces = part.components(separatedBy: "=")
+                                let piece = pieces[0].lowercased()
+                                switch(piece) {
+                                case "secure", "httponly":
+                                    properties[NSHTTPCookieSecure] = "Yes"
+                                case "path" where pieces.count == 2:
+                                    properties[NSHTTPCookiePath] = pieces[1] as PropValue
+                                case "domain" where pieces.count == 2:
+                                    properties[NSHTTPCookieDomain] = pieces[1] as PropValue
+                                case "expires" where pieces.count == 2:
+                                    resultExpire = pieces[1]
+                                default:
+                                    XCTFail("Malformed Set-Cookie header \(headerValue)")
+                                }
                             }
-                        }
-                        
-                        XCTAssertNotNil(properties[NSHTTPCookieDomain], "Malformed Set-Cookie header \(headerValue)")
-                        resultCookie = NSHTTPCookie(properties: properties)
-                        break
+                            
+                            XCTAssertNotNil(properties[NSHTTPCookieDomain], "Malformed Set-Cookie header \(headerValue)")
+                            resultCookie = NSHTTPCookie(properties: properties)
+                        #else
+                            var properties = [HTTPCookiePropertyKey: AnyObject]()
+                            
+                            properties[HTTPCookiePropertyKey.name]  =  nameValue[0]
+                            properties[HTTPCookiePropertyKey.value] =  nameValue[1]
+                            
+                            for  part in parts[1..<parts.count] {
+                                var pieces = part.components(separatedBy: "=")
+                                let piece = pieces[0].lowercased()
+                                switch(piece) {
+                                case "secure", "httponly":
+                                    properties[HTTPCookiePropertyKey.secure] = "Yes"
+                                case "path" where pieces.count == 2:
+                                    properties[HTTPCookiePropertyKey.path] = pieces[1]
+                                case "domain" where pieces.count == 2:
+                                    properties[HTTPCookiePropertyKey.domain] = pieces[1]
+                                case "expires" where pieces.count == 2:
+                                    resultExpire = pieces[1]
+                                default:
+                                    XCTFail("Malformed Set-Cookie header \(headerValue)")
+                                }
+                            }
+                            
+                            XCTAssertNotNil(properties[HTTPCookiePropertyKey.domain], "Malformed Set-Cookie header \(headerValue)")
+                            resultCookie = HTTPCookie(properties: properties)
+                        #endif
+                       break
                     }
                 }
             }

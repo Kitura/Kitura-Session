@@ -124,7 +124,11 @@ class CookieCryptography {
         var resultData = decryptedData
         // Remove padding
         resultData.removeSubrange(originalLength ..< decryptedData.count)
-        return String(data: CryptoUtils.data(from: resultData), encoding: NSUTF8StringEncoding)
+        #if os(Linux)
+            return String(data: CryptoUtils.data(from: resultData), encoding: NSUTF8StringEncoding)
+        #else
+            return String(data: CryptoUtils.data(from: resultData) as Data, encoding: String.Encoding.utf8)
+        #endif
     }
     
 }
