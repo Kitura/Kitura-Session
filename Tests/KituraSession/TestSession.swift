@@ -214,7 +214,7 @@ class TestSession : XCTestCase, KituraTest {
             response.headers.append("Content-Type", value: "text/plain; charset=utf-8")
             do {
                 if let value = request.session?[sessionTestKey].string {
-                    try response.status(.OK).end("\(value)")
+                    try response.status(.OK).send("\(value)").end()
                 }
                 else {
                     response.status(.noContent)
