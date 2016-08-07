@@ -20,13 +20,9 @@ import Foundation
 import XCTest
 
 class CookieUtils {
-    #if os(Linux)
-    typealias HTTPCookieType = NSHTTPCookie
-    #else
-    typealias HTTPCookieType = HTTPCookie
-    #endif
-    static func cookieFrom(response: ClientResponse, named: String) -> (HTTPCookieType?, String?) {
-        var resultCookie: HTTPCookieType? = nil
+    
+    static func cookieFrom(response: ClientResponse, named: String) -> (HTTPCookie?, String?) {
+        var resultCookie: HTTPCookie? = nil
         var resultExpire: String?
         for (headerKey, headerValues) in response.headers  {
             let lowercaseHeaderKey = headerKey.lowercased()
@@ -61,7 +57,7 @@ class CookieUtils {
                             }
                             
                             XCTAssertNotNil(properties[NSHTTPCookieDomain], "Malformed Set-Cookie header \(headerValue)")
-                            resultCookie = NSHTTPCookie(properties: properties)
+                            resultCookie = HTTPCookie(properties: properties)
                         #else
                             var properties = [HTTPCookiePropertyKey: AnyObject]()
                             
