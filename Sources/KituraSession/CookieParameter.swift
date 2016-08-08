@@ -16,12 +16,6 @@
 
 import Foundation
 
-#if os(Linux)
-    public enum CookieParameter {
-        case name(String), path(String), secure(Bool), maxAge(NSTimeInterval)
-    }
-#else
-    public enum CookieParameter {
-        case name(String), path(String), secure(Bool), maxAge(TimeInterval)
-    }
-#endif
+public enum CookieParameter {
+    case name(String), path(String), secure(Bool), maxAge(TimeInterval)
+}

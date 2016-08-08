@@ -19,13 +19,13 @@ import Foundation
 
 internal class InMemoryStore: Store {
 
-    private var store = [String: NSData]()
+    private var store = [String: Data]()
 
-    internal func load(sessionId: String, callback: (data: NSData?, error: NSError?) -> Void) {
+    internal func load(sessionId: String, callback: (data: Data?, error: NSError?) -> Void) {
         callback(data: store[sessionId], error: nil)
     }
 
-    internal func save(sessionId: String, data: NSData, callback: (error: NSError?) -> Void) {
+    internal func save(sessionId: String, data: Data, callback: (error: NSError?) -> Void) {
         store[sessionId] = data
         callback(error: nil)
     }

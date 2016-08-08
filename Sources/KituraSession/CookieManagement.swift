@@ -35,11 +35,8 @@ internal class CookieManagement {
     
     //
     // Max age of Cookie
-    #if os(Linux)
-    private let maxAge: NSTimeInterval
-    #else
     private let maxAge: TimeInterval
-    #endif
+
     //
     // Cookie encoder/decoder
     private let crypto: CookieCryptography
@@ -94,47 +91,42 @@ internal class CookieManagement {
         return (sessionId, newSession)
     }
     
-    #if os(Linux)
     internal func addCookie(sessionId: String, domain: String, response: RouterResponse) -> Bool {
-        typealias PropValue = Any
+        guard let encodedSessionId = crypto.encode(sessionId) else {
+            return false
+        }
+        
+        #if os(Linux)
+            typealias PropValue = Any
     
-        guard let encodedSessionId = crypto.encode(sessionId) else {
-            return false
-        }
-        var properties: [String: PropValue] = [NSHTTPCookieName: name as PropValue,
-                                               NSHTTPCookieValue: encodedSessionId as PropValue,
-                                               NSHTTPCookieDomain: domain as PropValue,
-                                               NSHTTPCookiePath: path as PropValue]
-        if  secure  {
-            properties[NSHTTPCookieSecure] = "Yes"
-        }
-        if  maxAge > 0.0  {
-            properties[NSHTTPCookieMaximumAge] = String(Int(maxAge)) as PropValue
-            properties[NSHTTPCookieVersion] = "1"
-        }
-        let cookie = NSHTTPCookie(properties: properties)
-        response.cookies[name] = cookie
-        return true
-    }
-    #else
-    internal func addCookie(sessionId: String, domain: String, response: RouterResponse) -> Bool {
-        guard let encodedSessionId = crypto.encode(sessionId) else {
-            return false
-        }
-        var properties: [HTTPCookiePropertyKey: AnyObject] = [HTTPCookiePropertyKey.name: name,
-                                                              HTTPCookiePropertyKey.value: encodedSessionId,
-                                                              HTTPCookiePropertyKey.domain: domain,
-                                                              HTTPCookiePropertyKey.path: path]
-        if  secure  {
-            properties[HTTPCookiePropertyKey.secure] = "Yes"
-        }
-        if  maxAge > 0.0  {
-            properties[HTTPCookiePropertyKey.maximumAge] = String(Int(maxAge))
-            properties[HTTPCookiePropertyKey.version] = "1"
-        }
+            var properties: [String: PropValue] = [NSHTTPCookieName: name as PropValue,
+                                                   NSHTTPCookieValue: encodedSessionId as PropValue,
+                                                   NSHTTPCookieDomain: domain as PropValue,
+                                                   NSHTTPCookiePath: path as PropValue]
+            if  secure  {
+                properties[NSHTTPCookieSecure] = "Yes"
+            }
+            if  maxAge > 0.0  {
+                properties[NSHTTPCookieMaximumAge] = String(Int(maxAge)) as PropValue
+                properties[NSHTTPCookieVersion] = "1"
+            }
+        
+        #else
+            var properties: [HTTPCookiePropertyKey: AnyObject] = [HTTPCookiePropertyKey.name: name,
+                                                                  HTTPCookiePropertyKey.value: encodedSessionId,
+                                                                  HTTPCookiePropertyKey.domain: domain,
+                                                                  HTTPCookiePropertyKey.path: path]
+            if  secure  {
+                properties[HTTPCookiePropertyKey.secure] = "Yes"
+            }
+            if  maxAge > 0.0  {
+                properties[HTTPCookiePropertyKey.maximumAge] = String(Int(maxAge))
+                properties[HTTPCookiePropertyKey.version] = "1"
+            }
+        #endif
+    
         let cookie = HTTPCookie(properties: properties)
         response.cookies[name] = cookie
         return true
     }
-    #endif
 }

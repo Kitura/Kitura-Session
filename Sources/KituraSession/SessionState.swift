@@ -52,7 +52,7 @@ public class SessionState {
     }
 
     public func reload(callback: (NSError?) -> Void) {
-        store.load(sessionId: id) {(data: NSData?, error: NSError?) in
+        store.load(sessionId: id) {(data: Data?, error: NSError?) in
             if  error == nil  {
                 if  let data = data  {
                     self.state = JSON(data: data, options: [])
