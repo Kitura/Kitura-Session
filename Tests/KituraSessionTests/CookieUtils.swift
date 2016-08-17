@@ -61,19 +61,19 @@ class CookieUtils {
                         #else
                             var properties = [HTTPCookiePropertyKey: AnyObject]()
                             
-                            properties[HTTPCookiePropertyKey.name]  =  nameValue[0]
-                            properties[HTTPCookiePropertyKey.value] =  nameValue[1]
+                            properties[HTTPCookiePropertyKey.name]  =  nameValue[0] as NSString
+                            properties[HTTPCookiePropertyKey.value] =  nameValue[1] as NSString
                             
                             for  part in parts[1..<parts.count] {
                                 var pieces = part.components(separatedBy: "=")
                                 let piece = pieces[0].lowercased()
                                 switch(piece) {
                                 case "secure", "httponly":
-                                    properties[HTTPCookiePropertyKey.secure] = "Yes"
+                                    properties[HTTPCookiePropertyKey.secure] = "Yes" as NSString
                                 case "path" where pieces.count == 2:
-                                    properties[HTTPCookiePropertyKey.path] = pieces[1]
+                                    properties[HTTPCookiePropertyKey.path] = pieces[1] as NSString
                                 case "domain" where pieces.count == 2:
-                                    properties[HTTPCookiePropertyKey.domain] = pieces[1]
+                                    properties[HTTPCookiePropertyKey.domain] = pieces[1] as NSString
                                 case "expires" where pieces.count == 2:
                                     resultExpire = pieces[1]
                                 default:
