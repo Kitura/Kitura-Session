@@ -17,9 +17,9 @@
 import XCTest
 
 @testable import KituraNet
-@testable import KituraSys
 
 import Foundation
+import Dispatch
 
 protocol KituraTest {}
 
@@ -29,15 +29,15 @@ extension KituraTest {
         sleep(10)
     }
     
-    func performServerTest(router: ServerDelegate, asyncTasks: () -> Void...) {
+    func performServerTest(router: ServerDelegate, asyncTasks: @escaping () -> Void...) {
         let server = setupServer(port: 8090, delegate: router)
-        let requestQueue = Queue(type: .serial)
+        let requestQueue = DispatchQueue(label: "Request queue")
         
         for asyncTask in asyncTasks {
-            requestQueue.enqueueAsynchronously(asyncTask)
+            requestQueue.async(execute: asyncTask)
         }
         
-        requestQueue.enqueueSynchronously {
+        requestQueue.sync {
             // blocks test until request completes
             server.stop()
         }
