@@ -81,11 +81,7 @@ internal class CookieManagement {
         }
         else {
             // No Cookie
-            #if os(Linux)
-                sessionId = NSUUID().UUIDString
-            #else
-                sessionId = NSUUID().uuidString
-            #endif
+            sessionId = NSUUID().uuidString
             newSession = true
         }
         return (sessionId, newSession)
