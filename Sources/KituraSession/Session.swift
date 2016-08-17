@@ -52,7 +52,7 @@ public class Session: RouterMiddleware {
         cookieManager = CookieManagement(cookieCrypto: cookieCrypto, cookieParms: cookie)
     }
 
-    public func handle(request: RouterRequest, response: RouterResponse, next: () -> Void) {
+    public func handle(request: RouterRequest, response: RouterResponse, next: @escaping () -> Void) {
         let (sessionId, newSession) = cookieManager.getSessionId(request: request, response: response)
         if  let sessionId = sessionId  {
             let session = SessionState(id: sessionId, store: store)

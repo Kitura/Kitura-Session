@@ -99,10 +99,11 @@ internal class CookieManagement {
         #if os(Linux)
             typealias PropValue = Any
     
-            var properties: [String: PropValue] = [NSHTTPCookieName: name as PropValue,
-                                                   NSHTTPCookieValue: encodedSessionId as PropValue,
-                                                   NSHTTPCookieDomain: domain as PropValue,
-                                                   NSHTTPCookiePath: path as PropValue]
+            var properties: [String: PropValue] =
+                        [NSHTTPCookieName: name as PropValue,
+                         NSHTTPCookieValue: encodedSessionId as PropValue,
+                         NSHTTPCookieDomain: domain as PropValue,
+                         NSHTTPCookiePath: path as PropValue]
             if  secure  {
                 properties[NSHTTPCookieSecure] = "Yes"
             }
@@ -112,16 +113,17 @@ internal class CookieManagement {
             }
         
         #else
-            var properties: [HTTPCookiePropertyKey: AnyObject] = [HTTPCookiePropertyKey.name: name,
-                                                                  HTTPCookiePropertyKey.value: encodedSessionId,
-                                                                  HTTPCookiePropertyKey.domain: domain,
-                                                                  HTTPCookiePropertyKey.path: path]
+            var properties: [HTTPCookiePropertyKey: AnyObject] =
+                        [HTTPCookiePropertyKey.name: name as NSString,
+                         HTTPCookiePropertyKey.value: encodedSessionId as NSString,
+                         HTTPCookiePropertyKey.domain: domain as NSString,
+                         HTTPCookiePropertyKey.path: path as NSString]
             if  secure  {
-                properties[HTTPCookiePropertyKey.secure] = "Yes"
+                properties[HTTPCookiePropertyKey.secure] = "Yes" as NSString
             }
             if  maxAge > 0.0  {
-                properties[HTTPCookiePropertyKey.maximumAge] = String(Int(maxAge))
-                properties[HTTPCookiePropertyKey.version] = "1"
+                properties[HTTPCookiePropertyKey.maximumAge] = String(Int(maxAge)) as NSString
+                properties[HTTPCookiePropertyKey.version] = "1" as NSString
             }
         #endif
     
