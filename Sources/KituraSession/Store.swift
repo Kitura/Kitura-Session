@@ -17,8 +17,8 @@
 import Foundation
 
 public protocol Store {
-    func load(sessionId: String, callback: (Data?, NSError?) -> Void)
-    func save(sessionId: String, data: Data, callback: (NSError?) -> Void)
-    func touch(sessionId: String, callback: (NSError?) -> Void)
-    func delete(sessionId: String, callback: (NSError?) -> Void)
+    func load(sessionId: String, callback: @escaping (Data?, NSError?) -> Void)
+    func save(sessionId: String, data: Data, callback: @escaping (NSError?) -> Void)
+    func touch(sessionId: String, callback: @escaping (NSError?) -> Void)
+    func delete(sessionId: String, callback: @escaping (NSError?) -> Void)
 }
