@@ -93,19 +93,17 @@ internal class CookieManagement {
         }
         
         #if os(Linux)
-            typealias PropValue = Any
-    
-            var properties: [String: PropValue] =
-                        [NSHTTPCookieName: name as PropValue,
-                         NSHTTPCookieValue: encodedSessionId as PropValue,
-                         NSHTTPCookieDomain: domain as PropValue,
-                         NSHTTPCookiePath: path as PropValue]
+            var properties: [HTTPCookiePropertyKey: Any] =
+                        [HTTPCookiePropertyKey.name: name,
+                         HTTPCookiePropertyKey.value: encodedSessionId,
+                         HTTPCookiePropertyKey.domain: domain,
+                         HTTPCookiePropertyKey.path: path]
             if  secure  {
-                properties[NSHTTPCookieSecure] = "Yes"
+                properties[HTTPCookiePropertyKey.secure] = "Yes"
             }
             if  maxAge > 0.0  {
-                properties[NSHTTPCookieMaximumAge] = String(Int(maxAge)) as PropValue
-                properties[NSHTTPCookieVersion] = "1"
+                properties[HTTPCookiePropertyKey.maximumAge] = String(Int(maxAge))
+                properties[HTTPCookiePropertyKey.version] = "1"
             }
         
         #else
