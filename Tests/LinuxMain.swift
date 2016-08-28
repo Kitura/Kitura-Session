@@ -16,7 +16,7 @@
 
 import XCTest
 
-@testable import KituraSessionTestSuite
+@testable import KituraSessionTests
 
 
 XCTMain([

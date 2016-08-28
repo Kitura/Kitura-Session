@@ -51,7 +51,7 @@ public class SessionState {
         state = JSON([String: SessionStateObjectType]() as SessionStateObjectType)
     }
 
-    public func reload(callback: (NSError?) -> Void) {
+    public func reload(callback: @escaping (NSError?) -> Void) {
         store.load(sessionId: id) {(data: Data?, error: NSError?) in
             if  error == nil  {
                 if  let data = data  {
@@ -67,7 +67,7 @@ public class SessionState {
         }
     }
 
-    public func save(callback: (NSError?) -> Void) {
+    public func save(callback: @escaping (NSError?) -> Void) {
         do {
             let data = try state.rawData()
             store.save(sessionId: id, data: data, callback: callback)
@@ -77,7 +77,7 @@ public class SessionState {
         }
     }
 
-    public func destroy(callback: (NSError?) -> Void) {
+    public func destroy(callback: @escaping (NSError?) -> Void) {
         store.delete(sessionId: id) { error in
             self.state = JSON([String: SessionStateObjectType]() as SessionStateObjectType)
             self.isDirty = false

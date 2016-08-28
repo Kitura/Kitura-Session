@@ -17,9 +17,9 @@
 import XCTest
 
 @testable import KituraNet
-@testable import KituraSys
 
 import Foundation
+import Dispatch
 
 protocol KituraTest {}
 
@@ -29,21 +29,21 @@ extension KituraTest {
         sleep(10)
     }
     
-    func performServerTest(router: ServerDelegate, asyncTasks: () -> Void...) {
+    func performServerTest(router: ServerDelegate, asyncTasks: @escaping () -> Void...) {
         let server = setupServer(port: 8090, delegate: router)
-        let requestQueue = Queue(type: .serial)
+        let requestQueue = DispatchQueue(label: "Request queue")
         
         for asyncTask in asyncTasks {
-            requestQueue.enqueueAsynchronously(asyncTask)
+            requestQueue.async(execute: asyncTask)
         }
         
-        requestQueue.enqueueSynchronously {
+        requestQueue.sync {
             // blocks test until request completes
             server.stop()
         }
     }
     
-    func performRequest(method: String, path: String, callback: ClientRequest.Callback, headers: [String: String]? = nil, requestModifier: ((ClientRequest) -> Void)? = nil) {
+    func performRequest(method: String, path: String, callback: @escaping ClientRequest.Callback, headers: [String: String]? = nil, requestModifier: ((ClientRequest) -> Void)? = nil) {
         var allHeaders = [String: String]()
         if  let headers = headers  {
             for  (headerName, headerValue) in headers  {
@@ -51,7 +51,9 @@ extension KituraTest {
             }
         }
         allHeaders["Content-Type"] = "text/plain"
-        let req = HTTP.request([.method(method), .hostname("localhost"), .port(8090), .path(path), .headers(allHeaders)], callback: callback)
+        let options: [ClientRequest.Options] =
+                [.method(method), .hostname("localhost"), .port(8090), .path(path), .headers(allHeaders)]
+        let req = HTTP.request(options, callback: callback)
         if let requestModifier = requestModifier {
             requestModifier(req)
         }

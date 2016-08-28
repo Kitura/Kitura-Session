@@ -34,33 +34,7 @@ class CookieUtils {
                     
                     if  nameValue[0] == named  {
                         #if os(Linux)
-                            var properties = [String: Any]()
-                            typealias PropValue = Any
-                            properties[NSHTTPCookieName]  =  nameValue[0] as PropValue
-                            properties[NSHTTPCookieValue] =  nameValue[1] as PropValue
-                            
-                            for  part in parts[1..<parts.count] {
-                                var pieces = part.components(separatedBy: "=")
-                                let piece = pieces[0].lowercased()
-                                switch(piece) {
-                                case "secure", "httponly":
-                                    properties[NSHTTPCookieSecure] = "Yes"
-                                case "path" where pieces.count == 2:
-                                    properties[NSHTTPCookiePath] = pieces[1] as PropValue
-                                case "domain" where pieces.count == 2:
-                                    properties[NSHTTPCookieDomain] = pieces[1] as PropValue
-                                case "expires" where pieces.count == 2:
-                                    resultExpire = pieces[1]
-                                default:
-                                    XCTFail("Malformed Set-Cookie header \(headerValue)")
-                                }
-                            }
-                            
-                            XCTAssertNotNil(properties[NSHTTPCookieDomain], "Malformed Set-Cookie header \(headerValue)")
-                            resultCookie = HTTPCookie(properties: properties)
-                        #else
-                            var properties = [HTTPCookiePropertyKey: AnyObject]()
-                            
+                            var properties = [HTTPCookiePropertyKey: Any]()
                             properties[HTTPCookiePropertyKey.name]  =  nameValue[0]
                             properties[HTTPCookiePropertyKey.value] =  nameValue[1]
                             
@@ -80,10 +54,33 @@ class CookieUtils {
                                     XCTFail("Malformed Set-Cookie header \(headerValue)")
                                 }
                             }
+                        #else
+                            var properties = [HTTPCookiePropertyKey: AnyObject]()
                             
-                            XCTAssertNotNil(properties[HTTPCookiePropertyKey.domain], "Malformed Set-Cookie header \(headerValue)")
-                            resultCookie = HTTPCookie(properties: properties)
+                            properties[HTTPCookiePropertyKey.name]  =  nameValue[0] as NSString
+                            properties[HTTPCookiePropertyKey.value] =  nameValue[1] as NSString
+                            
+                            for  part in parts[1..<parts.count] {
+                                var pieces = part.components(separatedBy: "=")
+                                let piece = pieces[0].lowercased()
+                                switch(piece) {
+                                case "secure", "httponly":
+                                    properties[HTTPCookiePropertyKey.secure] = "Yes" as NSString
+                                case "path" where pieces.count == 2:
+                                    properties[HTTPCookiePropertyKey.path] = pieces[1] as NSString
+                                case "domain" where pieces.count == 2:
+                                    properties[HTTPCookiePropertyKey.domain] = pieces[1] as NSString
+                                case "expires" where pieces.count == 2:
+                                    resultExpire = pieces[1]
+                                default:
+                                    XCTFail("Malformed Set-Cookie header \(headerValue)")
+                                }
+                            }
                         #endif
+                        
+                        XCTAssertNotNil(properties[HTTPCookiePropertyKey.domain], "Malformed Set-Cookie header \(headerValue)")
+                        resultCookie = HTTPCookie(properties: properties)
+                        
                        break
                     }
                 }
