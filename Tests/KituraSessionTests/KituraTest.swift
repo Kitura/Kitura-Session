@@ -61,7 +61,6 @@ extension KituraTest {
     }
 
     private func setupServer(port: Int, delegate: ServerDelegate) -> HTTPServer {
-        return HTTPServer.listen(port: port, delegate: delegate,
-                                 notOnMainQueue:true)
+        return HTTPServer.listen(port: port, delegate: delegate)
     }
 }
