@@ -20,24 +20,24 @@ import Foundation
 import XCTest
 
 class CookieUtils {
-    
+
     static func cookieFrom(response: ClientResponse, named: String) -> (HTTPCookie?, String?) {
         var resultCookie: HTTPCookie? = nil
         var resultExpire: String?
-        for (headerKey, headerValues) in response.headers  {
+        for (headerKey, headerValues) in response.headers {
             let lowercaseHeaderKey = headerKey.lowercased()
-            if  lowercaseHeaderKey  ==  "set-cookie"  {
+            if  lowercaseHeaderKey  ==  "set-cookie" {
                 for headerValue in headerValues {
                     let parts = headerValue.components(separatedBy: "; ")
                     let nameValue = parts[0].components(separatedBy: "=")
                     XCTAssertEqual(nameValue.count, 2, "Malformed Set-Cookie header \(headerValue)")
-                    
-                    if  nameValue[0] == named  {
+
+                    if  nameValue[0] == named {
                         #if os(Linux)
                             var properties = [HTTPCookiePropertyKey: Any]()
                             properties[HTTPCookiePropertyKey.name]  =  nameValue[0]
                             properties[HTTPCookiePropertyKey.value] =  nameValue[1]
-                            
+
                             for  part in parts[1..<parts.count] {
                                 var pieces = part.components(separatedBy: "=")
                                 let piece = pieces[0].lowercased()
@@ -56,10 +56,10 @@ class CookieUtils {
                             }
                         #else
                             var properties = [HTTPCookiePropertyKey: AnyObject]()
-                            
+
                             properties[HTTPCookiePropertyKey.name]  =  nameValue[0] as NSString
                             properties[HTTPCookiePropertyKey.value] =  nameValue[1] as NSString
-                            
+
                             for  part in parts[1..<parts.count] {
                                 var pieces = part.components(separatedBy: "=")
                                 let piece = pieces[0].lowercased()
@@ -77,18 +77,17 @@ class CookieUtils {
                                 }
                             }
                         #endif
-                        
+
                         XCTAssertNotNil(properties[HTTPCookiePropertyKey.domain], "Malformed Set-Cookie header \(headerValue)")
                         resultCookie = HTTPCookie(properties: properties)
-                        
+
                        break
                     }
                 }
             }
         }
-        
+
         return (resultCookie, resultExpire)
     }
-    
-}
 
+}

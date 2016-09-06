@@ -20,19 +20,19 @@ import LoggerAPI
 import Foundation
 
 internal class CookieManagement {
-    
+
     //
     // Cookie name
     private let name: String
-    
+
     //
     // Cookie path
     private let path: String
-    
+
     //
     // Cookie is secure
     private let secure: Bool
-    
+
     //
     // Max age of Cookie
     private let maxAge: TimeInterval
@@ -40,14 +40,14 @@ internal class CookieManagement {
     //
     // Cookie encoder/decoder
     private let crypto: CookieCryptography
-    
+
     internal init(cookieCrypto: CookieCryptography, cookieParms: [CookieParameter]?) {
         var name = "kitura-session-id"
         var path = "/"
         var secure = false
         var maxAge = -1.0
-        if  let cookieParms = cookieParms  {
-            for  parm in cookieParms  {
+        if  let cookieParms = cookieParms {
+            for  parm in cookieParms {
                 switch(parm) {
                 case .name(let pName):
                     name = pName
@@ -60,67 +60,66 @@ internal class CookieManagement {
                 }
             }
         }
-        
+
         self.name = name
         self.path = path
         self.secure = secure
         self.maxAge = maxAge
-        
+
         crypto = cookieCrypto
     }
-    
-    
+
+
     internal func getSessionId(request: RouterRequest, response: RouterResponse) -> (String?, Bool) {
         var sessionId: String? = nil
         var newSession = false
-        
+
         if  let cookie = request.cookies[name],
             let decodedCookieValue = crypto.decode(cookie.value) {
             sessionId = decodedCookieValue
             newSession = false
-        }
-        else {
+        } else {
             // No Cookie
             sessionId = NSUUID().uuidString
             newSession = true
         }
         return (sessionId, newSession)
     }
-    
+
     internal func addCookie(sessionId: String, domain: String, response: RouterResponse) -> Bool {
         guard let encodedSessionId = crypto.encode(sessionId) else {
             return false
         }
-        
+
         #if os(Linux)
             var properties: [HTTPCookiePropertyKey: Any] =
                         [HTTPCookiePropertyKey.name: name,
                          HTTPCookiePropertyKey.value: encodedSessionId,
                          HTTPCookiePropertyKey.domain: domain,
                          HTTPCookiePropertyKey.path: path]
-            if  secure  {
+            if  secure {
                 properties[HTTPCookiePropertyKey.secure] = "Yes"
             }
-            if  maxAge > 0.0  {
+            if  maxAge > 0.0 {
                 properties[HTTPCookiePropertyKey.maximumAge] = String(Int(maxAge))
                 properties[HTTPCookiePropertyKey.version] = "1"
             }
-        
+
         #else
             var properties: [HTTPCookiePropertyKey: AnyObject] =
                         [HTTPCookiePropertyKey.name: name as NSString,
                          HTTPCookiePropertyKey.value: encodedSessionId as NSString,
                          HTTPCookiePropertyKey.domain: domain as NSString,
                          HTTPCookiePropertyKey.path: path as NSString]
-            if  secure  {
+            if  secure {
                 properties[HTTPCookiePropertyKey.secure] = "Yes" as NSString
             }
-            if  maxAge > 0.0  {
+            if  maxAge > 0.0 {
                 properties[HTTPCookiePropertyKey.maximumAge] = String(Int(maxAge)) as NSString
                 properties[HTTPCookiePropertyKey.version] = "1" as NSString
             }
         #endif
-    
+
         let cookie = HTTPCookie(properties: properties)
         response.cookies[name] = cookie
         return true
