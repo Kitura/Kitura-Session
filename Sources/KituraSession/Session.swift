@@ -41,8 +41,7 @@ public class Session: RouterMiddleware {
     public init(secret: String, cookie: [CookieParameter]?=nil, store: Store?=nil) {
         if  let store = store {
             self.store = store
-        }
-        else {
+        } else {
             // No store provided
             Log.warning("Using default in-memory session store")
             self.store = InMemoryStore()
@@ -54,29 +53,28 @@ public class Session: RouterMiddleware {
 
     public func handle(request: RouterRequest, response: RouterResponse, next: @escaping () -> Void) {
         let (sessionId, newSession) = cookieManager.getSessionId(request: request, response: response)
-        if  let sessionId = sessionId  {
+        if  let sessionId = sessionId {
             let session = SessionState(id: sessionId, store: store)
             var previousOnEndInvoked: LifecycleHandler? = nil
             let onEndInvoked = {
                 if  let session = request.session {
-                    if  newSession  &&  !session.isEmpty  {
+                    if  newSession  &&  !session.isEmpty {
                         guard self.cookieManager.addCookie(sessionId: session.id, domain: request.hostname, response: response) == true else {
                             response.status(.internalServerError)
                             next()
                             return
                         }
                     }
-                    if  session.isDirty  {
+                    if  session.isDirty {
                         session.save() {error in
-                            if  error != nil  {
+                            if  error != nil {
                                 Log.error("Failed to save session data for session \(session.id)")
                             }
                         }
-                    }
-                    else  {
-                        if  !session.isEmpty  {
+                    } else {
+                        if  !session.isEmpty {
                             self.store.touch(sessionId: session.id) {error in
-                                if  error != nil  {
+                                if  error != nil {
                                     Log.error("Failed to \"touch\" session for session \(session.id)")
                                 }
                             }
@@ -90,21 +88,18 @@ public class Session: RouterMiddleware {
             if  newSession {
                 request.session = session
                 next()
-            }
-            else {
+            } else {
                 session.reload() {error in
-                    if  let error = error  {
+                    if  let error = error {
                         // Failed to load data from store,
                         Log.error("Failed to load session data from store. Error=\(error)")
-                    }
-                    else {
+                    } else {
                         request.session = session
                     }
                     next()
                 }
             }
-        }
-        else {
+        } else {
             // Failed to decrypt the cookie
             next()
         }

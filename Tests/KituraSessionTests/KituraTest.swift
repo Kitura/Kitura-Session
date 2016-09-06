@@ -24,29 +24,29 @@ import Dispatch
 protocol KituraTest {}
 
 extension KituraTest {
-    
+
     func doTearDown() {
         sleep(10)
     }
-    
+
     func performServerTest(router: ServerDelegate, asyncTasks: @escaping () -> Void...) {
         let server = setupServer(port: 8090, delegate: router)
         let requestQueue = DispatchQueue(label: "Request queue")
-        
+
         for asyncTask in asyncTasks {
             requestQueue.async(execute: asyncTask)
         }
-        
+
         requestQueue.sync {
             // blocks test until request completes
             server.stop()
         }
     }
-    
+
     func performRequest(method: String, path: String, callback: @escaping ClientRequest.Callback, headers: [String: String]? = nil, requestModifier: ((ClientRequest) -> Void)? = nil) {
         var allHeaders = [String: String]()
-        if  let headers = headers  {
-            for  (headerName, headerValue) in headers  {
+        if  let headers = headers {
+            for  (headerName, headerValue) in headers {
                 allHeaders[headerName] = headerValue
             }
         }

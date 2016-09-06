@@ -28,9 +28,9 @@ let sessionTestValue = "sessionValue"
 let cookie1Name = "cookie1Name"
 let cookieDefaultName = "kitura-session-id"
 
-class TestSession : XCTestCase, KituraTest {
-    
-    static var allTests : [(String, (TestSession) -> () throws -> Void)] {
+class TestSession: XCTestCase, KituraTest {
+
+    static var allTests: [(String, (TestSession) -> () throws -> Void)] {
         return [
                    ("testCookieParams1", testCookieParams1),
                    ("testCookieParams2", testCookieParams2),
@@ -39,13 +39,13 @@ class TestSession : XCTestCase, KituraTest {
                    ("testCookieValue", testCookieValue)
         ]
     }
-    
+
     #if os(Linux)
         typealias PropValue = Any
     #else
         typealias PropValue = AnyObject
     #endif
-    
+
     func testCookieParams1() {
         let router = setupAdvancedSessionRouter()
         performServerTest(router: router, asyncTasks: {
@@ -103,8 +103,8 @@ class TestSession : XCTestCase, KituraTest {
             })
         })
     }
-    
-    
+
+
     func testSimpleSession() {
         let router = setupBasicSessionRouter()
         performServerTest(router: router, asyncTasks: {
@@ -131,15 +131,14 @@ class TestSession : XCTestCase, KituraTest {
                             return
                         }
                         XCTAssertEqual(body, sessionTestValue, "Body \(body) is not equal to \(sessionTestValue)")
-                    }
-                    catch{
+                    } catch {
                         XCTFail("No response body")
                     }
-                },  headers: ["Cookie": "\(cookieDefaultName)=\(cookie3value); Zxcv=tyuiop"])
+                }, headers: ["Cookie": "\(cookieDefaultName)=\(cookie3value); Zxcv=tyuiop"])
            })
         })
     }
-    
+
 
     func testCookieName() {
         let router = setupBasicSessionRouter()
@@ -161,7 +160,7 @@ class TestSession : XCTestCase, KituraTest {
                         return
                     }
                     XCTAssertEqual(response!.statusCode, HTTPStatusCode.noContent, "Session route did not match single path request")
-                    },  headers: ["Cookie": "\(cookie1Name)=\(cookie3value); Zxcv=tyuiop"])
+                    }, headers: ["Cookie": "\(cookie1Name)=\(cookie3value); Zxcv=tyuiop"])
             })
         })
     }
@@ -186,7 +185,7 @@ class TestSession : XCTestCase, KituraTest {
                         return
                     }
                     XCTAssertEqual(response!.statusCode, HTTPStatusCode.noContent, "Session route did not match single path request")
-                    },  headers: ["Cookie": "\(cookieDefaultName)=lalala; Zxcv=tyuiop"])
+                    }, headers: ["Cookie": "\(cookieDefaultName)=lalala; Zxcv=tyuiop"])
             })
         })
     }
@@ -215,17 +214,15 @@ class TestSession : XCTestCase, KituraTest {
             do {
                 if let value = request.session?[sessionTestKey].string {
                     try response.status(.OK).send("\(value)").end()
-                }
-                else {
+                } else {
                     response.status(.noContent)
                 }
-            }
-            catch {}
+            } catch {}
             next()
 
         }
 
-        
+
         return router
     }
 

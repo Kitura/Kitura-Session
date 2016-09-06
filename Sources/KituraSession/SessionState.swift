@@ -53,11 +53,10 @@ public class SessionState {
 
     public func reload(callback: @escaping (NSError?) -> Void) {
         store.load(sessionId: id) {(data: Data?, error: NSError?) in
-            if  error == nil  {
-                if  let data = data  {
+            if  error == nil {
+                if  let data = data {
                     self.state = JSON(data: data, options: [])
-                }
-                else {
+                } else {
                     // Not found in store
                     self.state = JSON([String: SessionStateObjectType]() as SessionStateObjectType)
                 }
@@ -71,8 +70,7 @@ public class SessionState {
         do {
             let data = try state.rawData()
             store.save(sessionId: id, data: data, callback: callback)
-        }
-        catch(let error as NSError) {
+        } catch(let error as NSError) {
             callback(error)
         }
     }
