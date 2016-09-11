@@ -18,7 +18,7 @@ import Foundation
 
 // MARK CookieParameter
 
-/// The parameters for the cookie configuration.
+/// The parameters for configurating the cookies used to send the session IDs to the clients.
 public enum CookieParameter {
     
     /// The cookie's name.

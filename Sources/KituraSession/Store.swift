@@ -21,26 +21,26 @@ import Foundation
 /// The protocol that defines the API for plugins that store `Session` data.
 public protocol Store {
     
-    /// Load session data.
+    /// Load the session data.
     ///
     /// - Parameter sessionId: The ID of the session.
     /// - Parameter callback: The closure to invoke once the session data is fetched.
     func load(sessionId: String, callback: @escaping (Data?, NSError?) -> Void)
     
-    /// Save session data.
+    /// Save the session data.
     ///
     /// - Parameter sessionId: The ID of the session.
     /// - Parameter data: The data to save.
     /// - Parameter callback: The closure to invoke once the session data is saved.
     func save(sessionId: String, data: Data, callback: @escaping (NSError?) -> Void)
  
-    /// Touch session data.
+    /// Touch the session data.
     ///
     /// - Parameter sessionId: The ID of the session.
     /// - Parameter callback: The closure to invoke once the session data is touched.
     func touch(sessionId: String, callback: @escaping (NSError?) -> Void)
     
-    /// Delete session data.
+    /// Delete the session data.
     ///
     /// - Parameter sessionId: The ID of the session.
     /// - Parameter callback: The closure to invoke once the session data is deleted.

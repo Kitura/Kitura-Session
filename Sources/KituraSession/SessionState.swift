@@ -49,9 +49,9 @@ public class SessionState {
         state = JSON([String: SessionStateObjectType]() as SessionStateObjectType)
     }
 
-    /// Reload session data from the session `Store`.
+    /// Reload the session data from the session `Store`.
     ///
-    /// - Parameter callback: The closure to invoke once reading of session data is complete.
+    /// - Parameter callback: The closure to invoke once the reading of session data is complete.
     public func reload(callback: @escaping (NSError?) -> Void) {
         store.load(sessionId: id) {(data: Data?, error: NSError?) in
             if  error == nil {
@@ -67,9 +67,9 @@ public class SessionState {
         }
     }
 
-    /// Save session data to the session `Store`.
+    /// Save the session data to the session `Store`.
     ///
-    /// - Parameter callback: The closure to invoke once writing of session data is complete.
+    /// - Parameter callback: The closure to invoke once the writing of session data is complete.
     public func save(callback: @escaping (NSError?) -> Void) {
         do {
             let data = try state.rawData()
@@ -79,9 +79,9 @@ public class SessionState {
         }
     }
 
-    /// Delete session data from the session `Store`.
+    /// Delete the session data from the session `Store`.
     ///
-    /// - Parameter callback: The closure to invoke once deletion of session data is complete.
+    /// - Parameter callback: The closure to invoke once the deletion of session data is complete.
     public func destroy(callback: @escaping (NSError?) -> Void) {
         store.delete(sessionId: id) { error in
             self.state = JSON([String: SessionStateObjectType]() as SessionStateObjectType)
@@ -90,7 +90,7 @@ public class SessionState {
         }
     }
 
-    /// Remove entry from the session state.
+    /// Remove an entry from the session data.
     ///
     /// - Parameter key: The key of the entry to delete.
     public func remove(key: String) {
@@ -98,7 +98,7 @@ public class SessionState {
         isDirty = true
     }
 
-    /// Retrieve data from the session state.
+    /// Retrieve an entry from the session data.
     ///
     /// - Parameter key: The key of the entry to retrieve.
     public subscript(key: String) -> JSON {
