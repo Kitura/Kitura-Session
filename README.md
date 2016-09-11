@@ -21,7 +21,7 @@ The latest version of Kitura-Session works with the DEVELOPMENT-SNAPSHOT-2016-09
 
 
 ## API
-In order to use Session middleware, an instance of `Session` has to created:
+In order to use Session middleware, an instance of `Session` has to be created:
 ```swift
 public init(secret: String, cookie: [CookieParameter]?=nil, store: Store?=nil)
 ```

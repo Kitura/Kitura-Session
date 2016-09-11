@@ -19,25 +19,22 @@ import LoggerAPI
 
 import Foundation
 
-///
-/// Session middleware
-///
+// MARK Session
+
+/// A pluggable middleware for managing user sessions.
 public class Session: RouterMiddleware {
 
-    //
-    // Store for session state
-    //
+    /// Store for session state
     private let store: Store
 
-    //
-    // Cookie manager
-    //
+    /// Cookie manager
     private let cookieManager: CookieManagement
 
+    /// Initialize a new `Session` management middleware.
     ///
-    /// Initializes a new Session management middleware
-    ///
-    /// - Parameter secret: The string used to encrypt the session id cookie
+    /// - Parameter secret: The string used to encrypt the session ID cookie.
+    /// - Parameter cookie: An array of the cookie's paramaters and attributes.
+    /// - Parameter store: The `Store` plugin to be used to store the session state.
     public init(secret: String, cookie: [CookieParameter]?=nil, store: Store?=nil) {
         if  let store = store {
             self.store = store
@@ -51,6 +48,15 @@ public class Session: RouterMiddleware {
         cookieManager = CookieManagement(cookieCrypto: cookieCrypto, cookieParms: cookie)
     }
 
+    
+    /// Handle an incoming request.
+    ///
+    /// - Parameter request: The `RouterRequest` object used to get information
+    ///                     about the request.
+    /// - Parameter response: The `RouterResponse` object used to respond to the
+    ///                       request.
+    /// - Parameter next: The closure to invoke to enable the Router to check for
+    ///                  other handlers or middleware to work with this request.
     public func handle(request: RouterRequest, response: RouterResponse, next: @escaping () -> Void) {
         let (sessionId, newSession) = cookieManager.getSessionId(request: request, response: response)
         if  let sessionId = sessionId {

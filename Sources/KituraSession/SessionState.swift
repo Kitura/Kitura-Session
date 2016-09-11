@@ -17,6 +17,7 @@
 import Foundation
 import SwiftyJSON
 
+// MARK SessionState
 
 #if os(Linux)
 typealias SessionStateObjectType = Any
@@ -24,25 +25,22 @@ typealias SessionStateObjectType = Any
 typealias SessionStateObjectType = AnyObject
 #endif
 
+/// A set of helper functions to manipulate session data.
 public class SessionState {
-    //
-    // Session ID
+
+    /// The session ID.
     public let id: String
 
-    //
-    // Dirty flag
+    /// Dirty flag
     internal private(set) var isDirty = false
 
-    //
-    // Empty flag
+    /// Empty flag
     internal var isEmpty: Bool { return state.isEmpty }
 
-    //
-    // Actual session state
+    /// Actual session state
     private var state: JSON
 
-    //
-    // Store for session state
+    /// Store for session state
     private let store: Store
 
     internal init(id: String, store: Store) {
@@ -51,6 +49,9 @@ public class SessionState {
         state = JSON([String: SessionStateObjectType]() as SessionStateObjectType)
     }
 
+    /// Reload session data from the session `Store`.
+    ///
+    /// - Parameter callback: The closure to invoke once reading of session data is complete.
     public func reload(callback: @escaping (NSError?) -> Void) {
         store.load(sessionId: id) {(data: Data?, error: NSError?) in
             if  error == nil {
@@ -66,6 +67,9 @@ public class SessionState {
         }
     }
 
+    /// Save session data to the session `Store`.
+    ///
+    /// - Parameter callback: The closure to invoke once writing of session data is complete.
     public func save(callback: @escaping (NSError?) -> Void) {
         do {
             let data = try state.rawData()
@@ -75,6 +79,9 @@ public class SessionState {
         }
     }
 
+    /// Delete session data from the session `Store`.
+    ///
+    /// - Parameter callback: The closure to invoke once deletion of session data is complete.
     public func destroy(callback: @escaping (NSError?) -> Void) {
         store.delete(sessionId: id) { error in
             self.state = JSON([String: SessionStateObjectType]() as SessionStateObjectType)
@@ -83,11 +90,17 @@ public class SessionState {
         }
     }
 
+    /// Remove entry from the session state.
+    ///
+    /// - Parameter key: The key of the entry to delete.
     public func remove(key: String) {
         state[key] = nil
         isDirty = true
     }
 
+    /// Retrieve data from the session state.
+    ///
+    /// - Parameter key: The key of the entry to retrieve.
     public subscript(key: String) -> JSON {
         get {
             return state[key]

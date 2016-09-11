@@ -18,10 +18,14 @@ import Kitura
 
 import Foundation
 
-
+// MARK RouterRequest+SessionState
 private let SESSION_USER_INFO_KEY = "@@Kitura@@Session@@"
 
+/// Extension of the `RouterRequest` class to provide access to `SessionState`
+/// information.
 public extension RouterRequest {
+    
+    /// `SessionState` information.
     public internal(set) var session: SessionState? {
         get {
             return userInfo[SESSION_USER_INFO_KEY] as? SessionState
