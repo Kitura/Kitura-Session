@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Session Class Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset="utf-8">
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+    
+  </head>
+  <body>
+
+    <a name="//apple_ref/swift/Class/Session" class="dashAnchor"></a>
+
+    <a title="Session Class Reference"></a>
+
+    <header class="header">
+      <p class="header-col header-col--primary">
+        <a class="header-link" href="../index.html">
+          KituraSession Docs
+        </a>
+         (100% documented)
+      </p>
+    
+        <p class="header-col header-col--secondary">
+          <a class="header-link" href="https://github.com/IBM-Swift/Kitura-Session/">
+            <img class="header-icon" src="../img/gh.png"/>
+            View on GitHub
+          </a>
+        </p>
+    
+    </header>
+
+    <p class="breadcrumbs">
+      <a class="breadcrumb" href="../index.html">KituraSession Reference</a>
+      <img class="carat" src="../img/carat.png" />
+      Session Class Reference
+    </p>
+
+    <div class="content-wrapper">
+      <nav class="navigation">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Classes/Session.html">Session</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Classes/SessionState.html">SessionState</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Enums.html">Enums</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Enums/CookieParameter.html">CookieParameter</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Extensions/RouterRequest.html">RouterRequest</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Protocols/Store.html">Store</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+
+        <section class="section">
+          <div class="section-content">
+            <h1>Session</h1>
+              <div class="declaration">
+                <div class="language">
+                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">Session</span><span class="p">:</span> <span class="kt">RouterMiddleware</span></code></pre>
+
+                </div>
+              </div>
+            <p>A pluggable middleware for managing user sessions.</p>
+
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-content">
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC13KituraSession7SessioncFT6secretSS6cookieGSqGSaOS_15CookieParameter__5storeGSqPS_5Store___S0_"></a>
+                    <a name="//apple_ref/swift/Method/init(secret:cookie:store:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC13KituraSession7SessioncFT6secretSS6cookieGSqGSaOS_15CookieParameter__5storeGSqPS_5Store___S0_">init(secret:cookie:store:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Initialize a new <code>Session</code> management middleware.</p>
+
+<div class="aside aside-parameter">
+    <p class="aside-title">Parameter</p>
+    Parameter secret: The string used to encrypt the session ID cookie.
+
+</div>
+
+<div class="aside aside-parameter">
+    <p class="aside-title">Parameter</p>
+    Parameter cookie: An array of the cookie&rsquo;s paramaters and attributes.
+
+</div>
+
+<div class="aside aside-parameter">
+    <p class="aside-title">Parameter</p>
+    Parameter store: The <code><a href="../Protocols/Store.html">Store</a></code> plugin to be used to store the session state.
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">secret</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="nv">cookie</span><span class="p">:</span> <span class="p">[</span><span class="kt"><a href="../Enums/CookieParameter.html">CookieParameter</a></span><span class="p">]?</span><span class="o">=</span><span class="kc">nil</span><span class="p">,</span> <span class="nv">store</span><span class="p">:</span> <span class="kt"><a href="../Protocols/Store.html">Store</a></span><span class="p">?</span><span class="o">=</span><span class="kc">nil</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>secret</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The string used to encrypt the session ID cookie.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>cookie</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>An array of the cookie’s paramaters and attributes.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>store</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The <code>Store</code> plugin to be used to store the session state.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC13KituraSession7Session6handleFT7requestC6Kitura13RouterRequest8responseCS1_14RouterResponse4nextFT_T__T_"></a>
+                    <a name="//apple_ref/swift/Method/handle(request:response:next:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC13KituraSession7Session6handleFT7requestC6Kitura13RouterRequest8responseCS1_14RouterResponse4nextFT_T__T_">handle(request:response:next:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Handle an incoming request.</p>
+
+<div class="aside aside-parameter">
+    <p class="aside-title">Parameter</p>
+    Parameter request: The <code>RouterRequest</code> object used to get information
+                about the request.
+
+</div>
+
+<div class="aside aside-parameter">
+    <p class="aside-title">Parameter</p>
+    Parameter response: The <code>RouterResponse</code> object used to respond to the
+                  request.
+
+</div>
+
+<div class="aside aside-parameter">
+    <p class="aside-title">Parameter</p>
+    Parameter next: The closure to invoke to enable the Router to check for
+             other handlers or middleware to work with this request.
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">handle</span><span class="p">(</span><span class="nv">request</span><span class="p">:</span> <span class="kt">RouterRequest</span><span class="p">,</span> <span class="nv">response</span><span class="p">:</span> <span class="kt">RouterResponse</span><span class="p">,</span> <span class="nv">next</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>request</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The <code>RouterRequest</code> object used to get information about the request.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>response</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The <code>RouterResponse</code> object used to respond to the request.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>next</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The closure to invoke to enable the Router to check for other handlers or middleware to work with this request.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+      </article>
+    </div>
+    <section class="footer">
+      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-09-16)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.2</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+    </section>
+  </body>
+</div>
+</html>

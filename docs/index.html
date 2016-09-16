@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>KituraSession  Reference</title>
+    <link rel="stylesheet" type="text/css" href="css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="css/highlight.css" />
+    <meta charset="utf-8">
+    <script src="js/jquery.min.js" defer></script>
+    <script src="js/jazzy.js" defer></script>
+    
+  </head>
+  <body>
+
+
+    <a title="KituraSession  Reference"></a>
+
+    <header class="header">
+      <p class="header-col header-col--primary">
+        <a class="header-link" href="index.html">
+          KituraSession Docs
+        </a>
+         (100% documented)
+      </p>
+    
+        <p class="header-col header-col--secondary">
+          <a class="header-link" href="https://github.com/IBM-Swift/Kitura-Session/">
+            <img class="header-icon" src="img/gh.png"/>
+            View on GitHub
+          </a>
+        </p>
+    
+    </header>
+
+    <p class="breadcrumbs">
+      <a class="breadcrumb" href="index.html">KituraSession Reference</a>
+      <img class="carat" src="img/carat.png" />
+      KituraSession  Reference
+    </p>
+
+    <div class="content-wrapper">
+      <nav class="navigation">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Classes/Session.html">Session</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Classes/SessionState.html">SessionState</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="Enums.html">Enums</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Enums/CookieParameter.html">CookieParameter</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Extensions/RouterRequest.html">RouterRequest</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Protocols/Store.html">Store</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+
+        <section class="section">
+          <div class="section-content">
+            
+            <a href='#kitura-session' class='anchor' aria-hidden=true><span class="header-anchor"></span></a><h1 id='kitura-session'>Kitura-Session</h1>
+
+<p>A pluggable framework for managing user sessions in a Swift server using Kitura</p>
+
+<p><a href="https://travis-ci.org/IBM-Swift/Kitura-Session"><img src="https://travis-ci.org/IBM-Swift/Kitura.svg?branch=master" alt="Build Status - Master"></a>
+<img src="https://img.shields.io/badge/os-Mac%20OS%20X-green.svg?style=flat" alt="Mac OS X">
+<img src="https://img.shields.io/badge/os-linux-green.svg?style=flat" alt="Linux">
+<img src="https://img.shields.io/badge/license-Apache2-blue.svg?style=flat" alt="Apache 2"></p>
+<a href='#summary' class='anchor' aria-hidden=true><span class="header-anchor"></span></a><h2 id='summary'>Summary</h2>
+
+<p>A pluggable framework for managing user sessions in a Swift server using Kitura</p>
+<a href='#table-of-contents' class='anchor' aria-hidden=true><span class="header-anchor"></span></a><h2 id='table-of-contents'>Table of Contents</h2>
+
+<ul>
+<li><a href="#swift-version">Swift version</a></li>
+<li><a href="#api">API</a></li>
+<li><a href="#example">Example</a></li>
+<li><a href="#plugins">Plugins</a></li>
+<li><a href="#license">License</a></li>
+</ul>
+<a href='#swift-version' class='anchor' aria-hidden=true><span class="header-anchor"></span></a><h2 id='swift-version'>Swift version</h2>
+
+<p>The latest version of Kitura-Session requires <strong>Swift 3.0</strong>. You can download this version of the Swift binaries by following this <a href="https://swift.org/download/">link</a>. Compatibility with other Swift versions is not guaranteed.</p>
+<a href='#api' class='anchor' aria-hidden=true><span class="header-anchor"></span></a><h2 id='api'>API</h2>
+
+<p>In order to use the Session middleware, an instance of <code>Session</code> has to be created:
+<code>swift
+public init(secret: String, cookie: [CookieParameter]?=nil, store: Store?=nil)
+</code>
+<strong>Where:</strong>
+   - <em>secret</em> is a String to be used for session encoding.
+   - <em>cookie</em> is a list of options for session&rsquo;s cookies. The options are (specified in <code>CookieParameter</code> enumeration): <code>name</code> - cookie&rsquo;s name, defaults to <q>kitura-session-id</q>, <code>path</code> - cookie&rsquo;s Path attribute defaults to <q>/</q>, <code>secure</code> - cookie&rsquo;s Secure attribute, false by default, and <code>maxAge</code> - an NSTimeInterval with cookie&rsquo;s expiration time in seconds, defaults to -1.0, i.e., no expiration.
+   - <em>store</em> is an instance of a plugin for session backing store that implements <code>Store</code> protocol. If not set, <code>InMemoryStore</code> is used.
+   <br></p>
+
+<p>The last two parameters are optional.</p>
+<a href='#example' class='anchor' aria-hidden=true><span class="header-anchor"></span></a><h2 id='example'>Example</h2>
+
+<p>This is an example of <code>Session</code> middleware with <a href="https://github.com/IBM-Swift/Kitura-Session-Redis"><code>KituraSessionRedis</code></a> plugin:</p>
+<pre class="highlight swift"><code><span class="kd">import</span> <span class="kt">KituraSession</span>
+<span class="kd">import</span> <span class="kt">KituraSessionRedis</span>
+
+<span class="k">let</span> <span class="nv">redisStore</span> <span class="o">=</span> <span class="kt">RedisStore</span><span class="p">(</span><span class="nv">redisHost</span><span class="p">:</span> <span class="n">host</span><span class="p">,</span> <span class="nv">redisPort</span><span class="p">:</span> <span class="n">port</span><span class="p">)</span>
+<span class="k">let</span> <span class="nv">session</span> <span class="o">=</span> <span class="kt">Session</span><span class="p">(</span><span class="nv">secret</span><span class="p">:</span> <span class="s">"Some secret"</span><span class="p">,</span> <span class="nv">store</span><span class="p">:</span> <span class="n">redisStore</span><span class="p">)</span>
+<span class="n">router</span><span class="o">.</span><span class="nf">all</span><span class="p">(</span><span class="nv">middleware</span><span class="p">:</span> <span class="n">session</span><span class="p">)</span>
+</code></pre>
+
+<p>First an instance of <code>RedisStore</code> is created (see <a href="https://github.com/IBM-Swift/Kitura-Session-Redis"><code>KituraSessionRedis</code></a> for more information), then an instance of <code>Session</code> with the store as parameter is created, and finally it is connected to the desired path.</p>
+<a href='#plugins' class='anchor' aria-hidden=true><span class="header-anchor"></span></a><h2 id='plugins'>Plugins</h2>
+
+<ul>
+<li><a href="https://github.com/IBM-Swift/Kitura-Session-Redis">Redis store</a></li>
+</ul>
+<a href='#license' class='anchor' aria-hidden=true><span class="header-anchor"></span></a><h2 id='license'>License</h2>
+
+<p>This library is licensed under Apache 2.0. Full license text is available in <a href="LICENSE.txt">LICENSE</a>.</p>
+
+          </div>
+        </section>
+
+
+      </article>
+    </div>
+    <section class="footer">
+      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-09-16)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.2</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+    </section>
+  </body>
+</div>
+</html>
