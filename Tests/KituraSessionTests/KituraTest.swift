@@ -26,20 +26,24 @@ protocol KituraTest {}
 extension KituraTest {
 
     func doTearDown() {
-        sleep(10)
+        //  sleep(10)
     }
 
     func performServerTest(router: ServerDelegate, asyncTasks: @escaping () -> Void...) {
-        let server = setupServer(port: 8090, delegate: router)
-        let requestQueue = DispatchQueue(label: "Request queue")
+        do {
+            let server = try HTTPServer.listen(on: 8090, delegate: router)
+            let requestQueue = DispatchQueue(label: "Request queue")
 
-        for asyncTask in asyncTasks {
-            requestQueue.async(execute: asyncTask)
-        }
+            for asyncTask in asyncTasks {
+                requestQueue.async(execute: asyncTask)
+            }
 
-        requestQueue.sync {
-            // blocks test until request completes
-            server.stop()
+            requestQueue.sync {
+                // blocks test until request completes
+                server.stop()
+            }
+        } catch {
+            XCTFail("Error: \(error)")
         }
     }
 
@@ -58,9 +62,5 @@ extension KituraTest {
             requestModifier(req)
         }
         req.end()
-    }
-
-    private func setupServer(port: Int, delegate: ServerDelegate) -> HTTPServer {
-        return HTTPServer.listen(port: port, delegate: delegate)
     }
 }
