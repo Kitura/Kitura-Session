@@ -62,7 +62,10 @@ public class Session: RouterMiddleware {
         if  let sessionId = sessionId {
             let session = SessionState(id: sessionId, store: store)
             var previousOnEndInvoked: LifecycleHandler? = nil
-            let onEndInvoked = {
+            let onEndInvoked = { [weak request, weak response] in
+                guard let previousOnEndInvoked = previousOnEndInvoked else {return}
+                guard let request = request else {previousOnEndInvoked(); return}
+                guard let response = response else {previousOnEndInvoked(); return}
                 if  let session = request.session {
                     if  newSession  &&  !session.isEmpty {
                         guard self.cookieManager.addCookie(sessionId: session.id, domain: request.hostname, response: response) == true else {
@@ -87,7 +90,7 @@ public class Session: RouterMiddleware {
                         }
                     }
                 }
-                previousOnEndInvoked!()
+                previousOnEndInvoked()
             }
             previousOnEndInvoked = response.setOnEndInvoked(onEndInvoked)
 
