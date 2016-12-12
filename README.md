@@ -26,12 +26,15 @@ In order to use the Session middleware, an instance of `Session` has to be creat
 public init(secret: String, cookie: [CookieParameter]?=nil, store: Store?=nil)
 ```
 **Where:**
-   - *secret* is a String to be used for session encoding.
+   - *secret* is a String to be used for session encoding. It should be a large unguessable string, say minimum 14 characters long.
    - *cookie* is a list of options for session's cookies. The options are (specified in `CookieParameter` enumeration): `name` - cookie's name, defaults to "kitura-session-id", `path` - cookie's Path attribute defaults to "/", `secure` - cookie's Secure attribute, false by default, and `maxAge` - an NSTimeInterval with cookie's expiration time in seconds, defaults to -1.0, i.e., no expiration.
    - *store* is an instance of a plugin for session backing store that implements `Store` protocol. If not set, `InMemoryStore` is used.
    <br>
 
    The last two parameters are optional.
+   
+   <br>
+   The *secret* parameter is used to secure the session ID and ensure that the session ID cannot be guessed. *Secret* is used to derive a pair of encryption and signature keys via PBKDF2 and a fixed IV to make the session ID cookie be authenticated encrypted. *Secret* isn't used directly to encrypt or compute the MAC of the cookie.
 
 ## Example
 
