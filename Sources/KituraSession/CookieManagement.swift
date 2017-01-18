@@ -80,7 +80,7 @@ internal class CookieManagement {
             newSession = false
         } else {
             // No Cookie
-            sessionId = NSUUID().uuidString
+            sessionId = UUID().uuidString
             newSession = true
         }
         return (sessionId, newSession)
