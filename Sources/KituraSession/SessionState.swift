@@ -76,6 +76,8 @@ public class SessionState {
             store.save(sessionId: id, data: data, callback: callback)
         } catch(let error as NSError) {
             callback(error)
+        } catch {
+            callback(nil)
         }
     }
 
