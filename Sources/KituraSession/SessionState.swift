@@ -74,10 +74,16 @@ public class SessionState {
         do {
             let data = try state.rawData()
             store.save(sessionId: id, data: data, callback: callback)
-        } catch(let error as NSError) {
-            callback(error)
-        } catch {
-            callback(nil)
+        } catch(let error) {
+            #if os(Linux)
+                #if swift(>=3.1)
+                    callback(error as? NSError ?? NSError(domain: error.localizedDescription, code: -1))
+                #else
+                    callback(error as NSError)
+                #endif
+            #else
+                callback(error as NSError)
+            #endif
         }
     }
 
