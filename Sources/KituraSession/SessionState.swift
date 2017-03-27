@@ -20,9 +20,9 @@ import SwiftyJSON
 // MARK SessionState
 
 #if os(Linux)
-typealias SessionStateObjectType = Any
+    typealias SessionStateObjectType = Any
 #else
-typealias SessionStateObjectType = AnyObject
+    typealias SessionStateObjectType = AnyObject
 #endif
 
 /// A set of helper functions to manipulate session data.
@@ -71,30 +71,18 @@ public class SessionState {
     ///
     /// - Parameter callback: The closure to invoke once the writing of session data is complete.
     public func save(callback: @escaping (NSError?) -> Void) {
-        #if os(Linux)
-            #if swift(>=3.1)
-                do {
-                    let data = try state.rawData()
-                    store.save(sessionId: id, data: data, callback: callback)
-                } catch {
-                    callback(error as? NSError ?? NSError(domain: error.localizedDescription, code: -1))
-                }
-            #else
-                do {
-                    let data = try state.rawData()
-                    store.save(sessionId: id, data: data, callback: callback)
-                } catch(let error as NSError) {
-                    callback(error)
-                }
-            #endif
-        #else
         do {
             let data = try state.rawData()
             store.save(sessionId: id, data: data, callback: callback)
-        } catch(let error as NSError) {
-            callback(error)
+        } catch {
+            #if os(Linux)
+                let err = NSError(domain: error.localizedDescription, code: -1)
+            #else
+                let err = error as NSError
+            #endif
+
+            callback(err)
         }
-        #endif
     }
 
     /// Delete the session data from the session `Store`.
