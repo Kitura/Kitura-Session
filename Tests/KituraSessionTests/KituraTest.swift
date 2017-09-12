@@ -29,7 +29,7 @@ extension KituraTest {
         //  sleep(10)
     }
 
-    func performServerTest(router: ServerDelegate, asyncTasks: @escaping () -> Void...) {
+    func performServerTest(router: ServerDelegate, asyncTasks: () -> Void...) {
         do {
             let server = try HTTPServer.listen(on: 8090, delegate: router)
             let requestQueue = DispatchQueue(label: "Request queue")
