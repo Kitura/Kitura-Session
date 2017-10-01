@@ -1,3 +1,5 @@
+// swift-tools-version:4.0
+
 /**
  * Copyright IBM Corporation 2016, 2017
  *
@@ -18,8 +20,15 @@ import PackageDescription
 
 let package = Package(
     name: "Kitura-Session",
+    products: [
+        .library(name: "KituraSession", targets: ["KituraSession"])
+    ],
     dependencies: [
-        .Package(url: "https://github.com/IBM-Swift/Kitura.git", majorVersion: 1, minor: 7),
-        .Package(url: "https://github.com/IBM-Swift/BlueCryptor.git", majorVersion: 0, minor: 8),
+        .package(url: "https://github.com/IBM-Swift/Kitura.git", from: "1.7.0"),
+        .package(url: "https://github.com/IBM-Swift/BlueCryptor.git", from: "0.8.0")
+    ],
+    targets: [
+        .target(name: "KituraSession", dependencies: ["Kitura", "Cryptor"]),
+        .testTarget(name: "KituraSessionTests", dependencies: ["KituraSession"])
     ]
 )
