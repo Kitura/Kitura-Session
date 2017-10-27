@@ -17,7 +17,7 @@ A pluggable framework for managing user sessions in a Swift server using Kitura
 * [License](#license)
 
 ## Swift version
-The latest version of Kitura-Session requires **Swift 3.0**. You can download this version of the Swift binaries by following this [link](https://swift.org/download/). Compatibility with other Swift versions is not guaranteed.
+The latest version of Kitura-Session requires **Swift 4.0**. You can download this version of the Swift binaries by following this [link](https://swift.org/download/). Compatibility with other Swift versions is not guaranteed.
 
 
 ## API
@@ -32,7 +32,7 @@ public init(secret: String, cookie: [CookieParameter]?=nil, store: Store?=nil)
    <br>
 
    The last two parameters are optional.
-   
+
    <br>
    The *secret* parameter is used to secure the session ID and ensure that the session ID cannot be guessed. *Secret* is used to derive a pair of encryption and signature keys via PBKDF2 and a fixed IV to make the session ID cookie be authenticated encrypted. *Secret* isn't used directly to encrypt or compute the MAC of the cookie.
 
