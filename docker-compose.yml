@@ -1,0 +1,5 @@
+test:
+  image: ibmcom/swift-ubuntu:4.0
+  volumes:
+      - .:/Kitura-Session
+  command: bash -c "cd /Kitura-Session && swift package clean && swift build && swift test"

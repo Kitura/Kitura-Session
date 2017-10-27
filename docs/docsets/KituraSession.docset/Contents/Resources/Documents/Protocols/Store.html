@@ -8,6 +8,9 @@
     <script src="../js/jquery.min.js" defer></script>
     <script src="../js/jazzy.js" defer></script>
     
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
   </head>
   <body>
 
@@ -21,6 +24,12 @@
           KituraSession Docs
         </a>
          (100% documented)
+      </p>
+    
+      <p class="header-col--secondary">
+        <form role="search" action="../search.json">
+          <input type="text" placeholder="Search documentation" data-typeahead>
+        </form>
       </p>
     
         <p class="header-col header-col--secondary">
@@ -53,7 +62,7 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Enums.html">Enums</a>
+            <a class="nav-group-name-link" href="../Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/CookieParameter.html">CookieParameter</a>
@@ -101,9 +110,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FP13KituraSession5Store4loadFT9sessionIdSS8callbackFTGSqV10Foundation4Data_GSqCSo7NSError__T__T_"></a>
+                    <a name="/s:13KituraSession5StoreP4loadySS9sessionId_y10Foundation4DataVSg_So7NSErrorCSgtc8callbacktF"></a>
                     <a name="//apple_ref/swift/Method/load(sessionId:callback:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FP13KituraSession5Store4loadFT9sessionIdSS8callbackFTGSqV10Foundation4Data_GSqCSo7NSError__T__T_">load(sessionId:callback:)</a>
+                    <a class="token" href="#/s:13KituraSession5StoreP4loadySS9sessionId_y10Foundation4DataVSg_So7NSErrorCSgtc8callbacktF">load(sessionId:callback:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -112,18 +121,6 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Load the session data.</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter sessionId: The ID of the session.
-
-</div>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter callback: The closure to invoke once the session data is fetched.
-
-</div>
 
                       </div>
                       <div class="declaration">
@@ -147,7 +144,6 @@
                               <td>
                                 <div>
                                   <p>The ID of the session.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -160,7 +156,6 @@
                               <td>
                                 <div>
                                   <p>The closure to invoke once the session data is fetched.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -173,9 +168,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FP13KituraSession5Store4saveFT9sessionIdSS4dataV10Foundation4Data8callbackFGSqCSo7NSError_T__T_"></a>
+                    <a name="/s:13KituraSession5StoreP4saveySS9sessionId_10Foundation4DataV4dataySo7NSErrorCSgc8callbacktF"></a>
                     <a name="//apple_ref/swift/Method/save(sessionId:data:callback:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FP13KituraSession5Store4saveFT9sessionIdSS4dataV10Foundation4Data8callbackFGSqCSo7NSError_T__T_">save(sessionId:data:callback:)</a>
+                    <a class="token" href="#/s:13KituraSession5StoreP4saveySS9sessionId_10Foundation4DataV4dataySo7NSErrorCSgc8callbacktF">save(sessionId:data:callback:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -184,24 +179,6 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Save the session data.</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter sessionId: The ID of the session.
-
-</div>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter data: The data to save.
-
-</div>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter callback: The closure to invoke once the session data is saved.
-
-</div>
 
                       </div>
                       <div class="declaration">
@@ -225,7 +202,6 @@
                               <td>
                                 <div>
                                   <p>The ID of the session.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -238,7 +214,6 @@
                               <td>
                                 <div>
                                   <p>The data to save.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -251,7 +226,6 @@
                               <td>
                                 <div>
                                   <p>The closure to invoke once the session data is saved.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -264,9 +238,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FP13KituraSession5Store5touchFT9sessionIdSS8callbackFGSqCSo7NSError_T__T_"></a>
+                    <a name="/s:13KituraSession5StoreP5touchySS9sessionId_ySo7NSErrorCSgc8callbacktF"></a>
                     <a name="//apple_ref/swift/Method/touch(sessionId:callback:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FP13KituraSession5Store5touchFT9sessionIdSS8callbackFGSqCSo7NSError_T__T_">touch(sessionId:callback:)</a>
+                    <a class="token" href="#/s:13KituraSession5StoreP5touchySS9sessionId_ySo7NSErrorCSgc8callbacktF">touch(sessionId:callback:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -275,18 +249,6 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Touch the session data.</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter sessionId: The ID of the session.
-
-</div>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter callback: The closure to invoke once the session data is touched.
-
-</div>
 
                       </div>
                       <div class="declaration">
@@ -310,7 +272,6 @@
                               <td>
                                 <div>
                                   <p>The ID of the session.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -323,7 +284,6 @@
                               <td>
                                 <div>
                                   <p>The closure to invoke once the session data is touched.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -336,9 +296,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FP13KituraSession5Store6deleteFT9sessionIdSS8callbackFGSqCSo7NSError_T__T_"></a>
+                    <a name="/s:13KituraSession5StoreP6deleteySS9sessionId_ySo7NSErrorCSgc8callbacktF"></a>
                     <a name="//apple_ref/swift/Method/delete(sessionId:callback:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FP13KituraSession5Store6deleteFT9sessionIdSS8callbackFGSqCSo7NSError_T__T_">delete(sessionId:callback:)</a>
+                    <a class="token" href="#/s:13KituraSession5StoreP6deleteySS9sessionId_ySo7NSErrorCSgc8callbacktF">delete(sessionId:callback:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -347,18 +307,6 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Delete the session data.</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter sessionId: The ID of the session.
-
-</div>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter callback: The closure to invoke once the session data is deleted.
-
-</div>
 
                       </div>
                       <div class="declaration">
@@ -382,7 +330,6 @@
                               <td>
                                 <div>
                                   <p>The ID of the session.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -395,7 +342,6 @@
                               <td>
                                 <div>
                                   <p>The closure to invoke once the session data is deleted.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -413,8 +359,8 @@
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-09-22)</p>
-      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.0</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+      <p>&copy; 2017 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2017-10-27)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.8.4</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
 </div>

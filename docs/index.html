@@ -8,6 +8,9 @@
     <script src="js/jquery.min.js" defer></script>
     <script src="js/jazzy.js" defer></script>
     
+    <script src="js/lunr.min.js" defer></script>
+    <script src="js/typeahead.jquery.js" defer></script>
+    <script src="js/jazzy.search.js" defer></script>
   </head>
   <body>
 
@@ -20,6 +23,12 @@
           KituraSession Docs
         </a>
          (100% documented)
+      </p>
+    
+      <p class="header-col--secondary">
+        <form role="search" action="search.json">
+          <input type="text" placeholder="Search documentation" data-typeahead>
+        </form>
       </p>
     
         <p class="header-col header-col--secondary">
@@ -52,7 +61,7 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="Enums.html">Enums</a>
+            <a class="nav-group-name-link" href="Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="Enums/CookieParameter.html">CookieParameter</a>
@@ -82,7 +91,7 @@
         <section class="section">
           <div class="section-content">
             
-            <a href='#kitura-session' class='anchor' aria-hidden=true><span class="header-anchor"></span></a><h1 id='kitura-session'>Kitura-Session</h1>
+            <h1 id='kitura-session' class='heading'>Kitura-Session</h1>
 
 <p>A pluggable framework for managing user sessions in a Swift server using Kitura</p>
 
@@ -90,10 +99,10 @@
 <img src="https://img.shields.io/badge/os-Mac%20OS%20X-green.svg?style=flat" alt="Mac OS X">
 <img src="https://img.shields.io/badge/os-linux-green.svg?style=flat" alt="Linux">
 <img src="https://img.shields.io/badge/license-Apache2-blue.svg?style=flat" alt="Apache 2"></p>
-<a href='#summary' class='anchor' aria-hidden=true><span class="header-anchor"></span></a><h2 id='summary'>Summary</h2>
+<h2 id='summary' class='heading'>Summary</h2>
 
 <p>A pluggable framework for managing user sessions in a Swift server using Kitura</p>
-<a href='#table-of-contents' class='anchor' aria-hidden=true><span class="header-anchor"></span></a><h2 id='table-of-contents'>Table of Contents</h2>
+<h2 id='table-of-contents' class='heading'>Table of Contents</h2>
 
 <ul>
 <li><a href="#swift-version">Swift version</a></li>
@@ -102,25 +111,31 @@
 <li><a href="#plugins">Plugins</a></li>
 <li><a href="#license">License</a></li>
 </ul>
-<a href='#swift-version' class='anchor' aria-hidden=true><span class="header-anchor"></span></a><h2 id='swift-version'>Swift version</h2>
+<h2 id='swift-version' class='heading'>Swift version</h2>
 
-<p>The latest version of Kitura-Session requires <strong>Swift 3.0</strong>. You can download this version of the Swift binaries by following this <a href="https://swift.org/download/">link</a>. Compatibility with other Swift versions is not guaranteed.</p>
-<a href='#api' class='anchor' aria-hidden=true><span class="header-anchor"></span></a><h2 id='api'>API</h2>
+<p>The latest version of Kitura-Session requires <strong>Swift 4.0</strong>. You can download this version of the Swift binaries by following this <a href="https://swift.org/download/">link</a>. Compatibility with other Swift versions is not guaranteed.</p>
+<h2 id='api' class='heading'>API</h2>
 
-<p>In order to use the Session middleware, an instance of <code>Session</code> has to be created:
-<code>swift
-public init(secret: String, cookie: [CookieParameter]?=nil, store: Store?=nil)
-</code>
-<strong>Where:</strong>
-   - <em>secret</em> is a String to be used for session encoding.
-   - <em>cookie</em> is a list of options for session&rsquo;s cookies. The options are (specified in <code>CookieParameter</code> enumeration): <code>name</code> - cookie&rsquo;s name, defaults to <q>kitura-session-id</q>, <code>path</code> - cookie&rsquo;s Path attribute defaults to <q>/</q>, <code>secure</code> - cookie&rsquo;s Secure attribute, false by default, and <code>maxAge</code> - an NSTimeInterval with cookie&rsquo;s expiration time in seconds, defaults to -1.0, i.e., no expiration.
-   - <em>store</em> is an instance of a plugin for session backing store that implements <code>Store</code> protocol. If not set, <code>InMemoryStore</code> is used.
-   <br></p>
+<p>In order to use the Session middleware, an instance of <code><a href="Classes/Session.html">Session</a></code> has to be created:</p>
+<pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">secret</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="nv">cookie</span><span class="p">:</span> <span class="p">[</span><span class="kt">CookieParameter</span><span class="p">]?</span><span class="o">=</span><span class="kc">nil</span><span class="p">,</span> <span class="nv">store</span><span class="p">:</span> <span class="kt">Store</span><span class="p">?</span><span class="o">=</span><span class="kc">nil</span><span class="p">)</span>
+</code></pre>
+
+<p><strong>Where:</strong></p>
+
+<ul>
+<li><em>secret</em> is a String to be used for session encoding. It should be a large unguessable string, say minimum 14 characters long.</li>
+<li><em>cookie</em> is a list of options for session&rsquo;s cookies. The options are (specified in <code><a href="Enums/CookieParameter.html">CookieParameter</a></code> enumeration): <code>name</code> - cookie&rsquo;s name, defaults to <q>kitura-session-id</q>, <code>path</code> - cookie&rsquo;s Path attribute defaults to <q>/</q>, <code>secure</code> - cookie&rsquo;s Secure attribute, false by default, and <code>maxAge</code> - an NSTimeInterval with cookie&rsquo;s expiration time in seconds, defaults to -1.0, i.e., no expiration.</li>
+<li><em>store</em> is an instance of a plugin for session backing store that implements <code><a href="Protocols/Store.html">Store</a></code> protocol. If not set, <code>InMemoryStore</code> is used.
+<br></li>
+</ul>
 
 <p>The last two parameters are optional.</p>
-<a href='#example' class='anchor' aria-hidden=true><span class="header-anchor"></span></a><h2 id='example'>Example</h2>
 
-<p>This is an example of <code>Session</code> middleware with <a href="https://github.com/IBM-Swift/Kitura-Session-Redis"><code>KituraSessionRedis</code></a> plugin:</p>
+<p><br>
+   The <em>secret</em> parameter is used to secure the session ID and ensure that the session ID cannot be guessed. <em>Secret</em> is used to derive a pair of encryption and signature keys via PBKDF2 and a fixed IV to make the session ID cookie be authenticated encrypted. <em>Secret</em> isn&rsquo;t used directly to encrypt or compute the MAC of the cookie.</p>
+<h2 id='example' class='heading'>Example</h2>
+
+<p>This is an example of <code><a href="Classes/Session.html">Session</a></code> middleware with <a href="https://github.com/IBM-Swift/Kitura-Session-Redis"><code>KituraSessionRedis</code></a> plugin:</p>
 <pre class="highlight swift"><code><span class="kd">import</span> <span class="kt">KituraSession</span>
 <span class="kd">import</span> <span class="kt">KituraSessionRedis</span>
 
@@ -129,13 +144,13 @@ public init(secret: String, cookie: [CookieParameter]?=nil, store: Store?=nil)
 <span class="n">router</span><span class="o">.</span><span class="nf">all</span><span class="p">(</span><span class="nv">middleware</span><span class="p">:</span> <span class="n">session</span><span class="p">)</span>
 </code></pre>
 
-<p>First an instance of <code>RedisStore</code> is created (see <a href="https://github.com/IBM-Swift/Kitura-Session-Redis"><code>KituraSessionRedis</code></a> for more information), then an instance of <code>Session</code> with the store as parameter is created, and finally it is connected to the desired path.</p>
-<a href='#plugins' class='anchor' aria-hidden=true><span class="header-anchor"></span></a><h2 id='plugins'>Plugins</h2>
+<p>First an instance of <code>RedisStore</code> is created (see <a href="https://github.com/IBM-Swift/Kitura-Session-Redis"><code>KituraSessionRedis</code></a> for more information), then an instance of <code><a href="Classes/Session.html">Session</a></code> with the store as parameter is created, and finally it is connected to the desired path.</p>
+<h2 id='plugins' class='heading'>Plugins</h2>
 
 <ul>
 <li><a href="https://github.com/IBM-Swift/Kitura-Session-Redis">Redis store</a></li>
 </ul>
-<a href='#license' class='anchor' aria-hidden=true><span class="header-anchor"></span></a><h2 id='license'>License</h2>
+<h2 id='license' class='heading'>License</h2>
 
 <p>This library is licensed under Apache 2.0. Full license text is available in <a href="LICENSE.txt">LICENSE</a>.</p>
 
@@ -146,8 +161,8 @@ public init(secret: String, cookie: [CookieParameter]?=nil, store: Store?=nil)
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-09-22)</p>
-      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.0</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+      <p>&copy; 2017 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2017-10-27)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.8.4</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
 </div>

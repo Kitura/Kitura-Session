@@ -8,6 +8,9 @@
     <script src="../js/jquery.min.js" defer></script>
     <script src="../js/jazzy.js" defer></script>
     
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
   </head>
   <body>
 
@@ -21,6 +24,12 @@
           KituraSession Docs
         </a>
          (100% documented)
+      </p>
+    
+      <p class="header-col--secondary">
+        <form role="search" action="../search.json">
+          <input type="text" placeholder="Search documentation" data-typeahead>
+        </form>
       </p>
     
         <p class="header-col header-col--secondary">
@@ -53,7 +62,7 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Enums.html">Enums</a>
+            <a class="nav-group-name-link" href="../Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/CookieParameter.html">CookieParameter</a>
@@ -101,9 +110,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC13KituraSession7SessioncFT6secretSS6cookieGSqGSaOS_15CookieParameter__5storeGSqPS_5Store___S0_"></a>
+                    <a name="/s:13KituraSession0B0CACSS6secret_SayAA15CookieParameterOGSg6cookieAA5Store_pSg5storetcfc"></a>
                     <a name="//apple_ref/swift/Method/init(secret:cookie:store:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC13KituraSession7SessioncFT6secretSS6cookieGSqGSaOS_15CookieParameter__5storeGSqPS_5Store___S0_">init(secret:cookie:store:)</a>
+                    <a class="token" href="#/s:13KituraSession0B0CACSS6secret_SayAA15CookieParameterOGSg6cookieAA5Store_pSg5storetcfc">init(secret:cookie:store:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -112,24 +121,6 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Initialize a new <code>Session</code> management middleware.</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter secret: The string used to encrypt the session ID cookie.
-
-</div>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter cookie: An array of the cookie&rsquo;s paramaters and attributes.
-
-</div>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter store: The <code><a href="../Protocols/Store.html">Store</a></code> plugin to be used to store the session state.
-
-</div>
 
                       </div>
                       <div class="declaration">
@@ -153,7 +144,6 @@
                               <td>
                                 <div>
                                   <p>The string used to encrypt the session ID cookie.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -165,8 +155,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>An array of the cookie’s paramaters and attributes.</p>
-
+                                  <p>An array of the cookie&rsquo;s paramaters and attributes.</p>
                                 </div>
                               </td>
                             </tr>
@@ -178,8 +167,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>The <code>Store</code> plugin to be used to store the session state.</p>
-
+                                  <p>The <code><a href="../Protocols/Store.html">Store</a></code> plugin to be used to store the session state.</p>
                                 </div>
                               </td>
                             </tr>
@@ -192,9 +180,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC13KituraSession7Session6handleFT7requestC6Kitura13RouterRequest8responseCS1_14RouterResponse4nextFT_T__T_"></a>
+                    <a name="/s:13KituraSession0B0C6handley0A013RouterRequestC7request_AE0D8ResponseC8responseyyc4nexttF"></a>
                     <a name="//apple_ref/swift/Method/handle(request:response:next:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC13KituraSession7Session6handleFT7requestC6Kitura13RouterRequest8responseCS1_14RouterResponse4nextFT_T__T_">handle(request:response:next:)</a>
+                    <a class="token" href="#/s:13KituraSession0B0C6handley0A013RouterRequestC7request_AE0D8ResponseC8responseyyc4nexttF">handle(request:response:next:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -203,27 +191,6 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Handle an incoming request.</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter request: The <code>RouterRequest</code> object used to get information
-                about the request.
-
-</div>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter response: The <code>RouterResponse</code> object used to respond to the
-                  request.
-
-</div>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter next: The closure to invoke to enable the Router to check for
-             other handlers or middleware to work with this request.
-
-</div>
 
                       </div>
                       <div class="declaration">
@@ -246,8 +213,8 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>The <code>RouterRequest</code> object used to get information about the request.</p>
-
+                                  <p>The <code>RouterRequest</code> object used to get information
+                about the request.</p>
                                 </div>
                               </td>
                             </tr>
@@ -259,8 +226,8 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>The <code>RouterResponse</code> object used to respond to the request.</p>
-
+                                  <p>The <code>RouterResponse</code> object used to respond to the
+                  request.</p>
                                 </div>
                               </td>
                             </tr>
@@ -272,8 +239,8 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>The closure to invoke to enable the Router to check for other handlers or middleware to work with this request.</p>
-
+                                  <p>The closure to invoke to enable the Router to check for
+             other handlers or middleware to work with this request.</p>
                                 </div>
                               </td>
                             </tr>
@@ -291,8 +258,8 @@
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-09-22)</p>
-      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.0</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+      <p>&copy; 2017 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2017-10-27)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.8.4</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
 </div>

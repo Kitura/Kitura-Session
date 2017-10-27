@@ -8,6 +8,9 @@
     <script src="../js/jquery.min.js" defer></script>
     <script src="../js/jazzy.js" defer></script>
     
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
   </head>
   <body>
 
@@ -21,6 +24,12 @@
           KituraSession Docs
         </a>
          (100% documented)
+      </p>
+    
+      <p class="header-col--secondary">
+        <form role="search" action="../search.json">
+          <input type="text" placeholder="Search documentation" data-typeahead>
+        </form>
       </p>
     
         <p class="header-col header-col--secondary">
@@ -53,7 +62,7 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Enums.html">Enums</a>
+            <a class="nav-group-name-link" href="../Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/CookieParameter.html">CookieParameter</a>
@@ -101,9 +110,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC13KituraSession12SessionState2idSS"></a>
+                    <a name="/s:13KituraSession0B5StateC2idSSv"></a>
                     <a name="//apple_ref/swift/Property/id" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC13KituraSession12SessionState2idSS">id</a>
+                    <a class="token" href="#/s:13KituraSession0B5StateC2idSSv">id</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -128,62 +137,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:iC13KituraSession12SessionState9subscriptFSSV10SwiftyJSON4JSON"></a>
-                    <a name="//apple_ref/swift/Method/subscript(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:iC13KituraSession12SessionState9subscriptFSSV10SwiftyJSON4JSON">subscript(_:)</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Retrieve an entry from the session data.</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter key: The key of the entry to retrieve.
-
-</div>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="nf">subscript</span><span class="p">(</span><span class="nv">key</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">JSON</span></code></pre>
-
-                        </div>
-                      </div>
-                      <div>
-                        <h4>Parameters</h4>
-                        <table class="graybox">
-                          <tbody>
-                            <tr>
-                              <td>
-                                <code>
-                                <em>key</em>
-                                </code>
-                              </td>
-                              <td>
-                                <div>
-                                  <p>The key of the entry to retrieve.</p>
-
-                                </div>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:FC13KituraSession12SessionState6reloadFT8callbackFGSqCSo7NSError_T__T_"></a>
+                    <a name="/s:13KituraSession0B5StateC6reloadyySo7NSErrorCSgc8callback_tF"></a>
                     <a name="//apple_ref/swift/Method/reload(callback:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC13KituraSession12SessionState6reloadFT8callbackFGSqCSo7NSError_T__T_">reload(callback:)</a>
+                    <a class="token" href="#/s:13KituraSession0B5StateC6reloadyySo7NSErrorCSgc8callback_tF">reload(callback:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -192,12 +148,6 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Reload the session data from the session <code><a href="../Protocols/Store.html">Store</a></code>.</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter callback: The closure to invoke once the reading of session data is complete.
-
-</div>
 
                       </div>
                       <div class="declaration">
@@ -221,7 +171,6 @@
                               <td>
                                 <div>
                                   <p>The closure to invoke once the reading of session data is complete.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -234,9 +183,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC13KituraSession12SessionState4saveFT8callbackFGSqCSo7NSError_T__T_"></a>
+                    <a name="/s:13KituraSession0B5StateC4saveyySo7NSErrorCSgc8callback_tF"></a>
                     <a name="//apple_ref/swift/Method/save(callback:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC13KituraSession12SessionState4saveFT8callbackFGSqCSo7NSError_T__T_">save(callback:)</a>
+                    <a class="token" href="#/s:13KituraSession0B5StateC4saveyySo7NSErrorCSgc8callback_tF">save(callback:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -245,12 +194,6 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Save the session data to the session <code><a href="../Protocols/Store.html">Store</a></code>.</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter callback: The closure to invoke once the writing of session data is complete.
-
-</div>
 
                       </div>
                       <div class="declaration">
@@ -274,7 +217,6 @@
                               <td>
                                 <div>
                                   <p>The closure to invoke once the writing of session data is complete.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -287,9 +229,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC13KituraSession12SessionState7destroyFT8callbackFGSqCSo7NSError_T__T_"></a>
+                    <a name="/s:13KituraSession0B5StateC7destroyyySo7NSErrorCSgc8callback_tF"></a>
                     <a name="//apple_ref/swift/Method/destroy(callback:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC13KituraSession12SessionState7destroyFT8callbackFGSqCSo7NSError_T__T_">destroy(callback:)</a>
+                    <a class="token" href="#/s:13KituraSession0B5StateC7destroyyySo7NSErrorCSgc8callback_tF">destroy(callback:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -298,12 +240,6 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Delete the session data from the session <code><a href="../Protocols/Store.html">Store</a></code>.</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter callback: The closure to invoke once the deletion of session data is complete.
-
-</div>
 
                       </div>
                       <div class="declaration">
@@ -327,7 +263,6 @@
                               <td>
                                 <div>
                                   <p>The closure to invoke once the deletion of session data is complete.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -340,9 +275,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC13KituraSession12SessionState6removeFT3keySS_T_"></a>
+                    <a name="/s:13KituraSession0B5StateC6removeySS3key_tF"></a>
                     <a name="//apple_ref/swift/Method/remove(key:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC13KituraSession12SessionState6removeFT3keySS_T_">remove(key:)</a>
+                    <a class="token" href="#/s:13KituraSession0B5StateC6removeySS3key_tF">remove(key:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -351,12 +286,6 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Remove an entry from the session data.</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter key: The key of the entry to delete.
-
-</div>
 
                       </div>
                       <div class="declaration">
@@ -380,7 +309,52 @@
                               <td>
                                 <div>
                                   <p>The key of the entry to delete.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13KituraSession0B5StateC9subscript10SwiftyJSON0F0VSSci"></a>
+                    <a name="//apple_ref/swift/Method/subscript(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13KituraSession0B5StateC9subscript10SwiftyJSON0F0VSSci">subscript(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Retrieve an entry from the session data.</p>
 
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="nf">subscript</span><span class="p">(</span><span class="nv">key</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">JSON</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>key</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The key of the entry to retrieve.</p>
                                 </div>
                               </td>
                             </tr>
@@ -398,8 +372,8 @@
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-09-22)</p>
-      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.0</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+      <p>&copy; 2017 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2017-10-27)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.8.4</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
 </div>
