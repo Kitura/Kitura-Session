@@ -31,7 +31,7 @@ public class SessionState {
     internal var isEmpty: Bool { return state.isEmpty }
 
     /// Actual session state
-    private var state: [String: Any]
+    private var state: [String: Codable]
 
     /// Store for session state
     private let store: Store
@@ -39,7 +39,7 @@ public class SessionState {
     internal init(id: String, store: Store) {
         self.id = id
         self.store = store
-        state = [String: Any]()
+        state = [String: Codable]()
     }
 
     /// Reload the session data from the session `Store`.
@@ -50,8 +50,15 @@ public class SessionState {
             if  error == nil {
                 if  let data = data,
                     let state = (try? JSONSerialization.jsonObject(with: data, options: [])) as? [String:Any] {
-
-                    self.state = state
+                    var codableState: [String: Codable] = [:]
+                    for (key, _) in state {
+                        //codableState[key] = (state[key] as? Codable)
+                        //https://github.com/apple/swift/blob/master/stdlib/public/core/Codable.swift line 4213
+                        //https://github.com/apple/swift/blob/e0974640ab9d3cc9237773b96d45b7e1db6a5ab5/stdlib/public/core/Codable.swift#L4005
+                        // When that gets fixed this will fail at compile time.
+                        codableState[key] = (state[key] as Codable)
+                    }
+                    self.state = codableState
                 } else {
                     // Not found in store
                     self.state = [:]
@@ -68,7 +75,7 @@ public class SessionState {
     public func save(callback: @escaping (NSError?) -> Void) {
         do {
             let data = try JSONSerialization.data(withJSONObject: self.state, options: [])
-            store.save(sessionId: id, data: data, callback: callback)
+            store.save(sessionId: id, data: data, callback: callback)            
         } catch {
             #if os(Linux)
                 let err = NSError(domain: error.localizedDescription, code: -1)
@@ -102,7 +109,7 @@ public class SessionState {
     /// Retrieve an entry from the session data.
     ///
     /// - Parameter key: The key of the entry to retrieve.
-    public subscript(key: String) -> Any? {
+    public subscript(key: String) -> Codable? {
         get {
             return state[key]
         }
