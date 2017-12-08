@@ -35,7 +35,7 @@ public class SessionState {
 
     /// Store for session state
     private let store: Store
-
+    
     internal init(id: String, store: Store) {
         self.id = id
         self.store = store
@@ -52,11 +52,7 @@ public class SessionState {
                     let state = (try? JSONSerialization.jsonObject(with: data, options: [])) as? [String:Any] {
                     var codableState: [String: Codable] = [:]
                     for (key, _) in state {
-                        //codableState[key] = (state[key] as? Codable)
-                        //https://github.com/apple/swift/blob/master/stdlib/public/core/Codable.swift line 4213
-                        //https://github.com/apple/swift/blob/e0974640ab9d3cc9237773b96d45b7e1db6a5ab5/stdlib/public/core/Codable.swift#L4005
-                        // When that gets fixed this will fail at compile time.
-                        codableState[key] = (state[key] as Codable)
+                        codableState[key] = unbox(state[key])
                     }
                     self.state = codableState
                 } else {
@@ -118,4 +114,7 @@ public class SessionState {
             isDirty = true
         }
     }
+    
 }
+
+
