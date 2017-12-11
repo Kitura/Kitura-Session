@@ -17,48 +17,55 @@
 
 import Foundation
 
-public func unbox(_ array: NSArray) -> [Codable]? {
-    var result = [Codable]()
-    for val in array {
-        result.append(unbox(val))
-    }
-    return result
-}
 
-public func unbox(_ dict: NSDictionary) -> [String: Codable]? {
-    var result = [String: Codable]()
-    for (key, value) in dict {
-        if let key = key as? String {
-            result[key] = unbox(value)
+#if os(Linux)
+    func unbox(_ code: Any) -> Codable? {
+        return code as? Codable
+    }
+#else
+    public func unbox(_ array: NSArray) -> [Codable]? {
+        var result = [Codable]()
+        for val in array {
+            result.append(unbox(val))
         }
+        return result
     }
-    return result
-}
-
-public func unbox(_ str: NSString) -> Codable? {
-    return (str as String) as Codable
-}
-
-public func unbox(_ num: NSNumber) -> Codable? {
-    let codableNum : Codable
-    if floor(num.doubleValue) == num.doubleValue {
-        codableNum = num.doubleValue
-    } else {
-        codableNum = num.intValue
+    
+    public func unbox(_ dict: NSDictionary) -> [String: Codable]? {
+        var result = [String: Codable]()
+        for (key, value) in dict {
+            if let key = key as? String {
+                result[key] = unbox(value)
+            }
+        }
+        return result
     }
-    return codableNum
-}
-
-public func unbox<T: Any>(_ val: T) -> Codable? {
-    let unboxed: Codable?
-    switch val {
-    case let str as NSString: unboxed = unbox(str)
-    case let arr as NSArray:  unboxed = unbox(arr)
-    case let dict as NSDictionary: unboxed = unbox(dict)
-    case let num as NSNumber: unboxed = unbox(num)
-    case is NSNull: unboxed = nil
-    default: unboxed = nil
+    
+    public func unbox(_ str: NSString) -> Codable? {
+        return (str as String) as Codable
     }
-    return unboxed
-}
+    
+    public func unbox(_ num: NSNumber) -> Codable? {
+        let codableNum : Codable
+        if floor(num.doubleValue) == num.doubleValue {
+            codableNum = num.doubleValue
+        } else {
+            codableNum = num.intValue
+        }
+        return codableNum
+    }
+    
+    public func unbox<T: Any>(_ val: T) -> Codable? {
+        let unboxed: Codable?
+        switch val {
+        case let str as NSString: unboxed = unbox(str)
+        case let arr as NSArray:  unboxed = unbox(arr)
+        case let dict as NSDictionary: unboxed = unbox(dict)
+        case let num as NSNumber: unboxed = unbox(num)
+        case is NSNull: unboxed = nil
+        default: unboxed = nil
+        }
+        return unboxed
+    }
+#endif
 
