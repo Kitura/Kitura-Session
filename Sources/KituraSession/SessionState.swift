@@ -49,12 +49,9 @@ public class SessionState {
         store.load(sessionId: id) {(data: Data?, error: NSError?) in
             if  error == nil {
                 if  let data = data,
-                    let state = (try? JSONSerialization.jsonObject(with: data, options: [])) as? [String:Any] {
-                    var codableState: [String: Codable] = [:]
-                    for (key, _) in state {
-                        codableState[key] = unbox(state[key])
-                    }
-                    self.state = codableState
+                    let state = (try? JSONSerialization.jsonObject(with: data, options: [])) as? [String:Any],
+                    let codableState = unbox(state) as? [String: Codable]{
+                        self.state = codableState
                 } else {
                     // Not found in store
                     self.state = [:]
