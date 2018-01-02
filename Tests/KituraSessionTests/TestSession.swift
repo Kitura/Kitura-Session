@@ -19,7 +19,6 @@ import KituraNet
 
 import Foundation
 import XCTest
-import SwiftyJSON
 
 @testable import KituraSession
 
@@ -66,14 +65,13 @@ class TestSession: XCTestCase, KituraTest {
         })
     }
 
-
     func setupAdvancedSessionRouter() -> Router {
         let router = Router()
 
         router.all(middleware: Session(secret: "Very very secret.....", cookie: [.name(cookie1Name), .path("/1"), .maxAge(2)]))
 
         router.get("/1/session") {request, response, next in
-            request.session?[sessionTestKey] = JSON(sessionTestValue as PropValue)
+            request.session?[sessionTestKey] = sessionTestValue
             response.status(.noContent)
 
             next()
@@ -196,14 +194,14 @@ class TestSession: XCTestCase, KituraTest {
         router.all(middleware: Session(secret: "Very very secret....."))
 
         router.get("/2/session") {request, response, next in
-            request.session?[sessionTestKey] = JSON(sessionTestValue as PropValue)
+            request.session?[sessionTestKey] = sessionTestValue
             response.status(.noContent)
 
             next()
         }
 
         router.post("/3/session") {request, response, next in
-            request.session?[sessionTestKey] = JSON(sessionTestValue as PropValue)
+            request.session?[sessionTestKey] = sessionTestValue
             response.status(.noContent)
 
             next()
@@ -212,7 +210,7 @@ class TestSession: XCTestCase, KituraTest {
         router.get("/3/session") {request, response, next in
             response.headers.append("Content-Type", value: "text/plain; charset=utf-8")
             do {
-                if let value = request.session?[sessionTestKey].string {
+                if let value = request.session?[sessionTestKey] as? String {
                     try response.status(.OK).send("\(value)").end()
                 } else {
                     response.status(.noContent)
