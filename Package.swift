@@ -26,10 +26,6 @@ let package = Package(
         .library(
             name: "KituraSession",
             targets: ["KituraSession"]
-        ),
-        .library(
-            name: "KituraSessionRedis",
-            targets: ["KituraSessionRedis"]
         )
     ],
     dependencies: [
