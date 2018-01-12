@@ -15,15 +15,8 @@
  **/
 
 import Foundation
-import SwiftyJSON
 
 // MARK SessionState
-
-#if os(Linux)
-    typealias SessionStateObjectType = Any
-#else
-    typealias SessionStateObjectType = AnyObject
-#endif
 
 /// A set of helper functions to manipulate session data.
 public class SessionState {
@@ -38,7 +31,7 @@ public class SessionState {
     internal var isEmpty: Bool { return state.isEmpty }
 
     /// Actual session state
-    private var state: JSON
+    private var state: [String: Any]
 
     /// Store for session state
     private let store: Store
@@ -46,7 +39,7 @@ public class SessionState {
     internal init(id: String, store: Store) {
         self.id = id
         self.store = store
-        state = JSON([String: SessionStateObjectType]() as SessionStateObjectType)
+        state = [String: Any]()
     }
 
     /// Reload the session data from the session `Store`.
@@ -55,11 +48,12 @@ public class SessionState {
     public func reload(callback: @escaping (NSError?) -> Void) {
         store.load(sessionId: id) {(data: Data?, error: NSError?) in
             if  error == nil {
-                if  let data = data {
-                    self.state = JSON(data: data, options: [])
+                if  let data = data,
+                    let state = (try? JSONSerialization.jsonObject(with: data, options: [])) as? [String:Any] {
+                    self.state = state
                 } else {
                     // Not found in store
-                    self.state = JSON([String: SessionStateObjectType]() as SessionStateObjectType)
+                    self.state = [:]
                 }
                 self.isDirty = false
             }
@@ -72,7 +66,7 @@ public class SessionState {
     /// - Parameter callback: The closure to invoke once the writing of session data is complete.
     public func save(callback: @escaping (NSError?) -> Void) {
         do {
-            let data = try state.rawData()
+            let data = try JSONSerialization.data(withJSONObject: self.state, options: [])
             store.save(sessionId: id, data: data, callback: callback)
         } catch {
             #if os(Linux)
@@ -90,7 +84,7 @@ public class SessionState {
     /// - Parameter callback: The closure to invoke once the deletion of session data is complete.
     public func destroy(callback: @escaping (NSError?) -> Void) {
         store.delete(sessionId: id) { error in
-            self.state = JSON([String: SessionStateObjectType]() as SessionStateObjectType)
+            self.state = [:]
             self.isDirty = false
             callback(error)
         }
@@ -107,7 +101,7 @@ public class SessionState {
     /// Retrieve an entry from the session data.
     ///
     /// - Parameter key: The key of the entry to retrieve.
-    public subscript(key: String) -> JSON {
+    public subscript(key: String) -> Any? {
         get {
             return state[key]
         }
