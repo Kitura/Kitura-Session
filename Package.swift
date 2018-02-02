@@ -29,7 +29,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/IBM-Swift/Kitura.git", .upToNextMinor(from: "2.1.0")),
+        .package(url: "https://github.com/IBM-Swift/Kitura.git", from: "2.1.0"),
         .package(url: "https://github.com/IBM-Swift/BlueCryptor.git", .upToNextMinor(from: "0.8.0")),
     ],
     targets: [
