@@ -43,9 +43,16 @@ public class Session: RouterMiddleware {
             Log.warning("Using default in-memory session store")
             self.store = InMemoryStore()
         }
-
-        let cookieCrypto = CookieCryptography(secret: secret)
-        cookieManager = CookieManagement(cookieCrypto: cookieCrypto, cookieParms: cookie)
+        
+        do {
+            let cookieCrypto = try CookieCryptography(secret: secret)
+            cookieManager = CookieManagement(cookieCrypto: cookieCrypto, cookieParms: cookie)
+        } catch {
+            Log.error("Error creating CookieCryptography object: \(error)")
+            fatalError("Error creating CookieCryptography object: \(error)")
+        }
+        
+        
     }
 
     

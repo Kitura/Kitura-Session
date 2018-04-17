@@ -40,12 +40,12 @@ class CookieCryptography {
     ///
     private let originalLength = 36
 
-    init (secret: String) {
+    init (secret: String) throws {
         let encryptionKeySalt = "If two witches would watch two watches, which witch would watch which watch?"
         let signatureKeySalt = "Six sick hicks nick six slick bricks with picks and sticks."
         let keyLength = UInt(Cryptor.Algorithm.aes.defaultKeySize)
-        self.encryptionKey = PBKDF.deriveKey(fromPassword: secret, salt: encryptionKeySalt, prf: .sha256, rounds: 2, derivedKeyLength: keyLength)
-        self.signatureKey = PBKDF.deriveKey(fromPassword: secret, salt: signatureKeySalt, prf: .sha256, rounds: 2, derivedKeyLength: keyLength)
+        self.encryptionKey = try PBKDF.deriveKey(fromPassword: secret, salt: encryptionKeySalt, prf: .sha256, rounds: 2, derivedKeyLength: keyLength)
+        self.signatureKey = try PBKDF.deriveKey(fromPassword: secret, salt: signatureKeySalt, prf: .sha256, rounds: 2, derivedKeyLength: keyLength)
     }
 
     ///
@@ -68,22 +68,28 @@ class CookieCryptography {
         if plainData.count % Cryptor.Algorithm.aes.blockSize != 0 {
             dataToCipher = CryptoUtils.zeroPad(byteArray: plainData, blockSize: Cryptor.Algorithm.aes.blockSize)
         }
-
-        guard let cipherData = Cryptor(operation: .encrypt, algorithm: .aes, options: .none, key: encryptionKey, iv: iv).update(byteArray: dataToCipher)?.final() else {
-            Log.error("Failed to encrypt cookie")
+        
+        do {
+            guard let cipherData = try Cryptor(operation: .encrypt, algorithm: .aes, options: .none, key: encryptionKey, iv: iv).update(byteArray: dataToCipher)?.final() else {
+                Log.error("Failed to encrypt cookie")
+                return nil
+            }
+            let cipherText = CryptoUtils.hexString(from: cipherData)
+            
+            // HMAC
+            guard let hmacData = HMAC(using: HMAC.Algorithm.sha256, key: signatureKey).update(byteArray: cipherData)?.final() else {
+                Log.error("Failed to sign cookie")
+                return nil
+            }
+            let hmac = CryptoUtils.hexString(from: hmacData)
+            
+            // iv.encryptedData.hmac
+            return CryptoUtils.hexString(from: iv) + "." + cipherText + "." + hmac
+        } catch {
+            Log.error("Error encoding cookie: \(error)")
             return nil
         }
-        let cipherText = CryptoUtils.hexString(from: cipherData)
 
-        // HMAC
-        guard let hmacData = HMAC(using: HMAC.Algorithm.sha256, key: signatureKey).update(byteArray: cipherData)?.final() else {
-            Log.error("Failed to sign cookie")
-            return nil
-        }
-        let hmac = CryptoUtils.hexString(from: hmacData)
-
-        // iv.encryptedData.hmac
-        return CryptoUtils.hexString(from: iv) + "." + cipherText + "." + hmac
     }
 
     ///
@@ -116,16 +122,24 @@ class CookieCryptography {
         }
 
         // Decryption
-        guard let decryptedData = Cryptor(operation: .decrypt, algorithm: .aes, options: .none, key: encryptionKey, iv: iv).update(byteArray: cipherData)?.final() else {
-            Log.error("Failed to decrypt cookie")
+        do {
+            
+            guard let decryptedData = try Cryptor(operation: .decrypt, algorithm: .aes, options: .none, key: encryptionKey, iv: iv).update(byteArray: cipherData)?.final() else {
+                Log.error("Failed to decrypt cookie")
+                return nil
+            }
+            
+            var resultData = decryptedData
+            // Remove padding
+            resultData.removeSubrange(originalLength ..< decryptedData.count)
+            
+            return String(data: Data(bytes: resultData), encoding: .utf8)
+            
+        } catch {
+            Log.error("Error decoding cookie: \(error)")
             return nil
         }
-
-        var resultData = decryptedData
-        // Remove padding
-        resultData.removeSubrange(originalLength ..< decryptedData.count)
-
-        return String(data: Data(bytes: resultData), encoding: .utf8)
+        
     }
 
 }
