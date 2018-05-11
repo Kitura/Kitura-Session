@@ -91,36 +91,63 @@ extension CodableSession {
         let (sessionId, newSession) = cookieStuff.cookieManager.getSessionId(request: request, response: response)
         if let sessionId = sessionId {
             if newSession {
+                Log.verbose("Creating new session: \(sessionId)")  //TODO: remove secret ID from log
                 let session = Self(sessionId: sessionId)
-                completion(session, nil)
+                return completion(session, nil)
             } else {
                 // We have a session cookie, now we want to decode a saved CodableSession
                 store.load(sessionId: sessionId) { data, error in
+                    if let error = error {
+                        Log.error("Error retreiving session from store: \(error)")
+                        return completion(nil, .internalServerError)
+                    }
                     if let data = data {
                         do {
                             let decoder = JSONDecoder()
-                            let selfInstance: Self = try decoder.decode(Self, from: data)
-                            completion(selfInstance, nil)
+                            let selfInstance: Self = try decoder.decode(Self.self, from: data)
+                            return completion(selfInstance, nil)
                         } catch {
-                            
+                            // We end up here if there is a session serialized in the store, but we couldn't decode it.
+                            // Maybe if the store is persistent and the user changes the model?
+                            Log.error("Unable to deserialize saved session for sessionId=\(sessionId)")
+                            return completion(nil, .internalServerError)
                         }
                     } else {
-                        completion(Self(sessionId: sessionId), nil)
+                        Log.verbose("Creating new session \(sessionId) as user-supplied session cookie could not be retreived from the store.")
+                        return completion(Self(sessionId: sessionId), nil)
                     }
                 }
             }
-            let session = Self(sessionId: sessionId)
+        } else {
+            // Session cookie was provided, but could not be decrypted - either corrupt, invalid or we changed our key?
+            // TODO: Think about this - if a client has a bad cookie then shouldn't we be providing them with a new one (ie. new session)?
+            Log.error("Invalid session cookie provided")
+            return completion(nil, .badRequest)
+        }
+    }
+    
+    // Registers a lifecycle event handler to save the session state if it has been modified during the handling of the request.
+    // TODO: How do we detect that a _struct_ has been modified when they are pass by value?
+    // Could we use the deinit of the struct to notify us that the handler has completed?
+    // Thought...
+    // Store the session as raw JSON against the request
+    // Store the session again (on deinit) against the request, check if it has changed, ...  but there isn't a deinit on a Struct :(
+    // Another thought...
+    // What if someone tried to use regular (raw) Session middleware on a raw route and CodableSession on a Codable route?
+    private static func registerSessionSaveHandler(request: RouterRequest, response: RouterResponse, newSession: Bool) {
             var previousOnEndInvoked: LifecycleHandler? = nil
             let onEndInvoked = { [weak request, weak response] in
                 guard let previousOnEndInvoked = previousOnEndInvoked else {return}
                 guard let request = request else {previousOnEndInvoked(); return}
                 guard let response = response else {previousOnEndInvoked(); return}
+                // XXXXXXXXXXXXXXXX TODO: this is not right yet. We need to get at the Session struct that was passed to the handler
                 if  let session = request.session {
                     if  newSession  &&  !session.isEmpty {
                         guard cookieStuff.cookieManager.addCookie(sessionId: session.id, domain: request.hostname, response: response) == true else {
                             response.status(.internalServerError)
-                            next()
-                            return
+                            // TODO: Make sure this bug gets fixed in regular Session
+                            Log.error("Unable to encrypt new session cookie data")
+                            return previousOnEndInvoked()
                         }
                     }
                     if  session.isDirty {
@@ -142,24 +169,5 @@ extension CodableSession {
                 previousOnEndInvoked()
             }
             previousOnEndInvoked = response.setOnEndInvoked(onEndInvoked)
-
-            if  newSession {
-                request.session = session
-                next()
-            } else {
-                session.reload() {error in
-                    if  let error = error {
-                        // Failed to load data from store,
-                        Log.error("Failed to load session data from store. Error=\(error)")
-                    } else {
-                        request.session = session
-                    }
-                    next()
-                }
-            }
-        } else {
-            // Failed to decrypt the cookie
-            next()
-        }
     }
 }
