@@ -30,22 +30,28 @@ public protocol CodableSession: TypedMiddleware, Codable {
     /// Store for session state, for example, InMemoryStore.
     static var store: Store { get }
     
-    /// Secret for initializing cryptography used to generate session cookies.
+    /// Secret for initializing cryptography used to generate session cookies. This is
+    /// sensitive data that should never be exposed to a client.
     static var secret: String { get }
     
     /// An optional array of the cookie's parameters an attributes.
+    /// TODO: example of usage
     static var cookie: [CookieParameter]? { get }
     
     // MARK - Instance properties (User's type can also define any additional Codable properties)
     
-    /// The Session id for this Session
+    /// The secret, unencrypted session id for this Session. This is sensitive data which
+    /// should be kept safe and never exposed to a client.
     var sessionId: String { get }
     
     /// Save the current session instance to the store
     func save() throws
     
+    /// Destroy the session, removing it and all its associated data from the store
+    func destroy() throws
+    
     /// Create a new instance which is a blank Session. Existing sessions
-    /// are created by decoding a stored JSON representation.
+    /// are instead created by decoding a stored JSON representation.
     init(sessionId: String)
 }
 
@@ -96,6 +102,12 @@ extension CodableSession {
             if newSession {
                 Log.verbose("Creating new session: \(sessionId)")  //TODO: remove secret ID from log
                 guard cookieStuff.cookieManager.addCookie(sessionId: sessionId, domain: request.hostname, response: response) else {
+                    // This is presumably a failure of Cookie Cryptography, which is likely a server misconfiguration.
+                    // It is not possible to issue a session cookie to the client.
+                    // TODO: Options: we could fail, or we could continue on anyway without a session.
+                    // Danger of continuing is that we might store things into the session, and persist it,
+                    // with no way of retreiving it again.
+                    // - we have opted to fail
                     Log.error("Failed to add cookie to response")
                     return completion(nil, .internalServerError)
                 }
@@ -116,10 +128,14 @@ extension CodableSession {
                         } catch {
                             // We end up here if there is a session serialized in the store, but we couldn't decode it.
                             // Maybe if the store is persistent and the user changes the model?
+                            // TODO: Options: we could fail, or we could log the error and create a new session.
+                            // - we've opted to fail here
                             Log.error("Unable to deserialize saved session for sessionId=\(sessionId), with error: \(error)")
                             return completion(nil, .internalServerError)
                         }
                     } else {
+                        // This is okay - a valid cookie was provided but no session could be found in the store.
+                        // The session may have timed out, been purged (eg. user logged out) or server was restarted.
                         Log.verbose("Creating new session \(sessionId) as user-supplied session cookie could not be retreived from the store.")
                         return completion(Self(sessionId: sessionId), nil)
                     }
@@ -127,7 +143,9 @@ extension CodableSession {
             }
         } else {
             // Session cookie was provided, but could not be decrypted - either corrupt, invalid or we changed our key?
-            // TODO: Think about this - if a client has a bad cookie then shouldn't we be providing them with a new one (ie. new session)?
+            // TODO: Options: we could fail, or we could log the error and create a new session.
+            // If a client has a bad cookie then shouldn't we be providing them with a new one (ie. new session)?
+            // - we've opted to fail for now
             Log.error("Invalid session cookie provided")
             return completion(nil, .badRequest)
         }
@@ -147,6 +165,14 @@ extension CodableSession {
             // Maybe if the store is persistent and the user changes the model?
             Log.error("Unable to serialize session for sessionId=\(sessionId), with error: \(error)")
             throw error
+        }
+    }
+    
+    public func destroy() throws {
+        Self.store.delete(sessionId: self.sessionId) { error in
+            if let error = error {
+                Log.error("Failed to delete session data for session: \(self.sessionId) with error: \(error)")
+            }
         }
     }
 }
