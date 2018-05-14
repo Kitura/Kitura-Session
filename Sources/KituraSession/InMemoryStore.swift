@@ -17,29 +17,25 @@
 import Foundation
 
 
-public final class InMemoryStore: Store {
+internal class InMemoryStore: Store {
 
     private var store = [String: Data]()
 
-    public func load(sessionId: String, callback: @escaping (Data?, NSError?) -> Void) {
+    internal func load(sessionId: String, callback: @escaping (Data?, NSError?) -> Void) {
         callback(store[sessionId], nil)
     }
 
-    public func save(sessionId: String, data: Data, callback: @escaping (NSError?) -> Void) {
+    internal func save(sessionId: String, data: Data, callback: @escaping (NSError?) -> Void) {
         store[sessionId] = data
         callback(nil)
     }
 
-    public func touch(sessionId: String, callback: @escaping (NSError?) -> Void) {
+    internal func touch(sessionId: String, callback: @escaping (NSError?) -> Void) {
         callback(nil)
     }
 
-    public func delete(sessionId: String, callback: @escaping (NSError?) -> Void) {
+    internal func delete(sessionId: String, callback: @escaping (NSError?) -> Void) {
         store.removeValue(forKey: sessionId)
         callback(nil)
-    }
-    
-    public init() {
-        
     }
 }
