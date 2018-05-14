@@ -28,7 +28,7 @@ public protocol CodableSession: TypedMiddleware, Codable {
     // MARK - Static properties used to define how Sessions are configured and stored
 
     /// Store for session state, for example, InMemoryStore.
-    static var store: Store { get }
+    static var store: Store? { get set }
     
     /// Secret for initializing cryptography used to generate session cookies. This is
     /// sensitive data that should never be exposed to a client.
@@ -94,9 +94,17 @@ extension CodableSession {
     ///                     about the request.
     /// - Parameter response: The `RouterResponse` object used to respond to the
     ///                       request.
-    /// - Parameter next: The closure to invoke to enable the Router to check for
-    ///                  other handlers or middleware to work with this request.
+    /// - Parameter completion: The closure to invoke once middleware processing
+    ///                         is complete. Either an instance of Self or a
+    ///                         RequestError should be provided, indicating a
+    ///                         successful or failed attempt to process the request.
     public static func handle(request: RouterRequest, response: RouterResponse, completion: @escaping (Self?, RequestError?) -> Void) {
+        // If the user's type has not assigned a store, default to an in-memory store
+        let store = Self.store ?? InMemoryStore()
+        if Self.store == nil {
+            Log.info("No session store was specified by \(Self.self), defaulting to in-memory store.")
+            Self.store = store
+        }
         let (sessionId, newSession) = cookieStuff.cookieManager.getSessionId(request: request, response: response)
         if let sessionId = sessionId {
             if newSession {
@@ -152,10 +160,14 @@ extension CodableSession {
     }
     
     public func save() throws {
+        guard let store = Self.store else {
+            Log.error("Unexpectedly found a nil store")
+            return
+        }
         let encoder = JSONEncoder()
         do {
             let selfData: Data = try encoder.encode(self)
-            Self.store.save(sessionId: self.sessionId, data: selfData) { error in
+            store.save(sessionId: self.sessionId, data: selfData) { error in
                 if  let error = error {
                     Log.error("Failed to save session data for session: \(self.sessionId) with error: \(error)")
                 }
@@ -169,7 +181,11 @@ extension CodableSession {
     }
     
     public func destroy() throws {
-        Self.store.delete(sessionId: self.sessionId) { error in
+        guard let store = Self.store else {
+            Log.error("Unexpectedly found a nil store")
+            return
+        }
+        store.delete(sessionId: self.sessionId) { error in
             if let error = error {
                 Log.error("Failed to delete session data for session: \(self.sessionId) with error: \(error)")
             }
