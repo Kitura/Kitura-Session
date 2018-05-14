@@ -42,7 +42,7 @@ public protocol CodableSession: TypedMiddleware, Codable {
     var sessionId: String { get }
     
     /// Save the current session instance to the store
-    func save()
+    func save() throws
     
     /// Create a new instance which is a blank Session. Existing sessions
     /// are created by decoding a stored JSON representation.
@@ -133,7 +133,7 @@ extension CodableSession {
         }
     }
     
-    func save() throws {
+    public func save() throws {
         let encoder = JSONEncoder()
         do {
             let selfData: Data = try encoder.encode(self)
