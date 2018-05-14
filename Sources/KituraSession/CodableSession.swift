@@ -41,6 +41,9 @@ public protocol CodableSession: TypedMiddleware, Codable {
     /// The Session id for this Session
     var sessionId: String { get }
     
+    /// Save the current session instance to the store
+    func save()
+    
     /// Create a new instance which is a blank Session. Existing sessions
     /// are created by decoding a stored JSON representation.
     init(sessionId: String)
@@ -92,6 +95,10 @@ extension CodableSession {
         if let sessionId = sessionId {
             if newSession {
                 Log.verbose("Creating new session: \(sessionId)")  //TODO: remove secret ID from log
+                guard cookieStuff.cookieManager.addCookie(sessionId: sessionId, domain: request.hostname, response: response) else {
+                    Log.error("Failed to add cookie to response")
+                    return completion(nil, .internalServerError)
+                }
                 let session = Self(sessionId: sessionId)
                 return completion(session, nil)
             } else {
@@ -109,7 +116,7 @@ extension CodableSession {
                         } catch {
                             // We end up here if there is a session serialized in the store, but we couldn't decode it.
                             // Maybe if the store is persistent and the user changes the model?
-                            Log.error("Unable to deserialize saved session for sessionId=\(sessionId)")
+                            Log.error("Unable to deserialize saved session for sessionId=\(sessionId), with error: \(error)")
                             return completion(nil, .internalServerError)
                         }
                     } else {
@@ -126,48 +133,20 @@ extension CodableSession {
         }
     }
     
-    // Registers a lifecycle event handler to save the session state if it has been modified during the handling of the request.
-    // TODO: How do we detect that a _struct_ has been modified when they are pass by value?
-    // Could we use the deinit of the struct to notify us that the handler has completed?
-    // Thought...
-    // Store the session as raw JSON against the request
-    // Store the session again (on deinit) against the request, check if it has changed, ...  but there isn't a deinit on a Struct :(
-    // Another thought...
-    // What if someone tried to use regular (raw) Session middleware on a raw route and CodableSession on a Codable route?
-    private static func registerSessionSaveHandler(request: RouterRequest, response: RouterResponse, newSession: Bool) {
-            var previousOnEndInvoked: LifecycleHandler? = nil
-            let onEndInvoked = { [weak request, weak response] in
-                guard let previousOnEndInvoked = previousOnEndInvoked else {return}
-                guard let request = request else {previousOnEndInvoked(); return}
-                guard let response = response else {previousOnEndInvoked(); return}
-                // XXXXXXXXXXXXXXXX TODO: this is not right yet. We need to get at the Session struct that was passed to the handler
-                if  let session = request.session {
-                    if  newSession  &&  !session.isEmpty {
-                        guard cookieStuff.cookieManager.addCookie(sessionId: session.id, domain: request.hostname, response: response) == true else {
-                            response.status(.internalServerError)
-                            // TODO: Make sure this bug gets fixed in regular Session
-                            Log.error("Unable to encrypt new session cookie data")
-                            return previousOnEndInvoked()
-                        }
-                    }
-                    if  session.isDirty {
-                        session.save() {error in
-                            if  error != nil {
-                                Log.error("Failed to save session data for session \(session.id)")
-                            }
-                        }
-                    } else {
-                        if  !session.isEmpty {
-                            self.store.touch(sessionId: session.id) {error in
-                                if  error != nil {
-                                    Log.error("Failed to \"touch\" session for session \(session.id)")
-                                }
-                            }
-                        }
-                    }
+    func save() throws {
+        let encoder = JSONEncoder()
+        do {
+            let selfData: Data = try encoder.encode(self)
+            Self.store.save(sessionId: self.sessionId, data: selfData) { error in
+                if  let error = error {
+                    Log.error("Failed to save session data for session: \(self.sessionId) with error: \(error)")
                 }
-                previousOnEndInvoked()
             }
-            previousOnEndInvoked = response.setOnEndInvoked(onEndInvoked)
+        } catch {
+            // We end up here if there is a session serialized in the store, but we couldn't decode it.
+            // Maybe if the store is persistent and the user changes the model?
+            Log.error("Unable to serialize session for sessionId=\(sessionId), with error: \(error)")
+            throw error
+        }
     }
 }
