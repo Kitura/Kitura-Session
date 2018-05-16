@@ -55,9 +55,10 @@ public protocol CodableSession: TypedMiddleware, Codable {
     init(sessionId: String)
 }
 
-// TODO: This doesn't seem right, I don't like having to have a singleton as this is
-// shared across all conformances to CodableSession.
-private struct CookieStuff {
+// The configuration of the Cookies used for a Session is configurable by the user and
+// is defined statically on their type via the CookieParameters. This type is used to
+// associate the functionality and configuration for handling cookies with the user's type.
+private struct CookieConfiguration {
     
     /// The cookie crypto engine that will be used to generate secure session cookies.
     let cookieCrypto: CookieCryptography
@@ -70,21 +71,29 @@ private struct CookieStuff {
         cookieManager = CookieManagement(cookieCrypto: cookieCrypto, cookieParms: cookieParms)
     }
     
-    // Workaround so that we can initialize CookieStuff in a static context
-    static var singleton: CookieStuff? = nil
+    // A dictionary of CookieConfiguration instances, keyed by a String that uniquely identifies
+    // the user's CodableSession type. This is used to associate a single instance of
+    // CookieConfiguration with each CodableSession type, without exposing a placeholder for it
+    // on the user's type (via the protocol).
+    static var configurationForType: [String: CookieConfiguration] = [:]
 
 }
 
 extension CodableSession {
     
-    // Workaround so we can initialize CookieStuff in a static context
-    private static var cookieStuff: CookieStuff {
-        if let singleton = CookieStuff.singleton {
-            return singleton
+    // Initialize the CookieConfiguration in a static context, associating an instance
+    // with the user's type.
+    // TODO: This is currently using a combination of the user's type name and the String
+    // they define via the static describe() function as a key.
+    private static var cookieStuff: CookieConfiguration {
+        let key: String = "\(Self.self)_".appending(Self.describe())
+        if let cookieConfiguration = CookieConfiguration.configurationForType[key] {
+            return cookieConfiguration
         } else {
-            let singleton = CookieStuff(secret: secret, cookieParms: cookie)
-            CookieStuff.singleton = singleton
-            return singleton
+            Log.debug("Associating CodableSession CookieConfiguration with key '\(key)' for type \(Self.self)")
+            let cookieConfiguration = CookieConfiguration(secret: secret, cookieParms: cookie)
+            CookieConfiguration.configurationForType[key] = cookieConfiguration
+            return cookieConfiguration
         }
     }
     
@@ -159,6 +168,7 @@ extension CodableSession {
         }
     }
     
+    /// Save the current session instance to the store
     public func save() throws {
         guard let store = Self.store else {
             Log.error("Unexpectedly found a nil store")
@@ -180,6 +190,7 @@ extension CodableSession {
         }
     }
     
+    /// Destroy the session, removing it and all its associated data from the store
     public func destroy() throws {
         guard let store = Self.store else {
             Log.error("Unexpectedly found a nil store")
