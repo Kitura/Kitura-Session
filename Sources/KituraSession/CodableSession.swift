@@ -23,11 +23,13 @@ import Foundation
 // MARK Session
 
 /// A pluggable middleware for managing user sessions.
-public protocol CodableSession: TypedMiddleware, Codable {
+public protocol TypedSession: TypedMiddleware, Codable {
     
     // MARK - Static properties used to define how Sessions are configured and stored
 
-    /// Store for session state, for example, InMemoryStore.
+    /// Specifies the store for session state, or leave `nil` to use a simple in-memory store.
+    /// Note that in-memory stores do not provide support for expiry so should be used for
+    /// development and testing purposes only.
     static var store: Store? { get set }
     
     /// Secret for initializing cryptography used to generate session cookies. This is
@@ -79,7 +81,7 @@ private struct CookieConfiguration {
 
 }
 
-extension CodableSession {
+extension TypedSession {
     
     // Initialize the CookieConfiguration in a static context, associating an instance
     // with the user's type.
@@ -202,4 +204,10 @@ extension CodableSession {
             }
         }
     }
+    
+    // Describe the nature of this middleware
+    public static func describe() -> String {
+        return "Kitura Type-Safe Session"
+    }
+
 }
