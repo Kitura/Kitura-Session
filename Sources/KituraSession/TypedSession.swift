@@ -23,7 +23,7 @@ import Foundation
 // MARK Session
 
 /// A pluggable middleware for managing user sessions.
-public protocol TypedSession: TypedMiddleware, Codable {
+public protocol TypedSession: TypeSafeMiddleware, Codable {
     
     // MARK - Static properties used to define how Sessions are configured and stored
 
