@@ -1,5 +1,5 @@
 /**
- * Copyright IBM Corporation 2016
+ * Copyright IBM Corporation 2018
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,10 @@ import KituraContracts
 
 import Foundation
 
-// MARK Session
+// MARK TypeSafeSession
 
-/// A pluggable middleware for managing user sessions.
-public protocol TypedSession: TypeSafeMiddleware, Codable {
+/// A type-safe middleware for managing user sessions.
+public protocol TypeSafeSession: TypeSafeMiddleware, Codable {
     
     // MARK - Static properties used to define how Sessions are configured and stored
 
@@ -36,29 +36,30 @@ public protocol TypedSession: TypeSafeMiddleware, Codable {
     /// sensitive data that should never be exposed to a client.
     static var secret: String { get }
     
-    /// An optional array of the cookie's parameters an attributes.
-    /// TODO: example of usage
+    /// An optional array of `CookieParameter`, specifying the cookie's attributes.
     static var cookie: [CookieParameter]? { get }
     
-    // MARK - Instance properties (User's type can also define any additional Codable properties)
+    // MARK - Mandatory instance properties
     
-    /// The secret, unencrypted session id for this Session. This is sensitive data which
-    /// should be kept safe and never exposed to a client.
+    /// The unique id for this session.
     var sessionId: String { get }
     
-    /// Save the current session instance to the store
+    /// Save the current session instance to the store.
     func save() throws
     
-    /// Destroy the session, removing it and all its associated data from the store
+    /// Destroy the session, removing it and all its associated data from the store.
     func destroy() throws
     
-    /// Create a new instance which is a blank Session. Existing sessions
-    /// are instead created by decoding a stored JSON representation.
+    /// Create a new instance (an empty session), where the only known value is the
+    /// (newly created) session id.
+    ///
+    /// Existing sessions are restored via the Codable API by decoding a retreived JSON
+    /// representation.
     init(sessionId: String)
 }
 
 // The configuration of the Cookies used for a Session is configurable by the user and
-// is defined statically on their type via the CookieParameters. This type is used to
+// is defined statically on their type via the `CookieParameter`s. This type is used to
 // associate the functionality and configuration for handling cookies with the user's type.
 private struct CookieConfiguration {
     
@@ -68,8 +69,11 @@ private struct CookieConfiguration {
     /// The cookie manager which can retreive existing session IDs from cookies or generate new ones.
     let cookieManager: CookieManagement
     
-    init(secret: String, cookieParms: [CookieParameter]?) {
-        cookieCrypto = try! CookieCryptography(secret: secret)
+    /// Initializes the cookie configuration from a secret and cookie parameters defined statically
+    /// on the user's type.
+    /// Throws if a crypto failure occurs while initializing CookieCryptography.
+    init(secret: String, cookieParms: [CookieParameter]?) throws {
+        cookieCrypto = try CookieCryptography(secret: secret)
         cookieManager = CookieManagement(cookieCrypto: cookieCrypto, cookieParms: cookieParms)
     }
     
@@ -81,21 +85,26 @@ private struct CookieConfiguration {
 
 }
 
-extension TypedSession {
+extension TypeSafeSession {
     
-    // Initialize the CookieConfiguration in a static context, associating an instance
-    // with the user's type.
-    // TODO: This is currently using a combination of the user's type name and the String
-    // they define via the static describe() function as a key.
-    private static var cookieStuff: CookieConfiguration {
-        let key: String = "\(Self.self)_".appending(Self.describe())
+    // Associates an instance of CookieConfiguration with the user's type. This is a workaround
+    // for the inability to define stored properties on a protocol extension, and prevents the
+    // user from having to define a cookieConfiguration property on their conforming type.
+    // In order to use the type information as a dictionary key, we use the `debugDescription`
+    // of the user's type (via `String(reflecting:)`).
+    private static var cookieConfiguration: CookieConfiguration? {
+        let key = String(reflecting: Self.self)
         if let cookieConfiguration = CookieConfiguration.configurationForType[key] {
             return cookieConfiguration
         } else {
-            Log.debug("Associating CodableSession CookieConfiguration with key '\(key)' for type \(Self.self)")
-            let cookieConfiguration = CookieConfiguration(secret: secret, cookieParms: cookie)
-            CookieConfiguration.configurationForType[key] = cookieConfiguration
-            return cookieConfiguration
+            do {
+                let cookieConfiguration = try CookieConfiguration(secret: secret, cookieParms: cookie)
+                CookieConfiguration.configurationForType[key] = cookieConfiguration
+                return cookieConfiguration
+            } catch {
+                Log.error(error.localizedDescription)
+                return nil
+            }
         }
     }
     
@@ -116,57 +125,56 @@ extension TypedSession {
             Log.info("No session store was specified by \(Self.self), defaulting to in-memory store.")
             Self.store = store
         }
-        let (sessionId, newSession) = cookieStuff.cookieManager.getSessionId(request: request, response: response)
-        if let sessionId = sessionId {
-            if newSession {
-                Log.verbose("Creating new session: \(sessionId)")  //TODO: remove secret ID from log
-                guard cookieStuff.cookieManager.addCookie(sessionId: sessionId, domain: request.hostname, response: response) else {
-                    // This is presumably a failure of Cookie Cryptography, which is likely a server misconfiguration.
-                    // It is not possible to issue a session cookie to the client.
-                    // TODO: Options: we could fail, or we could continue on anyway without a session.
-                    // Danger of continuing is that we might store things into the session, and persist it,
-                    // with no way of retreiving it again.
-                    // - we have opted to fail
-                    Log.error("Failed to add cookie to response")
+        guard let (sessionId, newSession) = cookieConfiguration?.cookieManager.getSessionId(request: request, response: response) else {
+            // Failure to initialize CookieCryptography - error logged in cookieConfiguration getter
+            return completion(nil, .internalServerError)
+        }
+        guard let sessionId = sessionId else {
+            // Note: getSessionId should return String, not String? - this should never happen
+            Log.error("No session ID was returned (this should never happen)")
+            return completion(nil, .internalServerError)
+        }
+        if newSession {
+            Log.verbose("Creating new session: \(sessionId)")
+            guard let cookieConfiguration = cookieConfiguration, cookieConfiguration.cookieManager.addCookie(sessionId: sessionId, domain: request.hostname, response: response) else {
+                // This is presumably a failure of Cookie Cryptography, which is likely a server misconfiguration.
+                // It is not possible to issue a session cookie to the client.
+                // TODO: Options: we could fail, or we could continue on anyway without a session.
+                // Danger of continuing is that we might store things into the session, and persist it,
+                // with no way of retreiving it again.
+                // - we have opted to fail
+                Log.error("Failed to add cookie to response")
+                return completion(nil, .internalServerError)
+            }
+            let session = Self(sessionId: sessionId)
+            return completion(session, nil)
+        } else {
+            // We have a session cookie, now we want to decode a saved CodableSession
+            store.load(sessionId: sessionId) { data, error in
+                if let error = error {
+                    Log.error("Error retreiving session from store: \(error)")
                     return completion(nil, .internalServerError)
                 }
-                let session = Self(sessionId: sessionId)
-                return completion(session, nil)
-            } else {
-                // We have a session cookie, now we want to decode a saved CodableSession
-                store.load(sessionId: sessionId) { data, error in
-                    if let error = error {
-                        Log.error("Error retreiving session from store: \(error)")
+                if let data = data {
+                    do {
+                        let decoder = JSONDecoder()
+                        let selfInstance: Self = try decoder.decode(Self.self, from: data)
+                        return completion(selfInstance, nil)
+                    } catch {
+                        // We end up here if there is a session serialized in the store, but we couldn't decode it.
+                        // Maybe if the store is persistent and the user changes the model?
+                        // TODO: Options: we could fail, or we could log the error and create a new session.
+                        // - we've opted to fail here
+                        Log.error("Unable to deserialize saved session for sessionId=\(sessionId), with error: \(error)")
                         return completion(nil, .internalServerError)
                     }
-                    if let data = data {
-                        do {
-                            let decoder = JSONDecoder()
-                            let selfInstance: Self = try decoder.decode(Self.self, from: data)
-                            return completion(selfInstance, nil)
-                        } catch {
-                            // We end up here if there is a session serialized in the store, but we couldn't decode it.
-                            // Maybe if the store is persistent and the user changes the model?
-                            // TODO: Options: we could fail, or we could log the error and create a new session.
-                            // - we've opted to fail here
-                            Log.error("Unable to deserialize saved session for sessionId=\(sessionId), with error: \(error)")
-                            return completion(nil, .internalServerError)
-                        }
-                    } else {
-                        // This is okay - a valid cookie was provided but no session could be found in the store.
-                        // The session may have timed out, been purged (eg. user logged out) or server was restarted.
-                        Log.verbose("Creating new session \(sessionId) as user-supplied session cookie could not be retreived from the store.")
-                        return completion(Self(sessionId: sessionId), nil)
-                    }
+                } else {
+                    // This is okay - a valid cookie was provided but no session could be found in the store.
+                    // The session may have timed out, been purged (eg. user logged out) or server was restarted.
+                    Log.verbose("Creating new session \(sessionId) as a saved session was not found in the store.")
+                    return completion(Self(sessionId: sessionId), nil)
                 }
             }
-        } else {
-            // Session cookie was provided, but could not be decrypted - either corrupt, invalid or we changed our key?
-            // TODO: Options: we could fail, or we could log the error and create a new session.
-            // If a client has a bad cookie then shouldn't we be providing them with a new one (ie. new session)?
-            // - we've opted to fail for now
-            Log.error("Invalid session cookie provided")
-            return completion(nil, .badRequest)
         }
     }
     
@@ -203,11 +211,6 @@ extension TypedSession {
                 Log.error("Failed to delete session data for session: \(self.sessionId) with error: \(error)")
             }
         }
-    }
-    
-    // Describe the nature of this middleware
-    public static func describe() -> String {
-        return "Kitura Type-Safe Session"
     }
 
 }

@@ -79,7 +79,7 @@ internal class CookieManagement {
             sessionId = decodedCookieValue
             newSession = false
         } else {
-            // No Cookie
+            // No Cookie, or the cookie could not be decrypted (ie. was corrupt or invalid).
             sessionId = UUID().uuidString
             newSession = true
         }
