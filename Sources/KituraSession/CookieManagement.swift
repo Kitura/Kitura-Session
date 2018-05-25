@@ -30,6 +30,11 @@ internal class CookieManagement {
     private let path: String
 
     //
+    // Cookie domain. If not set, the hostname of the server (as seen by the client)
+    // will be used.
+    private let domain: String?
+    
+    //
     // Cookie is secure
     private let secure: Bool
 
@@ -63,12 +68,21 @@ internal class CookieManagement {
 
         self.name = name
         self.path = path
+        self.domain = nil
         self.secure = secure
         self.maxAge = maxAge
 
         crypto = cookieCrypto
     }
 
+    internal init(cookieSetup: CookieSetup) throws {
+        self.name = cookieSetup.name
+        self.path = cookieSetup.path ?? "/"
+        self.domain = cookieSetup.domain
+        self.secure = cookieSetup.secure
+        self.maxAge = cookieSetup.maxAge ?? -1.0
+        self.crypto = try CookieCryptography(secret: cookieSetup.secret)
+    }
 
     internal func getSessionId(request: RouterRequest, response: RouterResponse) -> (String?, Bool) {
         var sessionId: String? = nil
@@ -90,17 +104,21 @@ internal class CookieManagement {
         guard let encodedSessionId = crypto.encode(sessionId) else {
             return false
         }
+        // Allow the user to override the domain for a cookie. If they have not specified
+        // a domain, then the domain provided (the hostname of the server as seen by the client)
+        // is used.
+        let cookieDomain = self.domain ?? domain
 
         #if os(Linux)
             var properties: [HTTPCookiePropertyKey: Any] =
                         [HTTPCookiePropertyKey.name: name,
                          HTTPCookiePropertyKey.value: encodedSessionId,
-                         HTTPCookiePropertyKey.domain: domain,
+                         HTTPCookiePropertyKey.domain: cookieDomain,
                          HTTPCookiePropertyKey.path: path]
-            if  secure {
+            if secure {
                 properties[HTTPCookiePropertyKey.secure] = "Yes"
             }
-            if  maxAge > 0.0 {
+            if maxAge > 0.0 {
                 properties[HTTPCookiePropertyKey.maximumAge] = String(Int(maxAge))
                 properties[HTTPCookiePropertyKey.version] = "1"
             }
@@ -109,12 +127,12 @@ internal class CookieManagement {
             var properties: [HTTPCookiePropertyKey: AnyObject] =
                         [HTTPCookiePropertyKey.name: name as NSString,
                          HTTPCookiePropertyKey.value: encodedSessionId as NSString,
-                         HTTPCookiePropertyKey.domain: domain as NSString,
+                         HTTPCookiePropertyKey.domain: cookieDomain as NSString,
                          HTTPCookiePropertyKey.path: path as NSString]
-            if  secure {
+            if secure {
                 properties[HTTPCookiePropertyKey.secure] = "Yes" as NSString
             }
-            if  maxAge > 0.0 {
+            if maxAge > 0.0 {
                 properties[HTTPCookiePropertyKey.maximumAge] = String(Int(maxAge)) as NSString
                 properties[HTTPCookiePropertyKey.version] = "1" as NSString
             }

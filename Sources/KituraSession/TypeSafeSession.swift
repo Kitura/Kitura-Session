@@ -32,12 +32,8 @@ public protocol TypeSafeSession: TypeSafeMiddleware, Codable {
     /// development and testing purposes only.
     static var store: Store? { get set }
     
-    /// Secret for initializing cryptography used to generate session cookies. This is
-    /// sensitive data that should never be exposed to a client.
-    static var secret: String { get }
-    
     /// An optional array of `CookieParameter`, specifying the cookie's attributes.
-    static var cookie: [CookieParameter]? { get }
+    static var cookieSetup: CookieSetup { get }
     
     // MARK - Mandatory instance properties
     
@@ -58,31 +54,12 @@ public protocol TypeSafeSession: TypeSafeMiddleware, Codable {
     init(sessionId: String)
 }
 
-// The configuration of the Cookies used for a Session is configurable by the user and
-// is defined statically on their type via the `CookieParameter`s. This type is used to
-// associate the functionality and configuration for handling cookies with the user's type.
-private struct CookieConfiguration {
-    
-    /// The cookie crypto engine that will be used to generate secure session cookies.
-    let cookieCrypto: CookieCryptography
-    
-    /// The cookie manager which can retreive existing session IDs from cookies or generate new ones.
-    let cookieManager: CookieManagement
-    
-    /// Initializes the cookie configuration from a secret and cookie parameters defined statically
-    /// on the user's type.
-    /// Throws if a crypto failure occurs while initializing CookieCryptography.
-    init(secret: String, cookieParms: [CookieParameter]?) throws {
-        cookieCrypto = try CookieCryptography(secret: secret)
-        cookieManager = CookieManagement(cookieCrypto: cookieCrypto, cookieParms: cookieParms)
-    }
-    
-    // A dictionary of CookieConfiguration instances, keyed by a String that uniquely identifies
+extension CookieManagement {
+    // A dictionary of CookieManagement instances, keyed by a String that uniquely identifies
     // the user's CodableSession type. This is used to associate a single instance of
-    // CookieConfiguration with each CodableSession type, without exposing a placeholder for it
+    // CookieManagement with each CodableSession type, without exposing a placeholder for it
     // on the user's type (via the protocol).
-    static var configurationForType: [String: CookieConfiguration] = [:]
-
+    static var configurationForType: [String: CookieManagement] = [:]
 }
 
 extension TypeSafeSession {
@@ -92,14 +69,14 @@ extension TypeSafeSession {
     // user from having to define a cookieConfiguration property on their conforming type.
     // In order to use the type information as a dictionary key, we use the `debugDescription`
     // of the user's type (via `String(reflecting:)`).
-    private static var cookieConfiguration: CookieConfiguration? {
+    private static var cookieManager: CookieManagement? {
         let key = String(reflecting: Self.self)
-        if let cookieConfiguration = CookieConfiguration.configurationForType[key] {
+        if let cookieConfiguration = CookieManagement.configurationForType[key] {
             return cookieConfiguration
         } else {
             do {
-                let cookieConfiguration = try CookieConfiguration(secret: secret, cookieParms: cookie)
-                CookieConfiguration.configurationForType[key] = cookieConfiguration
+                let cookieConfiguration = try CookieManagement(cookieSetup: Self.self.cookieSetup)
+                CookieManagement.configurationForType[key] = cookieConfiguration
                 return cookieConfiguration
             } catch {
                 Log.error(error.localizedDescription)
@@ -125,18 +102,18 @@ extension TypeSafeSession {
             Log.info("No session store was specified by \(Self.self), defaulting to in-memory store.")
             Self.store = store
         }
-        guard let (sessionId, newSession) = cookieConfiguration?.cookieManager.getSessionId(request: request, response: response) else {
+        guard let (_sessionId, newSession) = cookieManager?.getSessionId(request: request, response: response) else {
             // Failure to initialize CookieCryptography - error logged in cookieConfiguration getter
             return completion(nil, .internalServerError)
         }
-        guard let sessionId = sessionId else {
+        guard let sessionId = _sessionId else {
             // Note: getSessionId should return String, not String? - this should never happen
             Log.error("No session ID was returned (this should never happen)")
             return completion(nil, .internalServerError)
         }
         if newSession {
             Log.verbose("Creating new session: \(sessionId)")
-            guard let cookieConfiguration = cookieConfiguration, cookieConfiguration.cookieManager.addCookie(sessionId: sessionId, domain: request.hostname, response: response) else {
+            guard let cookieManager = cookieManager, cookieManager.addCookie(sessionId: sessionId, domain: request.hostname, response: response) else {
                 // This is presumably a failure of Cookie Cryptography, which is likely a server misconfiguration.
                 // It is not possible to issue a session cookie to the client.
                 // TODO: Options: we could fail, or we could continue on anyway without a session.
