@@ -41,7 +41,10 @@ internal struct CookieParameters {
     let maxAge: TimeInterval?
 }
 
-public struct CookieSetup {
+/// Defines the properties of an HTTP Cookie which will be used for a TypeSafeSession.
+/// It is valid for multiple TypeSafeSession types to use the same name (ie. same cookie),
+/// provided that they also use the same secret.
+public struct SessionCookie {
     
     // MARK - Required parameters
     
