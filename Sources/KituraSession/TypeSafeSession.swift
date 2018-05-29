@@ -32,8 +32,8 @@ public protocol TypeSafeSession: TypeSafeMiddleware, Codable {
     /// development and testing purposes only.
     static var store: Store? { get set }
     
-    /// An optional array of `CookieParameter`, specifying the cookie's attributes.
-    static var cookieSetup: CookieSetup { get }
+    /// Defines the session cookie's name and attributes.
+    static var sessionCookie: SessionCookie { get }
     
     // MARK - Mandatory instance properties
     
@@ -73,13 +73,13 @@ extension TypeSafeSession {
             Log.info("No session store was specified by \(Self.self), defaulting to in-memory store.")
             Self.store = store
         }
-        guard let (sessionId, newSession) = Self.cookieSetup.cookieManager?.getSessionId(request: request, response: response) else {
+        guard let (sessionId, newSession) = Self.sessionCookie.cookieManager?.getSessionId(request: request, response: response) else {
             // Failure to initialize CookieCryptography - error logged in cookieConfiguration getter
             return completion(nil, .internalServerError)
         }
         if newSession {
             Log.verbose("Creating new session: \(sessionId)")
-            guard let cookieManager = Self.cookieSetup.cookieManager, cookieManager.addCookie(sessionId: sessionId, domain: request.hostname, response: response) else {
+            guard let cookieManager = Self.sessionCookie.cookieManager, cookieManager.addCookie(sessionId: sessionId, domain: request.hostname, response: response) else {
                 // This is presumably a failure of Cookie Cryptography, which is likely a server misconfiguration.
                 // It is not possible to issue a session cookie to the client.
                 // TODO: Options: we could fail, or we could continue on anyway without a session.
