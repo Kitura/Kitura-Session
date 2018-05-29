@@ -73,13 +73,8 @@ extension TypeSafeSession {
             Log.info("No session store was specified by \(Self.self), defaulting to in-memory store.")
             Self.store = store
         }
-        guard let (_sessionId, newSession) = Self.cookieSetup.cookieManager?.getSessionId(request: request, response: response) else {
+        guard let (sessionId, newSession) = Self.cookieSetup.cookieManager?.getSessionId(request: request, response: response) else {
             // Failure to initialize CookieCryptography - error logged in cookieConfiguration getter
-            return completion(nil, .internalServerError)
-        }
-        guard let sessionId = _sessionId else {
-            // Note: getSessionId should return String, not String? - this should never happen
-            Log.error("No session ID was returned (this should never happen)")
             return completion(nil, .internalServerError)
         }
         if newSession {

@@ -84,20 +84,31 @@ internal class CookieManagement {
         self.crypto = try CookieCryptography(secret: cookieParams.secret)
     }
 
-    internal func getSessionId(request: RouterRequest, response: RouterResponse) -> (String?, Bool) {
-        var sessionId: String? = nil
-        var newSession = false
-
+    internal func getSessionId(request: RouterRequest, response: RouterResponse) -> (String, Bool) {
+        // Try to decrypt the session ID from a cookie supplied by the user
         if  let cookie = request.cookies[name],
             let decodedCookieValue = crypto.decode(cookie.value) {
-            sessionId = decodedCookieValue
-            newSession = false
+            return (decodedCookieValue, false)
         } else {
-            // No Cookie, or the cookie could not be decrypted (ie. was corrupt or invalid).
-            sessionId = UUID().uuidString
-            newSession = true
+            // We may have added a response cookie in a previous invocation of a TypeSafeSession
+            // middleware. In case two TypeSafeSessions share the same cookie name and secret, try
+            // to get the corresponding (newly generated) session ID from the response cookie.
+            if let cookie = response.cookies[name] {
+                if let decodedCookieValue = crypto.decode(cookie.value) {
+                    return (decodedCookieValue, false)
+                } else {
+                    // Sessions that share the same name must also share the same secret for encryption,
+                    // as they share a cookie. A failure at this point probably means that the newly
+                    // encoded session cookie cannot be decoded because two sessions have the same name
+                    // but different secrets.
+                    Log.error("Unable to decode session cookie for name=\(name) - possible mismatch of cookie secret")
+                    return (UUID().uuidString, true)
+                }
+            } else {
+                // No Cookie, or the cookie could not be decrypted (ie. was corrupt or invalid).
+                return (UUID().uuidString, true)
+            }
         }
-        return (sessionId, newSession)
     }
 
     internal func addCookie(sessionId: String, domain: String, response: RouterResponse) -> Bool {
