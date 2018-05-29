@@ -14,6 +14,32 @@
  * limitations under the License.
  **/
 import Foundation
+import LoggerAPI
+
+internal struct CookieParameters {
+    /// The secret used to encrypt the session ID
+    let secret: String
+    
+    // MARK - Optional parameters
+    
+    /// Whether the cookie should have the 'secure' flag. Defaults to false.
+    let secure: Bool
+    
+    // Whether the cookie should have the 'httpOnly' flag. Defaults to true.
+    // NOTE: not yet implemented in CookieManagement as NSHTTPCookie doesn't seem to support the HttpOnly flag!
+    //public let httpOnly: Bool
+    
+    /// The path that the client should supply this cookie on. If not set, the cookie
+    /// applies to all paths.
+    let path: String?
+    
+    /// The domain that the client should use this cookie for. If not set, the cookie
+    /// will apply only to the subdomain that issued it.
+    let domain: String?
+    
+    /// The maximum age of this cookie, in seconds. If not set, there is no maximum age.
+    let maxAge: TimeInterval?
+}
 
 public struct CookieSetup {
     
@@ -22,28 +48,11 @@ public struct CookieSetup {
     /// The name of the cookie - for example, "kitura-session-id"
     public let name: String
     
-    /// The secret used to encrypt the session ID
-    public let secret: String
+    // The parameters of the session cookie for this type of session
+    internal let cookieParams: CookieParameters
     
-    // MARK - Optional parameters
-    
-    /// Whether the cookie should have the 'secure' flag. Defaults to false.
-    public let secure: Bool
-    
-    // Whether the cookie should have the 'httpOnly' flag. Defaults to true.
-    // NOTE: not yet implemented in CookieManagement as NSHTTPCookie doesn't seem to support the HttpOnly flag!
-    //public let httpOnly: Bool
-    
-    /// The path that the client should supply this cookie on. If not set, the cookie
-    /// applies to all paths.
-    public let path: String?
-    
-    /// The domain that the client should use this cookie for. If not set, the cookie
-    /// will apply only to the subdomain that issued it.
-    public let domain: String?
-    
-    /// The maximum age of this cookie, in seconds. If not set, there is no maximum age.
-    public let maxAge: TimeInterval?
+    // The cookie manager that will decode or issue session cookies
+    internal let cookieManager: CookieManagement?
     
     /// Create a new CookieSetup instance which controls how session cookies are created.
     /// At minimum, the `name` and `secret` fields must be specified.
@@ -60,12 +69,13 @@ public struct CookieSetup {
     /// - Parameter maxAge: The maximum age (in seconds) from the time of issue that the cookie should be kept for. This is a request to the client and may not be honoured.
     public init(name: String, secret: String, secure: Bool = false, path: String? = nil, domain: String? = nil, maxAge: TimeInterval? = nil) {
         self.name = name
-        self.secret = secret
-        self.secure = secure
-        //self.httpOnly = httpOnly
-        self.path = path
-        self.domain = domain
-        self.maxAge = maxAge
+        self.cookieParams = CookieParameters(secret: secret, secure: secure, path: path, domain: domain, maxAge: maxAge)
+        do {
+            self.cookieManager = try CookieManagement(sessionName: name, cookieParams: cookieParams)
+        } catch {
+            Log.error("Unable to create CookieManagement: \(error)")
+            self.cookieManager = nil
+        }
     }
     
 }

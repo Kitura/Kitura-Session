@@ -75,13 +75,13 @@ internal class CookieManagement {
         crypto = cookieCrypto
     }
 
-    internal init(cookieSetup: CookieSetup) throws {
-        self.name = cookieSetup.name
-        self.path = cookieSetup.path ?? "/"
-        self.domain = cookieSetup.domain
-        self.secure = cookieSetup.secure
-        self.maxAge = cookieSetup.maxAge ?? -1.0
-        self.crypto = try CookieCryptography(secret: cookieSetup.secret)
+    internal init(sessionName: String, cookieParams: CookieParameters) throws {
+        self.name = sessionName
+        self.path = cookieParams.path ?? "/"
+        self.domain = cookieParams.domain
+        self.secure = cookieParams.secure
+        self.maxAge = cookieParams.maxAge ?? -1.0
+        self.crypto = try CookieCryptography(secret: cookieParams.secret)
     }
 
     internal func getSessionId(request: RouterRequest, response: RouterResponse) -> (String?, Bool) {

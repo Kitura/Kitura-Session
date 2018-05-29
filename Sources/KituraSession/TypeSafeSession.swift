@@ -54,36 +54,7 @@ public protocol TypeSafeSession: TypeSafeMiddleware, Codable {
     init(sessionId: String)
 }
 
-extension CookieManagement {
-    // A dictionary of CookieManagement instances, keyed by a String that uniquely identifies
-    // the user's CodableSession type. This is used to associate a single instance of
-    // CookieManagement with each CodableSession type, without exposing a placeholder for it
-    // on the user's type (via the protocol).
-    static var configurationForType: [String: CookieManagement] = [:]
-}
-
 extension TypeSafeSession {
-    
-    // Associates an instance of CookieConfiguration with the user's type. This is a workaround
-    // for the inability to define stored properties on a protocol extension, and prevents the
-    // user from having to define a cookieConfiguration property on their conforming type.
-    // In order to use the type information as a dictionary key, we use the `debugDescription`
-    // of the user's type (via `String(reflecting:)`).
-    private static var cookieManager: CookieManagement? {
-        let key = String(reflecting: Self.self)
-        if let cookieConfiguration = CookieManagement.configurationForType[key] {
-            return cookieConfiguration
-        } else {
-            do {
-                let cookieConfiguration = try CookieManagement(cookieSetup: Self.self.cookieSetup)
-                CookieManagement.configurationForType[key] = cookieConfiguration
-                return cookieConfiguration
-            } catch {
-                Log.error(error.localizedDescription)
-                return nil
-            }
-        }
-    }
     
     /// Handle an incoming request.
     ///
@@ -102,7 +73,7 @@ extension TypeSafeSession {
             Log.info("No session store was specified by \(Self.self), defaulting to in-memory store.")
             Self.store = store
         }
-        guard let (_sessionId, newSession) = cookieManager?.getSessionId(request: request, response: response) else {
+        guard let (_sessionId, newSession) = Self.cookieSetup.cookieManager?.getSessionId(request: request, response: response) else {
             // Failure to initialize CookieCryptography - error logged in cookieConfiguration getter
             return completion(nil, .internalServerError)
         }
@@ -113,7 +84,7 @@ extension TypeSafeSession {
         }
         if newSession {
             Log.verbose("Creating new session: \(sessionId)")
-            guard let cookieManager = cookieManager, cookieManager.addCookie(sessionId: sessionId, domain: request.hostname, response: response) else {
+            guard let cookieManager = Self.cookieSetup.cookieManager, cookieManager.addCookie(sessionId: sessionId, domain: request.hostname, response: response) else {
                 // This is presumably a failure of Cookie Cryptography, which is likely a server misconfiguration.
                 // It is not possible to issue a session cookie to the client.
                 // TODO: Options: we could fail, or we could continue on anyway without a session.
