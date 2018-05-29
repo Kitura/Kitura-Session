@@ -23,7 +23,7 @@ import Foundation
 // MARK TypeSafeSession
 
 /// A type-safe middleware for managing user sessions.
-public protocol TypeSafeSession: TypeSafeMiddleware, Codable {
+public protocol TypeSafeSession: TypeSafeMiddleware, Codable, AnyObject {
     
     // MARK - Static properties used to define how Sessions are configured and stored
 
