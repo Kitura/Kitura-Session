@@ -41,9 +41,13 @@ internal struct CookieParameters {
     let maxAge: TimeInterval?
 }
 
-/// Defines the properties of an HTTP Cookie which will be used for a TypeSafeSession.
-/// It is valid for multiple TypeSafeSession types to use the same name (ie. same cookie),
+/// Defines the properties of an HTTP Cookie which will be used for a `TypeSafeSession`.
+/// It is valid for multiple `TypeSafeSession` types to use the same name (ie. same cookie),
 /// provided that they also use the same secret.
+/// ### Usage Example: ###
+/// ```swift
+/// static let sessionCookie = SessionCookie(name: "kitura-session-id", secret: "xyz789", secure: false, maxAge: 300)
+/// ```
 public struct SessionCookie {
     
     // MARK - Required parameters
@@ -64,6 +68,10 @@ public struct SessionCookie {
     /// resulting in a single session cookie being provided to the client. However in this
     /// case the same `secret` *must* also be used.
     ///
+    /// ### Usage Example: ###
+    /// ```swift
+    /// static let sessionCookie = SessionCookie(name: "kitura-session-id", secret: "xyz789", secure: false, maxAge: 300)
+    /// ```
     /// - Parameter name: The name of the cookie, for example, 'kitura-session-id'
     /// - Parameter secret: The secret data used to encrypt and decrypt session cookies with this name
     /// - Parameter secure: Whether the cookie should be provided only over secure (https) connections. Defaults to false

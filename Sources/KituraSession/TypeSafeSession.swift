@@ -22,41 +22,65 @@ import Foundation
 
 // MARK TypeSafeSession
 
-/// A type-safe middleware for managing user sessions.
+/**
+ A `TypeSafeMiddleware` for managing user sessions. The user defines a final class with the fields they wish to use within  the session. This class can then save or destroy itself from a static `store`, which is keyed by a sessionId. The sessionId can be extracted from the session cookie to initialise an instance of the users class with the session data. If no store is defined, the session will default to an in-memory store.
+ ### Usage Example: ###
+ In this example, a class conforming to the TypeSafeSession protocol is defined containing an optional "name" field. Then a route on "/session" is set up that stores a received name into the session.
+ ```swift
+ final class MySession: TypeSafeSession {
+    var name: String?
+ 
+    let sessionId: String
+    init(sessionId: String) {
+        self.sessionId = sessionId
+    }
+     static var store: Store?
+     static let sessionCookie = SessionCookie(name: "session-cookie", secret: "abc123")
+ }
+ 
+ router.post("/session") { (session: MySession, name: String, respondWith: (String?, RequestError?) -> Void) in
+    session.name = name
+    session.save()
+    respondWith(session.name, nil)
+ }
+ ```
+ */
 public protocol TypeSafeSession: TypeSafeMiddleware, Codable, AnyObject {
     
-    // MARK - Static properties used to define how Sessions are configured and stored
+    // MARK: Static class properties
 
     /// Specifies the store for session state, or leave `nil` to use a simple in-memory store.
     /// Note that in-memory stores do not provide support for expiry so should be used for
     /// development and testing purposes only.
     static var store: Store? { get set }
     
-    /// Defines the session cookie's name and attributes.
+    /// A `SessionCookie` that defines the session cookie's name and attributes.
     static var sessionCookie: SessionCookie { get }
     
-    // MARK - Mandatory instance properties
+    // MARK: Mandatory instance properties
     
     /// The unique id for this session.
     var sessionId: String { get }
+    
+    /// Create a new instance (an empty session), where the only known value is the
+    /// (newly created) session id. Non-optional fields must be given a default value.
+    ///
+    /// Existing sessions are restored via the Codable API by decoding a retreived JSON
+    /// representation.
+    init(sessionId: String)
+    
+    // MARK: Functions implemented in extension
     
     /// Save the current session instance to the store.
     func save() throws
     
     /// Destroy the session, removing it and all its associated data from the store.
     func destroy() throws
-    
-    /// Create a new instance (an empty session), where the only known value is the
-    /// (newly created) session id.
-    ///
-    /// Existing sessions are restored via the Codable API by decoding a retreived JSON
-    /// representation.
-    init(sessionId: String)
 }
 
 extension TypeSafeSession {
     
-    /// Handle an incoming request.
+    /// Static handle function that will try and create an instance if Self. It will check the request for the session cookie. If the cookie is not present it will create a cookie and initialize a new session for the user. If a session cookie is found, this function will decode and return an instance of itself from the store.
     ///
     /// - Parameter request: The `RouterRequest` object used to get information
     ///                     about the request.
@@ -80,12 +104,6 @@ extension TypeSafeSession {
         if newSession {
             Log.verbose("Creating new session: \(sessionId)")
             guard let cookieManager = Self.sessionCookie.cookieManager, cookieManager.addCookie(sessionId: sessionId, domain: request.hostname, response: response) else {
-                // This is presumably a failure of Cookie Cryptography, which is likely a server misconfiguration.
-                // It is not possible to issue a session cookie to the client.
-                // TODO: Options: we could fail, or we could continue on anyway without a session.
-                // Danger of continuing is that we might store things into the session, and persist it,
-                // with no way of retreiving it again.
-                // - we have opted to fail
                 Log.error("Failed to add cookie to response")
                 return completion(nil, .internalServerError)
             }
@@ -104,10 +122,6 @@ extension TypeSafeSession {
                         let selfInstance: Self = try decoder.decode(Self.self, from: data)
                         return completion(selfInstance, nil)
                     } catch {
-                        // We end up here if there is a session serialized in the store, but we couldn't decode it.
-                        // Maybe if the store is persistent and the user changes the model?
-                        // TODO: Options: we could fail, or we could log the error and create a new session.
-                        // - we've opted to fail here
                         Log.error("Unable to deserialize saved session for sessionId=\(sessionId), with error: \(error)")
                         return completion(nil, .internalServerError)
                     }
@@ -121,7 +135,17 @@ extension TypeSafeSession {
         }
     }
     
-    /// Save the current session instance to the store
+    /**
+     Save the current session instance to the store
+     ### Usage Example: ###
+     ```swift
+     router.post("/session") { (session: MySession, name: String, respondWith: (String?, RequestError?) -> Void) in
+         session.name = name
+         session.save()
+         respondWith(session.name, nil)
+     }
+     ```
+     */
     public func save() throws {
         guard let store = Self.store else {
             Log.error("Unexpectedly found a nil store")
@@ -143,7 +167,16 @@ extension TypeSafeSession {
         }
     }
     
-    /// Destroy the session, removing it and all its associated data from the store
+    /**
+     Destroy the session, removing it and all its associated data from the store
+     ### Usage Example: ###
+     ```swift
+     router.delete("/session") { (session: MySession, respondWith: (RequestError?) -> Void) in
+         session.destroy()
+         respondWith(nil)
+     }
+     ```
+     */
     public func destroy() throws {
         guard let store = Self.store else {
             Log.error("Unexpectedly found a nil store")
