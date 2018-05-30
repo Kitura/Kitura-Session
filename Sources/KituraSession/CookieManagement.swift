@@ -33,7 +33,7 @@ internal class CookieManagement {
     // Cookie domain. If not set, the hostname of the server (as seen by the client)
     // will be used.
     private let domain: String?
-    
+
     //
     // Cookie is secure
     private let secure: Bool

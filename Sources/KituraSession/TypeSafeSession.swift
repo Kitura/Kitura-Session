@@ -23,7 +23,7 @@ import Foundation
 // MARK TypeSafeSession
 
 /**
- A `TypeSafeMiddleware` for managing user sessions. The user defines a final class with the fields they wish to use within  the session. This class can then save or destroy itself from a static `store`, which is keyed by a sessionId. The sessionId can be extracted from the session cookie to initialise an instance of the users class with the session data. If no store is defined, the session will default to an in-memory store.
+ A `TypeSafeMiddleware` for managing user sessions. The user defines a final class with the fields they wish to use within  the session. This class can then save or destroy itself from a static `Store`, which is keyed by a `sessionId`. The sessionId can be extracted from the session cookie to initialise an instance of the users class with the session data. If no store is defined, the session will default to an in-memory store.
  ### Usage Example: ###
  In this example, a class conforming to the TypeSafeSession protocol is defined containing an optional "name" field. Then a route on "/session" is set up that stores a received name into the session.
  ```swift
@@ -44,42 +44,43 @@ import Foundation
     respondWith(session.name, nil)
  }
  ```
+ __Note__: When using multiple TypeSafeSession classes together, If the cookie names are the same, the cookie secret must also be the same. Otherwise the sessions will conflict and overwrite each others cookies. (Different cookie names can use different secrets)
  */
 public protocol TypeSafeSession: TypeSafeMiddleware, Codable, AnyObject {
-    
+
     // MARK: Static class properties
 
-    /// Specifies the store for session state, or leave `nil` to use a simple in-memory store.
+    /// Specifies the `Store` for session state, or leave `nil` to use a simple in-memory store.
     /// Note that in-memory stores do not provide support for expiry so should be used for
     /// development and testing purposes only.
     static var store: Store? { get set }
-    
+
     /// A `SessionCookie` that defines the session cookie's name and attributes.
     static var sessionCookie: SessionCookie { get }
-    
+
     // MARK: Mandatory instance properties
-    
+
     /// The unique id for this session.
     var sessionId: String { get }
-    
+
     /// Create a new instance (an empty session), where the only known value is the
     /// (newly created) session id. Non-optional fields must be given a default value.
     ///
     /// Existing sessions are restored via the Codable API by decoding a retreived JSON
     /// representation.
     init(sessionId: String)
-    
+
     // MARK: Functions implemented in extension
-    
+
     /// Save the current session instance to the store.
     func save() throws
-    
+
     /// Destroy the session, removing it and all its associated data from the store.
     func destroy() throws
 }
 
 extension TypeSafeSession {
-    
+
     /// Static handle function that will try and create an instance if Self. It will check the request for the session cookie. If the cookie is not present it will create a cookie and initialize a new session for the user. If a session cookie is found, this function will decode and return an instance of itself from the store.
     ///
     /// - Parameter request: The `RouterRequest` object used to get information
@@ -134,7 +135,7 @@ extension TypeSafeSession {
             }
         }
     }
-    
+
     /**
      Save the current session instance to the store
      ### Usage Example: ###
@@ -166,7 +167,7 @@ extension TypeSafeSession {
             throw error
         }
     }
-    
+
     /**
      Destroy the session, removing it and all its associated data from the store
      ### Usage Example: ###
@@ -188,5 +189,4 @@ extension TypeSafeSession {
             }
         }
     }
-
 }

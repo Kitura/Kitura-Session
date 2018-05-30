@@ -34,9 +34,8 @@ class TestSession: XCTestCase, KituraTest {
                    ("testCookieParams1", testCookieParams1),
                    ("testCookieParams2", testCookieParams2),
                    ("testSimpleSession", testSimpleSession),
-                   ("testTypeSafeSession", testTypeSafeSession),
                    ("testCookieName", testCookieName),
-                   ("testCookieValue", testCookieValue)
+                   ("testCookieValue", testCookieValue),
         ]
     }
 
@@ -60,7 +59,6 @@ class TestSession: XCTestCase, KituraTest {
         })
     }
 
-
     func setupAdvancedSessionRouter() -> Router {
         let router = Router()
 
@@ -75,7 +73,6 @@ class TestSession: XCTestCase, KituraTest {
 
         return router
     }
-
 
     func testCookieParams2() {
         let router = setupBasicSessionRouter()
@@ -97,7 +94,6 @@ class TestSession: XCTestCase, KituraTest {
             })
         })
     }
-
 
     func testSimpleSession() {
         let router = setupBasicSessionRouter()
@@ -133,65 +129,6 @@ class TestSession: XCTestCase, KituraTest {
         })
     }
     
-    func testTypeSafeSession() {
-        let router = setupCodableSessionRouter()
-        performServerTest(router: router, asyncTasks: {
-            // Login to create the session and set session.sessionTestKey to be sessionTestValue
-            self.performRequest(method: "get", path: "/login", callback: { response in
-                guard let response = response else {
-                    return XCTFail("ERROR!!! ClientRequest response object was nil")
-                }
-                let (responseCookie, _) = CookieUtils.cookieFrom(response: response, named: cookieDefaultName)
-                guard let cookie = responseCookie else {
-                    return XCTFail("Cookie \(cookieDefaultName) wasn't found in the response.")
-                }
-                // Request the current session and check session.sessionTestKey is still sessionTestValue
-                self.performRequest(method: "get", path: "/getSession", callback: { response in
-                    guard let response = response else {
-                        return XCTFail("ERROR!!! ClientRequest response object was nil")
-                    }
-                    XCTAssertEqual(response.statusCode, HTTPStatusCode.OK, "HTTP Status code was \(response.statusCode)")
-                    do {
-                        guard let body = try response.readString(), let sessionData = body.data(using: .utf8) else {
-                            XCTFail("No response body")
-                            return
-                        }
-                        let decoder = JSONDecoder()
-                        let returnedSession = try decoder.decode(MySession.self, from: sessionData)
-                        XCTAssertEqual(returnedSession.sessionTestKey, sessionTestValue, "Body \(String(describing: returnedSession.sessionTestKey)) is not equal to \(sessionTestValue)")
-                    } catch {
-                        XCTFail("No response body")
-                    }
-                    // Destroy the current session making session.sessionTestKey nil
-                    self.performRequest(method: "get", path: "/logout", callback: { response in
-                        guard response != nil else {
-                            return XCTFail("ERROR!!! ClientRequest response object was nil")
-                        }
-                        // Request the current session, in which session.sessionTestKey should be nil
-                        self.performRequest(method: "get", path: "/getSession", callback: { response in
-                            guard let response = response else {
-                                return XCTFail("ERROR!!! ClientRequest response object was nil")
-                            }
-                            XCTAssertEqual(response.statusCode, HTTPStatusCode.OK, "HTTP Status code was \(response.statusCode)")
-                            do {
-                                guard let body = try response.readString(), let sessionData = body.data(using: .utf8) else {
-                                    XCTFail("No response body")
-                                    return
-                                }
-                                let decoder = JSONDecoder()
-                                let returnedSession = try decoder.decode(MySession.self, from: sessionData)
-                                XCTAssertEqual(returnedSession.sessionTestKey, nil, "Body \(String(describing: returnedSession.sessionTestKey)) is not equal to \(sessionTestValue)")
-                            } catch {
-                                XCTFail("No response body")
-                            }
-                        }, headers: ["cookie": "\(cookie.name)=\(cookie.value)"])
-                    }, headers: ["cookie": "\(cookie.name)=\(cookie.value)"])
-                }, headers: ["cookie": "\(cookie.name)=\(cookie.value)"])
-            })
-        })
-    }
-
-
     func testCookieName() {
         let router = setupBasicSessionRouter()
         performServerTest(router: router, asyncTasks: {
@@ -273,46 +210,6 @@ class TestSession: XCTestCase, KituraTest {
             next()
 
         }
-
-
         return router
     }
-    
-    func setupCodableSessionRouter() -> Router {
-        let router = Router()
-        
-        router.get("/login") { (session: MySession, respondWith: (String?, RequestError?) -> Void) in
-            session.sessionTestKey = sessionTestValue
-            try? session.save()
-            respondWith(session.sessionTestKey, nil)
-        }
-        
-        router.get("/getSession") { (session: MySession, respondWith: (MySession?, RequestError?) -> Void) in
-            respondWith(session, nil)
-        }
-        
-        router.get("/logout") { (session: MySession, respondWith: (String?, RequestError?) -> Void) in
-            try? session.destroy()
-            respondWith("success", nil)
-        }
-        
-        return router
-    }
-    
-    final class MySession: TypeSafeSession {
-        var sessionTestKey: String?
-        
-        let sessionId: String
-        init(sessionId: String) {
-            self.sessionId = sessionId
-        }
-        static var store: Store?
-        static let sessionCookie = SessionCookie(name: "kitura-session-id", secret: "Very very secret.....")
-    }
-    
-    struct keyValue: Codable {
-        
-    }
-
-
 }

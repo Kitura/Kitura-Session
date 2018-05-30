@@ -20,16 +20,16 @@ import Foundation
 
 /// The parameters for configurating the cookies used to send the session IDs to the clients.
 public enum CookieParameter {
-    
+
     /// The cookie's name.
     case name(String)
-    
+
     /// The cookie's Path attribute.
     case path(String)
-    
+
     /// The cookie's Secure attribute.
     case secure(Bool)
-    
+
     /// The cookie's Max-Age attribute.
     case maxAge(TimeInterval)
 }
