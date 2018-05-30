@@ -40,7 +40,7 @@ import Foundation
  
  router.post("/session") { (session: MySession, name: String, respondWith: (String?, RequestError?) -> Void) in
     session.name = name
-    session.save()
+    try? session.save()
     respondWith(session.name, nil)
  }
  ```
@@ -141,7 +141,7 @@ extension TypeSafeSession {
      ```swift
      router.post("/session") { (session: MySession, name: String, respondWith: (String?, RequestError?) -> Void) in
          session.name = name
-         session.save()
+         try? session.save()
          respondWith(session.name, nil)
      }
      ```
@@ -172,7 +172,7 @@ extension TypeSafeSession {
      ### Usage Example: ###
      ```swift
      router.delete("/session") { (session: MySession, respondWith: (RequestError?) -> Void) in
-         session.destroy()
+         try? session.destroy()
          respondWith(nil)
      }
      ```
