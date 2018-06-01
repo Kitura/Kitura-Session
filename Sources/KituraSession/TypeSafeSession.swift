@@ -46,9 +46,9 @@ import Foundation
  ```
  __Note__: When using multiple TypeSafeSession classes together, If the cookie names are the same, the cookie secret must also be the same. Otherwise the sessions will conflict and overwrite each others cookies. (Different cookie names can use different secrets)
  */
-public protocol TypeSafeSession: TypeSafeMiddleware, Codable, AnyObject {
+public protocol TypeSafeSession: TypeSafeMiddleware, Codable {
 
-    // MARK: Static class properties
+    // MARK: Static type properties
 
     /// Specifies the `Store` for session state, or leave `nil` to use a simple in-memory store.
     /// Note that in-memory stores do not provide support for expiry so should be used for
@@ -72,11 +72,35 @@ public protocol TypeSafeSession: TypeSafeMiddleware, Codable, AnyObject {
 
     // MARK: Functions implemented in extension
 
-    /// Save the current session instance to the store.
-    func save() throws
+    /// Save the current session instance to the store. This also refreshes the expiry.
+    /// - Parameter callback: A callback that will be invoked after saving to the store has
+    ///                       been attempted, with a parameter describing the error (if one
+    ///                       occurred).
+    ///                       Any such error will be logged for you, so if you do not want
+    ///                       to perform further processing or logic based on the success
+    ///                       of this operation, this parameter can be omitted.
+    func save(callback: @escaping (Error?) -> Void)
 
     /// Destroy the session, removing it and all its associated data from the store.
-    func destroy() throws
+    /// - Parameter callback: A callback that will be invoked after removal from the store
+    ///                       has been attempted, with a parameter describing the error (if
+    ///                       one occurred).
+    ///                       Any such error will be logged for you, so if you do not want
+    ///                       to perform further processing or logic based on the success
+    ///                       of this operation, this parameter can be omitted.
+    func destroy(callback: @escaping (Error?) -> Void)
+
+    /// Refreshes the expiry of a session in the store. Note that this is done automatically
+    /// when a session is restored from a store, but could be repeated if needed (for example,
+    /// if the processing of a handler takes a long time and it is desirable to refresh the
+    /// expiry before sending the response).
+    /// - Parameter callback: A callback that will be invoked after updating the store has
+    ///                       been attempted, with a parameter describing the error (if one
+    ///                       occurred).
+    ///                       Any such error will be logged for you, so if you do not want
+    ///                       to perform further processing or logic based on the success
+    ///                       of this operation, this parameter can be omitted.
+    func touch(callback: @escaping (Error?) -> Void)
 }
 
 extension TypeSafeSession {
@@ -118,12 +142,22 @@ extension TypeSafeSession {
                     return completion(nil, .internalServerError)
                 }
                 if let data = data {
+                    // Refresh the expiry of the session in the store
+                    store.touch(sessionId: sessionId) {
+                        error in
+                        if let error = error {
+                            Log.error("Failed to touch session for sessionId=\(sessionId), error: \(error)")
+                        }
+                    }
                     do {
                         let decoder = JSONDecoder()
                         let selfInstance: Self = try decoder.decode(Self.self, from: data)
                         return completion(selfInstance, nil)
                     } catch {
-                        Log.error("Unable to deserialize saved session for sessionId=\(sessionId), with error: \(error)")
+                        // A serialized session exists in the store, but cannot be decoded. This could occur
+                        // if the type has been modified but serialized instances of the old type still exist
+                        // in the store.
+                        Log.error("Unable to deserialize saved session for sessionId=\(sessionId), error: \(error)")
                         return completion(nil, .internalServerError)
                     }
                 } else {
@@ -142,12 +176,12 @@ extension TypeSafeSession {
      ```swift
      router.post("/session") { (session: MySession, name: String, respondWith: (String?, RequestError?) -> Void) in
          session.name = name
-         try? session.save()
+         session.save()
          respondWith(session.name, nil)
      }
      ```
      */
-    public func save() throws {
+    public func save(callback: @escaping (Error?) -> Void = { _ in }) {
         guard let store = Self.store else {
             Log.error("Unexpectedly found a nil store")
             return
@@ -156,15 +190,15 @@ extension TypeSafeSession {
         do {
             let selfData: Data = try encoder.encode(self)
             store.save(sessionId: self.sessionId, data: selfData) { error in
-                if  let error = error {
-                    Log.error("Failed to save session data for session: \(self.sessionId) with error: \(error)")
-                }
+                if let error = error {
+                    Log.error("Failed to save session data for session: \(self.sessionId), error: \(error)")
+                 }
+                callback(error)
             }
         } catch {
-            // We end up here if there is a session serialized in the store, but we couldn't decode it.
-            // Maybe if the store is persistent and the user changes the model?
-            Log.error("Unable to serialize session for sessionId=\(sessionId), with error: \(error)")
-            throw error
+            // The user's type cannot be encoded to JSON using JSONEncoder
+            Log.error("Unable to encode \(String(reflecting: Self.self)) for sessionId=\(sessionId), error: \(error)")
+            callback(error)
         }
     }
 
@@ -173,20 +207,35 @@ extension TypeSafeSession {
      ### Usage Example: ###
      ```swift
      router.delete("/session") { (session: MySession, respondWith: (RequestError?) -> Void) in
-         try? session.destroy()
+         session.destroy()
          respondWith(nil)
      }
      ```
      */
-    public func destroy() throws {
+    public func destroy(callback: @escaping (Error?) -> Void = { _ in }) {
         guard let store = Self.store else {
             Log.error("Unexpectedly found a nil store")
             return
         }
         store.delete(sessionId: self.sessionId) { error in
             if let error = error {
-                Log.error("Failed to delete session data for session: \(self.sessionId) with error: \(error)")
+                Log.error("Failed to delete session data for sessionId=\(self.sessionId), error: \(error)")
             }
+            callback(error)
+        }
+    }
+    
+    /// Touch the session, refreshing its expiry time in the store
+    public func touch(callback: @escaping (Error?) -> Void = { _ in }) {
+        guard let store = Self.store else {
+            Log.error("Unexpectedly found a nil store")
+            return
+        }
+        store.touch(sessionId: self.sessionId) { error in
+            if let error = error {
+                Log.error("Failed to touch session for sessionId=\(self.sessionId), error: \(error)")
+            }
+            callback(error)
         }
     }
 }

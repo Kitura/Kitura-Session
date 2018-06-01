@@ -230,19 +230,19 @@ class TestTypeSafeSession: XCTestCase, KituraTest {
 
         router.get("/login") { (session: MySession, respondWith: (MySession?, RequestError?) -> Void) in
             session.sessionTestKey = sessionTestValue
-            try? session.save()
+            session.save()
             respondWith(session, nil)
         }
 
         router.get("/loginTwo") { (session: MySessionTwo, respondWith: (MySessionTwo?, RequestError?) -> Void) in
             session.sessionTestKeyTwo = sessionTestValueTwo
-            try? session.save()
+            session.save()
             respondWith(session, nil)
         }
 
         router.get("/loginThree") { (session: MySessionThree, respondWith: (MySessionThree?, RequestError?) -> Void) in
             session.sessionTestKeyThree = sessionTestValueThree
-            try? session.save()
+            session.save()
             respondWith(session, nil)
         }
 
@@ -261,7 +261,7 @@ class TestTypeSafeSession: XCTestCase, KituraTest {
         }
 
         router.get("/logout") { (session: MySession, respondWith: (MySession?, RequestError?) -> Void) in
-            try? session.destroy()
+            session.destroy()
             respondWith(session, nil)
         }
 
