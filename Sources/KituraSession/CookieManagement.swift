@@ -30,6 +30,11 @@ internal class CookieManagement {
     private let path: String
 
     //
+    // Cookie domain. If not set, the hostname of the server (as seen by the client)
+    // will be used.
+    private let domain: String?
+
+    //
     // Cookie is secure
     private let secure: Bool
 
@@ -63,44 +68,68 @@ internal class CookieManagement {
 
         self.name = name
         self.path = path
+        self.domain = nil
         self.secure = secure
         self.maxAge = maxAge
 
         crypto = cookieCrypto
     }
 
+    internal init(sessionName: String, cookieParams: CookieParameters) throws {
+        self.name = sessionName
+        self.path = cookieParams.path ?? "/"
+        self.domain = cookieParams.domain
+        self.secure = cookieParams.secure
+        self.maxAge = cookieParams.maxAge ?? -1.0
+        self.crypto = try CookieCryptography(secret: cookieParams.secret)
+    }
 
-    internal func getSessionId(request: RouterRequest, response: RouterResponse) -> (String?, Bool) {
-        var sessionId: String? = nil
-        var newSession = false
-
+    internal func getSessionId(request: RouterRequest, response: RouterResponse) -> (String, Bool) {
+        // Try to decrypt the session ID from a cookie supplied by the user
         if  let cookie = request.cookies[name],
             let decodedCookieValue = crypto.decode(cookie.value) {
-            sessionId = decodedCookieValue
-            newSession = false
+            return (decodedCookieValue, false)
         } else {
-            // No Cookie
-            sessionId = UUID().uuidString
-            newSession = true
+            // We may have added a response cookie in a previous invocation of a TypeSafeSession
+            // middleware. In case two TypeSafeSessions share the same cookie name and secret, try
+            // to get the corresponding (newly generated) session ID from the response cookie.
+            if let cookie = response.cookies[name] {
+                if let decodedCookieValue = crypto.decode(cookie.value) {
+                    return (decodedCookieValue, false)
+                } else {
+                    // Sessions that share the same name must also share the same secret for encryption,
+                    // as they share a cookie. A failure at this point probably means that the newly
+                    // encoded session cookie cannot be decoded because two sessions have the same name
+                    // but different secrets.
+                    Log.error("Unable to decode session cookie for name=\(name) - possible mismatch of cookie secret")
+                    return (UUID().uuidString, true)
+                }
+            } else {
+                // No Cookie, or the cookie could not be decrypted (ie. was corrupt or invalid).
+                return (UUID().uuidString, true)
+            }
         }
-        return (sessionId, newSession)
     }
 
     internal func addCookie(sessionId: String, domain: String, response: RouterResponse) -> Bool {
         guard let encodedSessionId = crypto.encode(sessionId) else {
             return false
         }
+        // Allow the user to override the domain for a cookie. If they have not specified
+        // a domain, then the domain provided (the hostname of the server as seen by the client)
+        // is used.
+        let cookieDomain = self.domain ?? domain
 
         #if os(Linux)
             var properties: [HTTPCookiePropertyKey: Any] =
                         [HTTPCookiePropertyKey.name: name,
                          HTTPCookiePropertyKey.value: encodedSessionId,
-                         HTTPCookiePropertyKey.domain: domain,
+                         HTTPCookiePropertyKey.domain: cookieDomain,
                          HTTPCookiePropertyKey.path: path]
-            if  secure {
+            if secure {
                 properties[HTTPCookiePropertyKey.secure] = "Yes"
             }
-            if  maxAge > 0.0 {
+            if maxAge > 0.0 {
                 properties[HTTPCookiePropertyKey.maximumAge] = String(Int(maxAge))
                 properties[HTTPCookiePropertyKey.version] = "1"
             }
@@ -109,12 +138,12 @@ internal class CookieManagement {
             var properties: [HTTPCookiePropertyKey: AnyObject] =
                         [HTTPCookiePropertyKey.name: name as NSString,
                          HTTPCookiePropertyKey.value: encodedSessionId as NSString,
-                         HTTPCookiePropertyKey.domain: domain as NSString,
+                         HTTPCookiePropertyKey.domain: cookieDomain as NSString,
                          HTTPCookiePropertyKey.path: path as NSString]
-            if  secure {
+            if secure {
                 properties[HTTPCookiePropertyKey.secure] = "Yes" as NSString
             }
-            if  maxAge > 0.0 {
+            if maxAge > 0.0 {
                 properties[HTTPCookiePropertyKey.maximumAge] = String(Int(maxAge)) as NSString
                 properties[HTTPCookiePropertyKey.version] = "1" as NSString
             }

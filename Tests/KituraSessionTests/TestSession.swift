@@ -35,7 +35,7 @@ class TestSession: XCTestCase, KituraTest {
                    ("testCookieParams2", testCookieParams2),
                    ("testSimpleSession", testSimpleSession),
                    ("testCookieName", testCookieName),
-                   ("testCookieValue", testCookieValue)
+                   ("testCookieValue", testCookieValue),
         ]
     }
 
@@ -59,7 +59,6 @@ class TestSession: XCTestCase, KituraTest {
         })
     }
 
-
     func setupAdvancedSessionRouter() -> Router {
         let router = Router()
 
@@ -74,7 +73,6 @@ class TestSession: XCTestCase, KituraTest {
 
         return router
     }
-
 
     func testCookieParams2() {
         let router = setupBasicSessionRouter()
@@ -96,7 +94,6 @@ class TestSession: XCTestCase, KituraTest {
             })
         })
     }
-
 
     func testSimpleSession() {
         let router = setupBasicSessionRouter()
@@ -131,8 +128,7 @@ class TestSession: XCTestCase, KituraTest {
            })
         })
     }
-
-
+    
     func testCookieName() {
         let router = setupBasicSessionRouter()
         performServerTest(router: router, asyncTasks: {
@@ -214,10 +210,6 @@ class TestSession: XCTestCase, KituraTest {
             next()
 
         }
-
-
         return router
     }
-
-
 }
