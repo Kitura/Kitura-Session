@@ -1,5 +1,5 @@
 /**
- * Copyright IBM Corporation 2016
+ * Copyright IBM Corporation 2018
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,10 @@
  * limitations under the License.
  **/
 
-import Foundation
+// MARK StoreError
 
-// MARK CookieParameter
-
-/// The parameters for configurating the cookies used to send the session IDs to the clients.
-public enum CookieParameter {
-
-    /// The cookie's name.
-    case name(String)
-
-    /// The cookie's Path attribute.
-    case path(String)
-
-    /// The cookie's Secure attribute.
-    case secure(Bool)
-
-    /// The cookie's Max-Age attribute.
-    case maxAge(TimeInterval)
+/// An error indicating the failure of an operation involving the use of a session `Store`.
+public enum StoreError: Swift.Error {
+    /// Indicates that the `Store` could not be accessed, as its value was `nil`.
+    case nilStore(message: String)
 }

@@ -66,58 +66,53 @@ public class Session: RouterMiddleware {
     ///                  other handlers or middleware to work with this request.
     public func handle(request: RouterRequest, response: RouterResponse, next: @escaping () -> Void) {
         let (sessionId, newSession) = cookieManager.getSessionId(request: request, response: response)
-        if  let sessionId = sessionId {
-            let session = SessionState(id: sessionId, store: store)
-            var previousOnEndInvoked: LifecycleHandler? = nil
-            let onEndInvoked = { [weak request, weak response] in
-                guard let previousOnEndInvoked = previousOnEndInvoked else {return}
-                guard let request = request else {previousOnEndInvoked(); return}
-                guard let response = response else {previousOnEndInvoked(); return}
-                if  let session = request.session {
-                    if  newSession  &&  !session.isEmpty {
-                        guard self.cookieManager.addCookie(sessionId: session.id, domain: request.hostname, response: response) == true else {
-                            response.status(.internalServerError)
-                            next()
-                            return
+        let session = SessionState(id: sessionId, store: store)
+        var previousOnEndInvoked: LifecycleHandler? = nil
+        let onEndInvoked = { [weak request, weak response] in
+            guard let previousOnEndInvoked = previousOnEndInvoked else {return}
+            guard let request = request else {previousOnEndInvoked(); return}
+            guard let response = response else {previousOnEndInvoked(); return}
+            if  let session = request.session {
+                if  newSession  &&  !session.isEmpty {
+                    guard self.cookieManager.addCookie(sessionId: session.id, domain: request.hostname, response: response) == true else {
+                        response.status(.internalServerError)
+                        next()
+                        return
+                    }
+                }
+                if  session.isDirty {
+                    session.save() {error in
+                        if  error != nil {
+                            Log.error("Failed to save session data for session \(session.id)")
                         }
                     }
-                    if  session.isDirty {
-                        session.save() {error in
+                } else {
+                    if  !session.isEmpty {
+                        self.store.touch(sessionId: session.id) {error in
                             if  error != nil {
-                                Log.error("Failed to save session data for session \(session.id)")
-                            }
-                        }
-                    } else {
-                        if  !session.isEmpty {
-                            self.store.touch(sessionId: session.id) {error in
-                                if  error != nil {
-                                    Log.error("Failed to \"touch\" session for session \(session.id)")
-                                }
+                                Log.error("Failed to \"touch\" session for session \(session.id)")
                             }
                         }
                     }
                 }
-                previousOnEndInvoked()
             }
-            previousOnEndInvoked = response.setOnEndInvoked(onEndInvoked)
+            previousOnEndInvoked()
+        }
+        previousOnEndInvoked = response.setOnEndInvoked(onEndInvoked)
 
-            if  newSession {
-                request.session = session
-                next()
-            } else {
-                session.reload() {error in
-                    if  let error = error {
-                        // Failed to load data from store,
-                        Log.error("Failed to load session data from store. Error=\(error)")
-                    } else {
-                        request.session = session
-                    }
-                    next()
-                }
-            }
-        } else {
-            // Failed to decrypt the cookie
+        if  newSession {
+            request.session = session
             next()
+        } else {
+            session.reload() {error in
+                if  let error = error {
+                    // Failed to load data from store,
+                    Log.error("Failed to load session data from store. Error=\(error)")
+                } else {
+                    request.session = session
+                }
+                next()
+            }
         }
     }
 }
