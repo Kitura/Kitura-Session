@@ -66,6 +66,9 @@
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="Enums/CookieParameter.html">CookieParameter</a>
               </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Enums/StoreError.html">StoreError</a>
+              </li>
             </ul>
           </li>
           <li class="nav-group-name">
@@ -81,6 +84,17 @@
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="Protocols/Store.html">Store</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Protocols/TypeSafeSession.html">TypeSafeSession</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/SessionCookie.html">SessionCookie</a>
               </li>
             </ul>
           </li>
@@ -122,6 +136,60 @@
                         <div class="language">
                           <p class="aside-title">Swift</p>
                           <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">Store</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13KituraSession08TypeSafeB0P"></a>
+                    <a name="//apple_ref/swift/Protocol/TypeSafeSession" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13KituraSession08TypeSafeB0P">TypeSafeSession</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A <code>TypeSafeMiddleware</code> for managing user sessions. The user defines a final class with the fields they wish to use within  the session. This class can then save or destroy itself from a static <code><a href="Protocols/Store.html">Store</a></code>, which is keyed by a <code>sessionId</code>. The sessionId can be extracted from the session cookie to initialise an instance of the users class with the session data. If no store is defined, the session will default to an in-memory store.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+
+<p>In this example, a class conforming to the TypeSafeSession protocol is defined containing an optional <q>name</q> field. Then a route on <q>/session</q> is set up that stores a received name into the session.</p>
+<pre class="highlight swift"><code><span class="kd">final</span> <span class="kd">class</span> <span class="kt">MySession</span><span class="p">:</span> <span class="kt">TypeSafeSession</span> <span class="p">{</span>
+   <span class="k">var</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span><span class="p">?</span>
+
+   <span class="k">let</span> <span class="nv">sessionId</span><span class="p">:</span> <span class="kt">String</span>
+   <span class="nf">init</span><span class="p">(</span><span class="nv">sessionId</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="p">{</span>
+       <span class="k">self</span><span class="o">.</span><span class="n">sessionId</span> <span class="o">=</span> <span class="n">sessionId</span>
+   <span class="p">}</span>
+    <span class="kd">static</span> <span class="k">var</span> <span class="nv">store</span><span class="p">:</span> <span class="kt">Store</span><span class="p">?</span>
+    <span class="kd">static</span> <span class="k">let</span> <span class="nv">sessionCookie</span> <span class="o">=</span> <span class="kt">SessionCookie</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="s">"session-cookie"</span><span class="p">,</span> <span class="nv">secret</span><span class="p">:</span> <span class="s">"abc123"</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="n">router</span><span class="o">.</span><span class="nf">post</span><span class="p">(</span><span class="s">"/session"</span><span class="p">)</span> <span class="p">{</span> <span class="p">(</span><span class="nv">session</span><span class="p">:</span> <span class="kt">MySession</span><span class="p">,</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="nv">respondWith</span><span class="p">:</span> <span class="p">(</span><span class="kt">String</span><span class="p">?,</span> <span class="kt">RequestError</span><span class="p">?)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span> <span class="k">in</span>
+   <span class="n">session</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+   <span class="k">try</span><span class="p">?</span> <span class="n">session</span><span class="o">.</span><span class="nf">save</span><span class="p">()</span>
+   <span class="nf">respondWith</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre>
+
+<p><strong>Note</strong>: When using multiple TypeSafeSession classes together, If the cookie names are the same, the cookie secret must also be the same. Otherwise the sessions will conflict and overwrite each others cookies. (Different cookie names can use different secrets)</p>
+
+                        <a href="Protocols/TypeSafeSession.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">TypeSafeSession</span><span class="p">:</span> <span class="kt">TypeSafeMiddleware</span><span class="p">,</span> <span class="kt">Codable</span></code></pre>
 
                         </div>
                       </div>
