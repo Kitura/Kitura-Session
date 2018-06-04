@@ -184,7 +184,7 @@ extension TypeSafeSession {
     public func save(callback: @escaping (Error?) -> Void = { _ in }) {
         guard let store = Self.store else {
             Log.error("Unexpectedly found a nil store")
-            return
+            return callback(StoreError.nilStore(message: "Unable to save session: Store is nil"))
         }
         let encoder = JSONEncoder()
         do {
@@ -215,7 +215,7 @@ extension TypeSafeSession {
     public func destroy(callback: @escaping (Error?) -> Void = { _ in }) {
         guard let store = Self.store else {
             Log.error("Unexpectedly found a nil store")
-            return
+            return callback(StoreError.nilStore(message: "Unable to destroy session: Store is nil"))
         }
         store.delete(sessionId: self.sessionId) { error in
             if let error = error {
@@ -229,7 +229,7 @@ extension TypeSafeSession {
     public func touch(callback: @escaping (Error?) -> Void = { _ in }) {
         guard let store = Self.store else {
             Log.error("Unexpectedly found a nil store")
-            return
+            return callback(StoreError.nilStore(message: "Unable to touch session: Store is nil"))
         }
         store.touch(sessionId: self.sessionId) { error in
             if let error = error {
