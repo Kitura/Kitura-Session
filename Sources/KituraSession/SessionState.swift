@@ -110,4 +110,60 @@ public class SessionState {
             isDirty = true
         }
     }
+    
+    //TODO: Add jazzy docs
+    public func read<T: Decodable>(as type: T.Type, forKey key: String) throws -> T {
+        guard let dict = state[key] else {
+            throw SessionCodingError.keyNotFound(key: key)
+        }
+        if isPrimative(value: dict) {
+            guard let primative = dict as? T else {
+                throw SessionCodingError.failedPrimativeCast()
+            }
+            return primative
+        }
+        let data = try JSONSerialization.data(withJSONObject: dict)
+        return try JSONDecoder().decode(type, from: data)
+    }
+    
+    //TODO: Add jazzy docs
+    public func add<T: Encodable>(_ value: T, forKey key: String) throws {
+        let json: [String: Any]
+        if isPrimative(value: value) {
+            json = [key: value]
+        } else {
+            let data = try JSONEncoder().encode(value)
+            let mirror = Mirror(reflecting: value)
+            if mirror.displayStyle == .collection {
+                guard let dict = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [Any] else {
+                    throw SessionCodingError.failedToSerializeJSON()
+                }
+                json = [key: dict]
+            } else {
+                guard let dict = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any] else {
+                    throw SessionCodingError.failedToSerializeJSON()
+                }
+                json = [key: dict]
+            }
+            
+        }
+        state = state.merging(json, uniquingKeysWith: { (_, last) in last })
+        isDirty = true
+    }
 }
+
+func isPrimative(value: Any) -> Bool {
+    if value is [Any] {
+        return value is [String] ||
+            value is [Int] ||
+            value is [Double] ||
+            value is [Bool]
+    } else {
+        return value is String ||
+            value is Int ||
+            value is Double ||
+            value is Bool
+    }
+}
+
+

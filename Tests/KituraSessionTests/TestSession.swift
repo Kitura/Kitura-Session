@@ -43,17 +43,15 @@ class TestSession: XCTestCase, KituraTest {
         let router = setupAdvancedSessionRouter()
         performServerTest(router: router, asyncTasks: {
             self.performRequest(method: "get", path: "/1/session", callback: {response in
-                XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")
-                guard (response != nil) else {
-                    return
+                guard let response = response else {
+                    return XCTFail("ERROR!!! ClientRequest response object was nil")
                 }
-                XCTAssertEqual(response!.statusCode, HTTPStatusCode.noContent, "Session route did not match single path request")
-                let (cookie1, cookie1Expire) = CookieUtils.cookieFrom(response: response!, named: cookie1Name)
-                XCTAssert(cookie1 != nil, "Cookie \(cookie1Name) wasn't found in the response.")
-                guard (cookie1 != nil) else {
-                    return
+                XCTAssertEqual(response.statusCode, HTTPStatusCode.noContent, "Session route did not match single path request")
+                let (cookie1, cookie1Expire) = CookieUtils.cookieFrom(response: response, named: cookie1Name)
+                guard let cookie = cookie1 else {
+                    return XCTFail("Cookie \(cookie1Name) wasn't found in the response.")
                 }
-                XCTAssertEqual(cookie1!.path, "/1", "Path of Cookie \(cookie1Name) is not /1, was \(cookie1!.path)")
+                XCTAssertEqual(cookie.path, "/1", "Path of Cookie \(cookie1Name) is not /1, was \(cookie.path)")
                 XCTAssertNotNil(cookie1Expire, "\(cookie1Name) had no expiration date. It should have had one")
             })
         })
@@ -78,18 +76,16 @@ class TestSession: XCTestCase, KituraTest {
         let router = setupBasicSessionRouter()
         performServerTest(router: router, asyncTasks: {
             self.performRequest(method: "get", path: "/2/session", callback: {response in
-                XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")
-                guard (response != nil) else {
-                    return
+                guard let response = response else {
+                    return XCTFail("ERROR!!! ClientRequest response object was nil")
                 }
-                XCTAssertEqual(response!.statusCode, HTTPStatusCode.noContent, "Session route did not match single path request")
-                let (cookie2, cookie2Expire) = CookieUtils.cookieFrom(response: response!, named: cookieDefaultName)
-                XCTAssertNotNil(cookie2, "Cookie \(cookieDefaultName) wasn't found in the response.")
-                guard (cookie2 != nil) else {
-                    return
+                XCTAssertEqual(response.statusCode, HTTPStatusCode.noContent, "Session route did not match single path request")
+                let (cookie2, cookie2Expire) = CookieUtils.cookieFrom(response: response, named: cookieDefaultName)
+                guard let cookie = cookie2 else {
+                    return XCTFail("Cookie \(cookieDefaultName) wasn't found in the response.")
                 }
-                XCTAssertNotNil(cookie2!.path, "ERROR!!! cookie2!.path is nil")
-                XCTAssertEqual(cookie2!.path, "/", "Path of Cookie \(cookieDefaultName) is not /, was \(cookie2!.path)")
+                XCTAssertNotNil(cookie.path, "ERROR!!! cookie2!.path is nil")
+                XCTAssertEqual(cookie.path, "/", "Path of Cookie \(cookieDefaultName) is not /, was \(cookie.path)")
                 XCTAssertNil(cookie2Expire, "\(cookieDefaultName) has expiration date. It shouldn't have had one")
             })
         })
@@ -99,24 +95,22 @@ class TestSession: XCTestCase, KituraTest {
         let router = setupBasicSessionRouter()
         performServerTest(router: router, asyncTasks: {
             self.performRequest(method: "post", path: "/3/session", callback: {response in
-                XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")
-                guard (response != nil) else {
-                    return
+                guard let response = response else {
+                    return XCTFail("ERROR!!! ClientRequest response object was nil")
                 }
-                let (cookie3, _) = CookieUtils.cookieFrom(response: response!, named: cookieDefaultName)
-                XCTAssertNotNil(cookie3, "Cookie \(cookieDefaultName) wasn't found in the response.")
-                guard (cookie3 != nil) else {
-                    return
+                let (cookie3, _) = CookieUtils.cookieFrom(response: response, named: cookieDefaultName)
+                guard let cookie = cookie3 else {
+                    return XCTFail("Cookie \(cookieDefaultName) wasn't found in the response.")
                 }
                 let cookie3value = cookie3!.value
                 self.performRequest(method: "get", path: "/3/session", callback: {response in
                     XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")
-                    guard (response != nil) else {
-                        return
+                    guard let response = response else {
+                        return XCTFail()
                     }
-                    XCTAssertEqual(response!.statusCode, HTTPStatusCode.OK, "HTTP Status code was \(response!.statusCode)")
+                    XCTAssertEqual(response.statusCode, HTTPStatusCode.OK, "HTTP Status code was \(response.statusCode)")
                     do {
-                        guard let body = try response!.readString() else {
+                        guard let body = try response.readString() else {
                             XCTFail("No response body")
                             return
                         }
@@ -134,10 +128,10 @@ class TestSession: XCTestCase, KituraTest {
         performServerTest(router: router, asyncTasks: {
             self.performRequest(method: "post", path: "/3/session", callback: {response in
                 XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")
-                guard (response != nil) else {
+                guard let response = response else {
                     return
                 }
-                let (cookie3, _) = CookieUtils.cookieFrom(response: response!, named: cookieDefaultName)
+                let (cookie3, _) = CookieUtils.cookieFrom(response: response, named: cookieDefaultName)
                 XCTAssertNotNil(cookie3, "Cookie \(cookieDefaultName) wasn't found in the response.")
                 guard (cookie3 != nil) else {
                     return
@@ -145,10 +139,10 @@ class TestSession: XCTestCase, KituraTest {
                 let cookie3value = cookie3!.value
                 self.performRequest(method: "get", path: "/3/session", callback: {response in
                     XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")
-                    guard (response != nil) else {
+                    guard let response = response else {
                         return
                     }
-                    XCTAssertEqual(response!.statusCode, HTTPStatusCode.noContent, "Session route did not match single path request")
+                    XCTAssertEqual(response.statusCode, HTTPStatusCode.noContent, "Session route did not match single path request")
                     }, headers: ["Cookie": "\(cookie1Name)=\(cookie3value); Zxcv=tyuiop"])
             })
         })
@@ -160,20 +154,20 @@ class TestSession: XCTestCase, KituraTest {
         performServerTest(router: router, asyncTasks: {
             self.performRequest(method: "post", path: "/3/session", callback: {response in
                 XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")
-                guard (response != nil) else {
+                guard let response = response else {
                     return
                 }
-                let (cookie3, _) = CookieUtils.cookieFrom(response: response!, named: cookieDefaultName)
+                let (cookie3, _) = CookieUtils.cookieFrom(response: response, named: cookieDefaultName)
                 XCTAssertNotNil(cookie3, "Cookie \(cookieDefaultName) wasn't found in the response.")
                 guard (cookie3 != nil) else {
                     return
                 }
                 self.performRequest(method: "get", path: "/3/session", callback: {response in
                     XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")
-                    guard (response != nil) else {
+                    guard let response = response else {
                         return
                     }
-                    XCTAssertEqual(response!.statusCode, HTTPStatusCode.noContent, "Session route did not match single path request")
+                    XCTAssertEqual(response.statusCode, HTTPStatusCode.noContent, "Session route did not match single path request")
                     }, headers: ["Cookie": "\(cookieDefaultName)=lalala; Zxcv=tyuiop"])
             })
         })

@@ -1,5 +1,5 @@
 /**
- * Copyright IBM Corporation 2016
+ * Copyright IBM Corporation 2018
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,17 @@
  * limitations under the License.
  **/
 
-import XCTest
+// MARK StoreError
 
-@testable import KituraSessionTests
-
-
-XCTMain([
-            testCase(TestSession.allTests),
-            testCase(TestCodableSession.allTests),
-            testCase(TestTypeSafeSession.allTests)
-    ])
+/// An error indicating the failure of an operation to encode/decode into/from the session `Store`.
+public enum SessionCodingError: Swift.Error {
+    
+     //Thrown when the provided Key is not found in the session.
+    case keyNotFound(key: String)
+    
+    //Thrown when a primative Decodable or array of primative Decodables fails to be cast to the provided type.
+    case failedPrimativeCast()
+    
+    //Throw when the provided Encodable fails to be serialized to JSON.
+    case failedToSerializeJSON()
+}
