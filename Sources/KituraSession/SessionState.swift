@@ -148,6 +148,10 @@ public class SessionState {
          next()
      }
      ```
+     - Parameter value: The Encodable object which will be added to the session.
+     - Parameter forKey: The key that the Encodable object will be stored under.
+     - Throws: `EncodingError` if value to be stored fails to be encoded as JSON.
+     - Throws: `SessionCodingError.failedToSerializeJSON()` if value to be stored fails to be serialized as JSON.
      */
     public func add<T: Encodable>(_ value: T, forKey key: String) throws {
         let json: Any
@@ -196,6 +200,12 @@ public class SessionState {
          next()
      }
      ```
+     - Parameter as: The Decodable object type which the session will be decoded as.
+     - Parameter forKey: The key that the Decodable object was stored under.
+     - Throws: `SessionCodingError.keyNotFound` if a value is not found for the provided key.
+     - Throws: `SessionCodingError.failedPrimativeCast()` if value stored for the key fails to be decoded as a primative JSON type.
+     - Throws: `DecodingError` if value stored for the key fails to be decoded as the provided type.
+     - Returns: The instantiated Decodable object
      */
     public func read<T: Decodable>(as type: T.Type, forKey key: String) throws -> T {
         guard let dict = state[key] else {
