@@ -111,7 +111,92 @@ public class SessionState {
         }
     }
     
-    //TODO: Add jazzy docs
+    // Check if the provided value is a primative JSON type.
+    private func isPrimative(value: Any) -> Bool {
+        if value is [Any] {
+            return value is [String] ||
+                value is [Int] ||
+                value is [Double] ||
+                value is [Bool]
+        } else {
+            return value is String ||
+                value is Int ||
+                value is Double ||
+                value is Bool
+        }
+    }
+    // MARK Codable session
+    
+    /**
+     Encode an encodable value as JSON and store it in the session for the provided key.
+     ### Usage Example: ###
+     The example below defines a `User` struct.
+     It decodes a `User` instance from the request body
+     and stores it in the request session using the user's id as the key.
+     ```swift
+     public struct User: Codable {
+        let id: String
+        let name: String
+     }
+     let router = Router()
+     router.all(middleware: Session(secret: "secret"))
+     router.post("/user") { request, response, next in
+         let user = try request.read(as: User.self)
+         try request.session?.add(user, forKey: user.id)
+         response.status(.created)
+         response.send(user)
+         next()
+     }
+     ```
+     */
+    public func add<T: Encodable>(_ value: T, forKey key: String) throws {
+        let json: Any
+        if isPrimative(value: value) {
+            json = value
+        } else {
+            let data = try JSONEncoder().encode(value)
+            let mirror = Mirror(reflecting: value)
+            if mirror.displayStyle == .collection {
+                guard let array = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [Any] else {
+                    throw SessionCodingError.failedToSerializeJSON()
+                }
+                json = array
+            } else {
+                guard let dict = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any] else {
+                    throw SessionCodingError.failedToSerializeJSON()
+                }
+                json = dict
+            }
+            
+        }
+        state[key] = json
+        isDirty = true
+    }
+    
+    /**
+     Decode the JSON value that is stored in the session for the provided key as a Decodable object.
+     ### Usage Example: ###
+     The example below defines a `User` struct.
+     It then reads a user id from the query parameters
+     and decodes the instance of `User` that is stored in the session for that id.
+     ```swift
+     public struct User: Codable {
+        let id: String
+        let name: String
+     }
+     let router = Router()
+     router.all(middleware: Session(secret: "secret"))
+     router.get("/user") { request, response, next in
+         guard let userID = request.queryParameters["userid"] else {
+            return response.status(.notFound).end()
+         }
+         let user = try request.session?.read(as: User.self, forKey: userID)
+         response.status(.OK)
+         response.send(user)
+         next()
+     }
+     ```
+     */
     public func read<T: Decodable>(as type: T.Type, forKey key: String) throws -> T {
         guard let dict = state[key] else {
             throw SessionCodingError.keyNotFound(key: key)
@@ -125,45 +210,8 @@ public class SessionState {
         let data = try JSONSerialization.data(withJSONObject: dict)
         return try JSONDecoder().decode(type, from: data)
     }
-    
-    //TODO: Add jazzy docs
-    public func add<T: Encodable>(_ value: T, forKey key: String) throws {
-        let json: [String: Any]
-        if isPrimative(value: value) {
-            json = [key: value]
-        } else {
-            let data = try JSONEncoder().encode(value)
-            let mirror = Mirror(reflecting: value)
-            if mirror.displayStyle == .collection {
-                guard let dict = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [Any] else {
-                    throw SessionCodingError.failedToSerializeJSON()
-                }
-                json = [key: dict]
-            } else {
-                guard let dict = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any] else {
-                    throw SessionCodingError.failedToSerializeJSON()
-                }
-                json = [key: dict]
-            }
-            
-        }
-        state = state.merging(json, uniquingKeysWith: { (_, last) in last })
-        isDirty = true
-    }
 }
 
-func isPrimative(value: Any) -> Bool {
-    if value is [Any] {
-        return value is [String] ||
-            value is [Int] ||
-            value is [Double] ||
-            value is [Bool]
-    } else {
-        return value is String ||
-            value is Int ||
-            value is Double ||
-            value is Bool
-    }
-}
+
 
 

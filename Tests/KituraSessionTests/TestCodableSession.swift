@@ -29,6 +29,7 @@ struct CodableSessionTest: Codable {
 let CodableSessionTestArray = ["sessionValue1", "sessionValue2", "sessionValue3"]
 let CodableSessionTestDict = ["sessionKey1": "sessionValue1", "sessionKey2": "sessionValue2", "sessionKey3": "sessionValue3"]
 let CodableSessionTestCodableArray = [CodableSessionTest(sessionKey: "sessionValue1"), CodableSessionTest(sessionKey: "sessionValue2"), CodableSessionTest(sessionKey: "sessionValue3")]
+
 class TestCodableSession: XCTestCase, KituraTest {
     
     static var allTests: [(String, (TestCodableSession) -> () throws -> Void)] {
