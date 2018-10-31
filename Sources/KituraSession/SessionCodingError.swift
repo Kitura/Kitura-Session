@@ -17,14 +17,28 @@
 // MARK StoreError
 
 /// An error indicating the failure of an operation to encode/decode into/from the session `Store`.
-public enum SessionCodingError: Swift.Error {
+public struct SessionCodingError: Equatable, Hashable, Error, CustomStringConvertible {
+    public var description: String
     
-     //Thrown when the provided Key is not found in the session.
-    case keyNotFound(key: String)
     
-    //Thrown when a primative Decodable or array of primative Decodables fails to be cast to the provided type.
-    case failedPrimativeCast()
+    // MARK: Creating a SessionCodingError
     
-    //Throw when the provided Encodable fails to be serialized to JSON.
-    case failedToSerializeJSON()
+    /**
+     Creates an error representing the given error reason string.
+     - parameter reason: A human-readable description of the error code.
+     */
+    public init(description: String) {
+        self.description = description
+    }
+    
+    /// Thrown when the provided Key is not found in the session.
+    public static func keyNotFound(key: String) -> SessionCodingError {
+        return SessionCodingError(description: "keyNotFound: \(key)")
+    }
+    
+    /// Thrown when a primitive Decodable or array of primitive Decodables fails to be cast to the provided type.
+    public static let failedPrimitiveCast = SessionCodingError(description: "failedPrimitiveCast")
+    
+    /// Throw when the provided Encodable fails to be serialized to JSON.
+    public static let failedToSerializeJSON = SessionCodingError(description: "failedToSerializeJSON")
 }

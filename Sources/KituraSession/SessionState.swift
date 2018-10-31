@@ -111,8 +111,8 @@ public class SessionState {
         }
     }
     
-    // Check if the provided value is a primative JSON type.
-    private func isPrimative(value: Any) -> Bool {
+    // Check if the provided value is a primitive JSON type.
+    private func isPrimitive(value: Any) -> Bool {
         if value is [Any] {
             return value is [String] ||
                 value is [Int] ||
@@ -155,19 +155,19 @@ public class SessionState {
      */
     public func add<T: Encodable>(_ value: T, forKey key: String) throws {
         let json: Any
-        if isPrimative(value: value) {
+        if isPrimitive(value: value) {
             json = value
         } else {
             let data = try JSONEncoder().encode(value)
             let mirror = Mirror(reflecting: value)
             if mirror.displayStyle == .collection {
                 guard let array = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [Any] else {
-                    throw SessionCodingError.failedToSerializeJSON()
+                    throw SessionCodingError.failedToSerializeJSON
                 }
                 json = array
             } else {
                 guard let dict = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any] else {
-                    throw SessionCodingError.failedToSerializeJSON()
+                    throw SessionCodingError.failedToSerializeJSON
                 }
                 json = dict
             }
@@ -203,7 +203,7 @@ public class SessionState {
      - Parameter as: The Decodable object type which the session will be decoded as.
      - Parameter forKey: The key that the Decodable object was stored under.
      - Throws: `SessionCodingError.keyNotFound` if a value is not found for the provided key.
-     - Throws: `SessionCodingError.failedPrimativeCast` if value stored for the key fails to be decoded as a primative JSON type.
+     - Throws: `SessionCodingError.failedPrimitiveCast` if value stored for the key fails to be decoded as a primitive JSON type.
      - Throws: `DecodingError` if value stored for the key fails to be decoded as the provided type.
      - Returns: The instantiated Decodable object
      */
@@ -211,11 +211,11 @@ public class SessionState {
         guard let dict = state[key] else {
             throw SessionCodingError.keyNotFound(key: key)
         }
-        if isPrimative(value: dict) {
-            guard let primative = dict as? T else {
-                throw SessionCodingError.failedPrimativeCast()
+        if isPrimitive(value: dict) {
+            guard let primitive = dict as? T else {
+                throw SessionCodingError.failedPrimitiveCast
             }
-            return primative
+            return primitive
         }
         let data = try JSONSerialization.data(withJSONObject: dict)
         return try JSONDecoder().decode(type, from: data)
