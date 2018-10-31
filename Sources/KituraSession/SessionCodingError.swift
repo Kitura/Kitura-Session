@@ -17,18 +17,19 @@
 // MARK StoreError
 
 /// An error indicating the failure of an operation to encode/decode into/from the session `Store`.
-public struct SessionCodingError: Equatable, Hashable, Error, CustomStringConvertible {
+public struct SessionCodingError: Equatable, Error {
     public var description: String
     
-    
-    // MARK: Creating a SessionCodingError
-    
     /**
-     Creates an error representing the given error reason string.
-     - parameter reason: A human-readable description of the error code.
+     Creates an error representing the given error as a string.
+     - parameter description: A human-readable description of the error.
      */
     public init(description: String) {
         self.description = description
+    }
+    
+    public static func == (lhs: SessionCodingError, rhs: SessionCodingError) -> Bool {
+        return lhs.description == rhs.description
     }
     
     /// Thrown when the provided Key is not found in the session.
