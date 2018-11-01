@@ -36,10 +36,9 @@ public struct SessionCodingError: Equatable, Error {
     public static func keyNotFound(key: String) -> SessionCodingError {
         return SessionCodingError(description: "keyNotFound: \(key)")
     }
-    
-    /// Thrown when a primitive Decodable or array of primitive Decodables fails to be cast to the provided type.
-    public static let failedPrimitiveCast = SessionCodingError(description: "failedPrimitiveCast")
-    
+
     /// Throw when the provided Encodable fails to be serialized to JSON.
     public static let failedToSerializeJSON = SessionCodingError(description: "failedToSerializeJSON")
+    
+    public static let appendTypeMismatch = SessionCodingError(description: "appendTypeMismatch")
 }
