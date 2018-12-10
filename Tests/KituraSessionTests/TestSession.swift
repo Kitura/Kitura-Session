@@ -99,10 +99,9 @@ class TestSession: XCTestCase, KituraTest {
                     return XCTFail("ERROR!!! ClientRequest response object was nil")
                 }
                 let (cookie3, _) = CookieUtils.cookieFrom(response: response, named: cookieDefaultName)
-                guard let cookie = cookie3 else {
+                guard let cookie3value = cookie3?.value else {
                     return XCTFail("Cookie \(cookieDefaultName) wasn't found in the response.")
                 }
-                let cookie3value = cookie3!.value
                 self.performRequest(method: "get", path: "/3/session", callback: {response in
                     XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")
                     guard let response = response else {
@@ -188,7 +187,6 @@ class TestSession: XCTestCase, KituraTest {
         router.post("/3/session") {request, response, next in
             request.session?[sessionTestKey] = sessionTestValue
             response.status(.noContent)
-
             next()
         }
 

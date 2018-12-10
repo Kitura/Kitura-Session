@@ -84,7 +84,7 @@ let router = Router()
 router.all(middleware: Session(secret: "secret"))
 router.post("/user") { request, response, next in
          let user = try request.read(as: User.self)
-         try request.session?.add(user, forKey: user.id)
+         request.session?[user.id] = user
          response.status(.created)
          response.send(user)
          next()
@@ -93,7 +93,7 @@ router.get("/user") { request, response, next in
          guard let userID = request.queryParameters["userid"] else {
             return response.status(.notFound).end()
          }
-         let user = try request.session?.read(as: User.self, forKey: userID)
+         let user: User? = request.session?[userID]
          response.status(.OK)
          response.send(user)
          next()

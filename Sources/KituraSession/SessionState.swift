@@ -98,10 +98,12 @@ public class SessionState {
         isDirty = true
     }
 
-    /// Retrieve an entry from the session data.
+    /// Retrieve or store an entry from the session data.
     ///
     /// - Parameter key: The key of the entry to retrieve.
     public subscript(key: String) -> Any? {
+        // This function allows you to store values which will fail when you try to serialize them to JSON.
+        // This should be removed in the next major release of Kitura-Session in favour of Codable subscript.
         get {
             return state[key]
         }
@@ -110,199 +112,50 @@ public class SessionState {
             isDirty = true
         }
     }
-    // MARK: Codable session
     
-    /**
-     Encode an encodable value as JSON and store it in the session for the provided key.
-     ### Usage Example: ###
-     The example below defines a `User` struct.
-     It decodes a `User` instance from the request body
-     and stores it in the request session using the user's id as the key.
-     ```swift
-     public struct User: Codable {
-        let id: String
-        let name: String
-     }
-     let router = Router()
-     router.all(middleware: Session(secret: "secret"))
-     router.post("/user") { request, response, next in
-         let user = try request.read(as: User.self)
-         try request.session?.add(user, forKey: user.id)
-         response.status(.created)
-         response.send(user)
-         next()
-     }
-     ```
-     - Parameter value: The Encodable object which will be added to the session.
-     - Parameter forKey: The key that the Encodable object will be stored under.
-     - Throws: `EncodingError` if value to be stored fails to be encoded as JSON.
-     - Throws: `SessionCodingError.failedToSerializeJSON` if value to be stored fails to be serialized as JSON.
-     */
-    public func add<T: Encodable>(_ value: T, forKey key: String) throws {
-        let json: Any
-        let data = try JSONEncoder().encode(value)
-        let mirror = Mirror(reflecting: value)
-        if mirror.displayStyle == .collection {
-            guard let array = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [Any] else {
-                throw SessionCodingError.failedToSerializeJSON
+    /// Retrieve or store a Codable entry from the session data.
+    ///
+    /// - Parameter key: The Codable key of the entry to retrieve/save.
+    public subscript<T: Codable>(key: String) -> T? {
+        get {
+            guard let dict = state[key] else {
+                return nil
             }
-            json = array
-        } else {
-            guard let dict = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any] else {
-                throw SessionCodingError.failedToSerializeJSON
+            if let primative = dict as? T {
+                return primative
+            } else {
+                guard let data = try? JSONSerialization.data(withJSONObject: dict) else {
+                    return nil
+                }
+                return try? JSONDecoder().decode(T.self, from: data)
             }
-            json = dict
         }
-        state[key] = json
-        isDirty = true
-    }
-
-    /**
-     Decode the JSON value that is stored in the session for the provided key as a Decodable object.
-     ### Usage Example: ###
-     The example below defines a `User` struct.
-     It then reads a user id from the query parameters
-     and decodes the instance of `User` that is stored in the session for that id.
-     ```swift
-     public struct User: Codable {
-        let id: String
-        let name: String
-     }
-     let router = Router()
-     router.all(middleware: Session(secret: "secret"))
-     router.get("/user") { request, response, next in
-         guard let userID = request.queryParameters["userid"] else {
-            return response.status(.notFound).end()
-         }
-         let user = try request.session?.read(as: User.self, forKey: userID)
-         response.status(.OK)
-         response.send(user)
-         next()
-     }
-     ```
-     - Parameter as: The Decodable object type which the session will be decoded as.
-     - Parameter forKey: The key that the Decodable object was stored under.
-     - Throws: `SessionCodingError.keyNotFound` if a value is not found for the provided key.
-     - Throws: `DecodingError` if value stored for the key fails to be decoded as the provided type.
-     - Returns: The instantiated Decodable object
-     */
-    public func read<T: Decodable>(as type: T.Type, forKey key: String) throws -> T {
-        guard let dict = state[key] else {
-            throw SessionCodingError.keyNotFound(key: key)
+        set {
+            let json: Any
+            guard let value = newValue else {
+                state[key] = nil
+                isDirty = true
+                return
+            }
+            if let data = try? JSONEncoder().encode(value) {
+                let mirror = Mirror(reflecting: value)
+                if mirror.displayStyle == .collection {
+                    guard let array = try? JSONSerialization.jsonObject(with: data) as? [Any] else {
+                        return
+                    }
+                    json = array as Any
+                } else {
+                    guard let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                        return
+                    }
+                    json = dict as Any
+                }
+            } else {
+                json = value
+            }
+            state[key] = json
+            isDirty = true
         }
-        let data = try JSONSerialization.data(withJSONObject: dict)
-        return try JSONDecoder().decode(type, from: data)
-    }
-    
-    /**
-     Encode a single Codable value as JSON and append it to the array stored in the session for the provided key.
-     If no value is present for the provide key, a new array is created with the given value.
-     ### Usage Example: ###
-     The example below defines a `User` struct.
-     It decodes a `User` instance from the request body
-    and appends it to the request session array of users.
-     ```swift
-     public struct User: Codable {
-         let id: String
-         let name: String
-     }
-     let router = Router()
-     router.all(middleware: Session(secret: "secret"))
-     router.post("/user") { request, response, next in
-         let user = try request.read(as: User.self)
-         try request.session?.append(user, forKey: "user")
-         response.status(.created)
-         response.send(user)
-         next()
-     }
-     ```
-     - Parameter value: The Codable object which will be appended to the session array.
-     - Parameter forKey: The key that the Codable array is stored under.
-     - Throws: `EncodingError` if value to be stored fails to be encoded as JSON.
-     - Throws: `DecodingError` if value stored for the key fails to be decoded as an array of the provided type.
-     - Throws: `SessionCodingError.failedToSerializeJSON` if value to be stored fails to be serialized as JSON.
-     */
-    public func append<T: Codable>(_ value: T, forKey key: String) throws {
-        try self.append([value], forKey: key)
-    }
-    
-    /**
-     Encode an array of Codable values as JSON and append them to the array stored in the session for the provided key.
-     If no value is present for the provide key, the provided array is stored.
-     ### Usage Example: ###
-     The example below defines a `User` struct.
-     It decodes an array of `User` instances from the request body
-     and appends them to the request session array of users.
-     ```swift
-     public struct User: Codable {
-         let id: String
-         let name: String
-     }
-     let router = Router()
-     router.all(middleware: Session(secret: "secret"))
-     router.post("/user") { request, response, next in
-         let users = try request.read(as: [User.self])
-         try request.session?.append(users, forKey: "users")
-         response.status(.created)
-         response.send(users)
-         next()
-     }
-     ```
-     - Parameter value: The Codable array which will be appended to the session array.
-     - Parameter forKey: The key that the Codable array is stored under.
-     - Throws: `EncodingError` if value to be stored fails to be encoded as JSON.
-     - Throws: `DecodingError` if value stored for the key fails to be decoded as an array of the provided type.
-     - Throws: `SessionCodingError.failedToSerializeJSON` if value to be stored fails to be serialized as JSON.
-     */
-    public func append<T: Codable>(_ value: [T], forKey key: String) throws {
-        let array: [T]
-        do {
-            array = try self.read(as: [T].self, forKey: key)
-        } catch is SessionCodingError {
-            array = []
-        }
-        let appendedArray = array + value
-        try self.add(appendedArray, forKey: key)
-    }
-    
-    /**
-     Encode a dictionary of Codable values as JSON and merge them with the dictionary stored in the session for the provided key.
-     If there are duplicate keys when merging the new key value is used.
-     If no value is present for the provide key, the provided dictionary is stored.
-     ### Usage Example: ###
-     The example below defines a `User` struct.
-     It decodes a dictionary of `User` instances from the request body
-     and merges them with the request sessions dictionary of users.
-     ```swift
-     public struct User: Codable {
-         let id: String
-         let name: String
-     }
-     let router = Router()
-     router.all(middleware: Session(secret: "secret"))
-     router.post("/user") { request, response, next in
-         let users = try request.read(as: [String: User.self])
-         try request.session?.append(users, forKey: "users")
-         response.status(.created)
-         response.send(users)
-         next()
-     }
-     ```
-     - Parameter value: The Codable dictionary which will be merged with the session dictionary.
-     - Parameter forKey: The key that the Codable dictionary is stored under.
-     - Throws: `EncodingError` if value to be stored fails to be encoded as JSON.
-     - Throws: `DecodingError` if value stored for the key fails to be decoded as a dictionary of the provided type.
-     - Throws: `SessionCodingError.failedToSerializeJSON` if value to be stored fails to be serialized as JSON.
-     */
-    public func append<K: Codable, V: Codable>(_ value: [K: V], forKey key: String) throws {
-        let dict: [K: V]
-        do {
-            dict = try self.read(as: [K: V].self, forKey: key)
-        } catch is SessionCodingError {
-            dict = [:]
-        }
-        let appendedDict = dict.merging(value, uniquingKeysWith: { (_, last) in last })
-        try self.add(appendedDict, forKey: key)
     }
 }
 
