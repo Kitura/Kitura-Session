@@ -118,13 +118,13 @@ public class SessionState {
     /// - Parameter key: The Codable key of the entry to retrieve/save.
     public subscript<T: Codable>(key: String) -> T? {
         get {
-            guard let dict = state[key] else {
+            guard let value = state[key] else {
                 return nil
             }
-            if let primative = dict as? T {
-                return primative
+            if let primitive = value as? T {
+                return primitive
             } else {
-                guard let data = try? JSONSerialization.data(withJSONObject: dict) else {
+                guard let data = try? JSONSerialization.data(withJSONObject: value) else {
                     return nil
                 }
                 return try? JSONDecoder().decode(T.self, from: data)

@@ -91,9 +91,11 @@ router.post("/user") { request, response, next in
 }
 router.get("/user") { request, response, next in
          guard let userID = request.queryParameters["userid"] else {
-            return response.status(.notFound).end()
+            return try response.status(.notFound).end()
          }
-         let user: User? = request.session?[userID]
+         guard let user: User = request.session?[userID] else {
+            return try response.status(.internalServerError).end()
+         }
          response.status(.OK)
          response.send(user)
          next()
