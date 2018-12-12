@@ -23,7 +23,7 @@ private let SESSION_USER_INFO_KEY = "@@Kitura@@Session@@"
 
 /// Extension of the `RouterRequest` class that provides access to the session's state
 /// that is stored in a `SessionState` object.
-public extension RouterRequest {
+extension RouterRequest {
     
     /// The session's state that is stored in a `SessionState` object.
     public internal(set) var session: SessionState? {
