@@ -21,4 +21,6 @@ import XCTest
 
 XCTMain([
             testCase(TestSession.allTests),
+            testCase(TestCodableSession.allTests),
+            testCase(TestTypeSafeSession.allTests)
     ])

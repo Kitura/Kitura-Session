@@ -67,6 +67,40 @@ router.all(middleware: session)
 ```
 First an instance of `RedisStore` is created (see [`KituraSessionRedis`](https://github.com/IBM-Swift/Kitura-Session-Redis) for more information), then an instance of `Session` with the store as parameter is created, and finally it is connected to the desired path.
 
+## Codable Session Example
+
+The example below defines a `User` struct and a `Router` with the sessions middleware.  
+The router has a POST route that decodes a `User` instance from the request body
+     and stores it in the request session using the user's id as the key.  
+The router has a GET route that reads a user id from the query parameters
+     and decodes the instance of `User` that is in the session for that id.  
+
+```
+public struct User: Codable {
+        let id: String
+        let name: String
+}
+let router = Router()
+router.all(middleware: Session(secret: "secret"))
+router.post("/user") { request, response, next in
+         let user = try request.read(as: User.self)
+         request.session?[user.id] = user
+         response.status(.created)
+         response.send(user)
+         next()
+}
+router.get("/user") { request, response, next in
+         guard let userID = request.queryParameters["userid"] else {
+            return try response.status(.notFound).end()
+         }
+         guard let user: User = request.session?[userID] else {
+            return try response.status(.internalServerError).end()
+         }
+         response.status(.OK)
+         response.send(user)
+         next()
+}
+```
 ## Plugins
 
 * [Redis store](https://github.com/IBM-Swift/Kitura-Session-Redis)

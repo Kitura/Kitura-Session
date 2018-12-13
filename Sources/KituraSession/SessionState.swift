@@ -98,10 +98,12 @@ public class SessionState {
         isDirty = true
     }
 
-    /// Retrieve an entry from the session data.
+    /// Retrieve or store an entry from the session data.
     ///
     /// - Parameter key: The key of the entry to retrieve.
     public subscript(key: String) -> Any? {
+        // This function allows you to store values which will fail when you try to serialize them to JSON.
+        // This should be removed in the next major release of Kitura-Session in favour of Codable subscript.
         get {
             return state[key]
         }
@@ -110,4 +112,53 @@ public class SessionState {
             isDirty = true
         }
     }
+    
+    /// Retrieve or store a Codable entry from the session data.
+    ///
+    /// - Parameter key: The Codable key of the entry to retrieve/save.
+    public subscript<T: Codable>(key: String) -> T? {
+        get {
+            guard let value = state[key] else {
+                return nil
+            }
+            if let primitive = value as? T {
+                return primitive
+            } else {
+                guard let data = try? JSONSerialization.data(withJSONObject: value) else {
+                    return nil
+                }
+                return try? JSONDecoder().decode(T.self, from: data)
+            }
+        }
+        set {
+            let json: Any
+            guard let value = newValue else {
+                state[key] = nil
+                isDirty = true
+                return
+            }
+            if let data = try? JSONEncoder().encode(value) {
+                let mirror = Mirror(reflecting: value)
+                if mirror.displayStyle == .collection {
+                    guard let array = try? JSONSerialization.jsonObject(with: data) as? [Any] else {
+                        return
+                    }
+                    json = array as Any
+                } else {
+                    guard let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                        return
+                    }
+                    json = dict as Any
+                }
+            } else {
+                json = value
+            }
+            state[key] = json
+            isDirty = true
+        }
+    }
 }
+
+
+
+
