@@ -17,7 +17,7 @@
 import XCTest
 
 @testable import KituraSessionTests
-var testcases = [testCase(TestSession.allTests), testCase(TestTypeSafeSession.allTests]
+var testcases = [testCase(TestSession.allTests), testCase(TestTypeSafeSession.allTests)]
 #if swift(>=4.1)
     testcases.append(TestCodableSession.allTests)
 #endif
