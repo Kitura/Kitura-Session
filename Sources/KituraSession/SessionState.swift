@@ -116,6 +116,8 @@ public class SessionState {
     /// Retrieve or store a Codable entry from the session data.
     ///
     /// - Parameter key: The Codable key of the entry to retrieve/save.
+    // The swift 4.0 compiler fails to go down the Any subscript route if the object is not Codable so this feature can only be supported on swift 4.1 or higher
+    #if swift(>=4.1)
     public subscript<T: Codable>(key: String) -> T? {
         get {
             guard let value = state[key] else {
@@ -157,6 +159,7 @@ public class SessionState {
             isDirty = true
         }
     }
+    #endif
 }
 
 
