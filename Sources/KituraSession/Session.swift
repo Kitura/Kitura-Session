@@ -75,9 +75,7 @@ public class Session: RouterMiddleware {
             if  let session = request.session {
                 if  newSession  &&  !session.isEmpty {
                     guard self.cookieManager.addCookie(sessionId: session.id, domain: request.hostname, response: response) == true else {
-                        response.status(.internalServerError)
-                        next()
-                        return
+                        return previousOnEndInvoked()
                     }
                 }
                 if  session.isDirty {
