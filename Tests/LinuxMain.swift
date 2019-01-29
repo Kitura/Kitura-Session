@@ -21,4 +21,4 @@ var testcases = [testCase(TestSession.allTests), testCase(TestTypeSafeSession.al
 #if swift(>=4.1)
     testcases.append(TestCodableSession.allTests)
 #endif
-XCTMain([testcases])
+XCTMain(testcases)
