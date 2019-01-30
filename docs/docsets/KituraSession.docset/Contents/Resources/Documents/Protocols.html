@@ -159,7 +159,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>A <code>TypeSafeMiddleware</code> for managing user sessions. The user defines a final class with the fields they wish to use within  the session. This class can then save or destroy itself from a static <code><a href="Protocols/Store.html">Store</a></code>, which is keyed by a <code>sessionId</code>. The sessionId can be extracted from the session cookie to initialise an instance of the users class with the session data. If no store is defined, the session will default to an in-memory store.</p>
+                        <p>A <code>TypeSafeMiddleware</code> for managing user sessions. The user defines a final class with the fields they wish to use within the session. This class can then save or destroy itself from a static <code><a href="Protocols/Store.html">Store</a></code>, which is keyed by a <code>sessionId</code>. The sessionId can be extracted from the session cookie to initialise an instance of the user&rsquo;s class with the session data. If no store is defined, the session will default to an in-memory store.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
 
 <p>In this example, a class conforming to the TypeSafeSession protocol is defined containing an optional <q>name</q> field. Then a route on <q>/session</q> is set up that stores a received name into the session.</p>
@@ -181,7 +181,7 @@
 <span class="p">}</span>
 </code></pre>
 
-<p><strong>Note</strong>: When using multiple TypeSafeSession classes together, If the cookie names are the same, the cookie secret must also be the same. Otherwise the sessions will conflict and overwrite each others cookies. (Different cookie names can use different secrets)</p>
+<p><strong>Note</strong>: When using multiple TypeSafeSession classes together, if the cookie names are the same, the cookie secret must also be the same. Otherwise the sessions will conflict and overwrite each others cookies. (Different cookie names can use different secrets).</p>
 
                         <a href="Protocols/TypeSafeSession.html" class="slightly-smaller">See more</a>
                       </div>

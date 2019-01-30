@@ -113,8 +113,8 @@
                 </div>
               </div>
             <p>Defines the properties of an HTTP Cookie which will be used for a <code><a href="../Protocols/TypeSafeSession.html">TypeSafeSession</a></code>.
-It is valid for multiple <code><a href="../Protocols/TypeSafeSession.html">TypeSafeSession</a></code> types to use the same name (ie. same cookie),
-provided that they also use the same secret.</p>
+It is valid for multiple <code><a href="../Protocols/TypeSafeSession.html">TypeSafeSession</a></code> types to use the same name (i.e. same cookie),
+provided they also use the same secret.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
 <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">sessionCookie</span> <span class="o">=</span> <span class="kt">SessionCookie</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="s">"kitura-session-id"</span><span class="p">,</span> <span class="nv">secret</span><span class="p">:</span> <span class="s">"xyz789"</span><span class="p">,</span> <span class="nv">secure</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span> <span class="nv">maxAge</span><span class="p">:</span> <span class="mi">300</span><span class="p">)</span>
 </code></pre>
@@ -197,7 +197,7 @@ case the same <code>secret</code> <em>must</em> also be used.</p>
                               </td>
                               <td>
                                 <div>
-                                  <p>The name of the cookie, for example, &lsquo;kitura-session-id&rsquo;</p>
+                                  <p>The name of the cookie, for example, &lsquo;kitura-session-id&rsquo;.</p>
                                 </div>
                               </td>
                             </tr>
@@ -209,7 +209,7 @@ case the same <code>secret</code> <em>must</em> also be used.</p>
                               </td>
                               <td>
                                 <div>
-                                  <p>The secret data used to encrypt and decrypt session cookies with this name</p>
+                                  <p>The secret data used to encrypt and decrypt session cookies with this name.</p>
                                 </div>
                               </td>
                             </tr>
@@ -221,7 +221,7 @@ case the same <code>secret</code> <em>must</em> also be used.</p>
                               </td>
                               <td>
                                 <div>
-                                  <p>Whether the cookie should be provided only over secure (https) connections. Defaults to false</p>
+                                  <p>Whether the cookie should be provided only over secure (https) connections. Defaults to false.</p>
                                 </div>
                               </td>
                             </tr>
