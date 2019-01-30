@@ -28,14 +28,13 @@ import Foundation
 /// In the example, an instance of `Session` is created with a custom value for the `CookieParameter` name.
 public enum CookieParameter {
 
-    /// The cookie's name, defaults to "kitura-session-id".
+    /// The cookie's name. Defaults to "kitura-session-id".
     case name(String)
 
-    /// The cookie's path attribute, this defines the path for which this cookie should be supplied.
-    /// Defaults to "/" which means allow any path.
+    /// The cookie's path attribute. This specifies the path for which the cookie is valid. The client should only provide this cookie for requests on this path.
     case path(String)
 
-    /// The cookie's secure attribute, this indicates whether the cookie should be provided only
+    /// The cookie's secure attribute, indicating whether the cookie should be provided only
     /// over secure (https) connections. Defaults to false.
     case secure(Bool)
 

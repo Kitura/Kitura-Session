@@ -24,12 +24,24 @@ import Foundation
 /// A pluggable middleware for managing user sessions.
 ///
 /// In order to use the Session middleware, an instance of `Session` has to be created. In the example
-/// below an instance of `Session` is created, then it is connected to the desired path.
+/// below an instance of `Session` is created, then it is connected to the desired path. Two route to are then registered that save and retrieve a `User` from the session.
 ///
 /// ### Usage Example: ###
 /// ```swift
 /// let session = Session(secret: "Something very secret")
 /// router.all(middleware: session)
+/// public struct User: Codable {
+///     let name: String
+/// }
+/// router.post("/user") { request, response, next in
+///     let user = User(name: "Kitura")
+///     request.session?["User"] = user
+///     next()
+/// }
+/// router.get("/user") { request, response, next in
+///     let user: User? = request.session?["Kitura"]
+///     next()
+/// }
 /// ```
 public class Session: RouterMiddleware {
 
