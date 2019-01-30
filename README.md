@@ -75,7 +75,7 @@ The router has a POST route that decodes a `User` instance from the request body
 The router has a GET route that reads a user id from the query parameters
      and decodes the instance of `User` that is in the session for that id.  
 
-```
+```swift
 public struct User: Codable {
         let id: String
         let name: String
