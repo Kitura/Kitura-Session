@@ -36,6 +36,7 @@ let CodableSessionTestDict = ["sessionKey1": "sessionValue1", "sessionKey2": "se
 let CodableSessionTestCodableArray = [CodableSessionTest(sessionKey: "sessionValue1"), CodableSessionTest(sessionKey: "sessionValue2"), CodableSessionTest(sessionKey: "sessionValue3")]
 let CodableSessionTestCodableDict = ["sessionKey1": CodableSessionTest(sessionKey: "sessionValue1"), "sessionKey2": CodableSessionTest(sessionKey: "sessionValue2"), "sessionKey3": CodableSessionTest(sessionKey: "sessionValue3")]
 
+#if swift(>=4.1)
 class TestCodableSession: XCTestCase, KituraTest {
     
     static var allTests: [(String, (TestCodableSession) -> () throws -> Void)] {
@@ -250,3 +251,4 @@ class TestCodableSession: XCTestCase, KituraTest {
         })
     }
 }
+#endif
