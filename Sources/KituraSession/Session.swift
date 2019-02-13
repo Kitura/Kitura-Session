@@ -22,6 +22,27 @@ import Foundation
 // MARK Session
 
 /// A pluggable middleware for managing user sessions.
+///
+/// In order to use the Session middleware, an instance of `Session` has to be created. In the example
+/// below an instance of `Session` is created, then it is connected to the desired path. Two route to are then registered that save and retrieve a `User` from the session.
+///
+/// ### Usage Example: ###
+/// ```swift
+/// let session = Session(secret: "Something very secret")
+/// router.all(middleware: session)
+/// public struct User: Codable {
+///     let name: String
+/// }
+/// router.post("/user") { request, response, next in
+///     let user = User(name: "Kitura")
+///     request.session?["User"] = user
+///     next()
+/// }
+/// router.get("/user") { request, response, next in
+///     let user: User? = request.session?["Kitura"]
+///     next()
+/// }
+/// ```
 public class Session: RouterMiddleware {
 
     /// Store for session state
@@ -33,7 +54,7 @@ public class Session: RouterMiddleware {
     /// Initialize a new `Session` management middleware.
     ///
     /// - Parameter secret: The string used to encrypt the session ID cookie.
-    /// - Parameter cookie: An array of the cookie's paramaters and attributes.
+    /// - Parameter cookie: An array of the cookie's parameters and attributes.
     /// - Parameter store: The `Store` plugin to be used to store the session state.
     public init(secret: String, cookie: [CookieParameter]?=nil, store: Store?=nil) {
         if  let store = store {

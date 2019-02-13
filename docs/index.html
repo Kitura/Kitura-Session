@@ -112,8 +112,8 @@
 </p>
 
 <p align="center">
-    <a href="http://www.kitura.io/">
-    <img src="https://img.shields.io/badge/docs-kitura.io-1FBCE4.svg" alt="Docs">
+    <a href="https://ibm-swift.github.io/Kitura-Session/index.html">
+    <img src="https://img.shields.io/badge/apidoc-KituraSession-1FBCE4.svg?style=flat" alt="APIDoc">
     </a>
     <a href="https://travis-ci.org/IBM-Swift/Kitura-Session">
     <img src="https://travis-ci.org/IBM-Swift/Kitura-Session.svg?branch=master" alt="Build Status - Master">
@@ -127,84 +127,130 @@
 </p>
 <h1 id='kitura-session' class='heading'>Kitura-Session</h1>
 
-<p>A pluggable framework for managing user sessions in a Swift server using Kitura</p>
-<h2 id='summary' class='heading'>Summary</h2>
-
-<p>A pluggable framework for managing user sessions in a Swift server using Kitura</p>
-<h2 id='table-of-contents' class='heading'>Table of Contents</h2>
-
-<ul>
-<li><a href="#swift-version">Swift version</a></li>
-<li><a href="#api">API</a></li>
-<li><a href="#example">Example</a></li>
-<li><a href="#plugins">Plugins</a></li>
-<li><a href="#license">License</a></li>
-</ul>
+<p>A pluggable framework for managing user sessions in a Swift server using Kitura.</p>
 <h2 id='swift-version' class='heading'>Swift version</h2>
 
 <p>The latest version of Kitura-Session requires <strong>Swift 4.0</strong> or later. You can download this version of the Swift binaries by following this <a href="https://swift.org/download/">link</a>. Compatibility with other Swift versions is not guaranteed.</p>
-<h2 id='api' class='heading'>API</h2>
+<h2 id='usage' class='heading'>Usage</h2>
+<h4 id='add-dependencies' class='heading'>Add dependencies</h4>
 
-<p>In order to use the Session middleware, an instance of <code><a href="Classes/Session.html">Session</a></code> has to be created:</p>
+<p>Add the <code>Kitura-Session</code> package to the dependencies within your application’s <code>Package.swift</code> file. Substitute <code>&quot;x.x.x&quot;</code> with the latest <code>Kitura-Session</code> <a href="https://github.com/IBM-Swift/Kitura-Session/releases">release</a>.</p>
+<pre class="highlight swift"><code><span class="o">.</span><span class="nf">package</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="s">"https://github.com/IBM-Swift/Kitura-Session.git"</span><span class="p">,</span> <span class="nv">from</span><span class="p">:</span> <span class="s">"x.x.x"</span><span class="p">)</span>
+</code></pre>
+
+<p>Add <code>KituraSession</code> to your target&rsquo;s dependencies:</p>
+<pre class="highlight swift"><code><span class="o">.</span><span class="nf">target</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="s">"example"</span><span class="p">,</span> <span class="nv">dependencies</span><span class="p">:</span> <span class="p">[</span><span class="s">"KituraSession"</span><span class="p">]),</span>
+</code></pre>
+<h4 id='import-package' class='heading'>Import package</h4>
+<pre class="highlight swift"><code><span class="kd">import</span> <span class="kt">KituraSession</span>
+</code></pre>
+<h2 id='raw-routing-session' class='heading'>Raw routing Session</h2>
+<h4 id='getting-started' class='heading'>Getting Started</h4>
+
+<p>In order to use the Session middleware on a Raw route, an instance of <code><a href="Classes/Session.html">Session</a></code> has to be created:</p>
 <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">secret</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="nv">cookie</span><span class="p">:</span> <span class="p">[</span><span class="kt">CookieParameter</span><span class="p">]?</span><span class="o">=</span><span class="kc">nil</span><span class="p">,</span> <span class="nv">store</span><span class="p">:</span> <span class="kt">Store</span><span class="p">?</span><span class="o">=</span><span class="kc">nil</span><span class="p">)</span>
 </code></pre>
 
 <p><strong>Where:</strong></p>
 
 <ul>
-<li><em>secret</em> is a String to be used for session encoding. It should be a large unguessable string, say minimum 14 characters long.</li>
-<li><em>cookie</em> is a list of options for session&rsquo;s cookies. The options are (specified in <code><a href="Enums/CookieParameter.html">CookieParameter</a></code> enumeration): <code>name</code> - cookie&rsquo;s name, defaults to <q>kitura-session-id</q>, <code>path</code> - cookie&rsquo;s Path attribute defaults to <q>/</q>, <code>secure</code> - cookie&rsquo;s Secure attribute, false by default, and <code>maxAge</code> - an NSTimeInterval with cookie&rsquo;s expiration time in seconds, defaults to -1.0, i.e., no expiration.</li>
-<li><em>store</em> is an instance of a plugin for session backing store that implements <code><a href="Protocols/Store.html">Store</a></code> protocol. If not set, <code>InMemoryStore</code> is used.
+<li><em>secret</em> is a String to be used for session encoding. It should be a large unguessable string, a minimum of 14 characters long.</li>
+<li><em>cookie</em> is a list of options for session&rsquo;s cookies. The options are (as specified in the <code><a href="Enums/CookieParameter.html">CookieParameter</a></code> enumeration):
+
+<ul>
+<li><code>name</code> - cookie&rsquo;s name, defaults to <q>kitura-session-id</q>.</li>
+<li><code>path</code> - cookie&rsquo;s path attribute, this defines the path for which this cookie should be supplied. Defaults to <q>/</q> which means allow any path.</li>
+<li><code>secure</code> - cookie&rsquo;s secure attribute, this indicates whwether the cookie should be provided only over secure (https) connections. Defaults to false.</li>
+<li><code>maxAge</code> - cookie&rsquo;s maxAge attribute, that is, the maximum age (in seconds) from the time of issue that the cookie should be kept for. Defaults to -1.0, i.e. no expiration.</li>
+</ul></li>
+<li><em>store</em> is an instance of a plugin for a session backing store that implements the <code><a href="Protocols/Store.html">Store</a></code> protocol. If not set, <code>InMemoryStore</code> is used.
 <br></li>
 </ul>
 
-<p>The last two parameters are optional.</p>
+<p>The <em>cookie</em> and <em>store</em> parameters are optional.</p>
 
-<p><br>
-   The <em>secret</em> parameter is used to secure the session ID and ensure that the session ID cannot be guessed. <em>Secret</em> is used to derive a pair of encryption and signature keys via PBKDF2 and a fixed IV to make the session ID cookie be authenticated encrypted. <em>Secret</em> isn&rsquo;t used directly to encrypt or compute the MAC of the cookie.</p>
-<h2 id='example' class='heading'>Example</h2>
+<p>The <em>secret</em> parameter is used to secure the session ID and ensure that the session ID cannot be guessed. <em>Secret</em> is used to derive a pair of encryption and signature keys via PBKDF2 and a fixed IV to make the session ID cookie be authenticated and encrypted. <em>Secret</em> isn&rsquo;t used directly to encrypt or compute the MAC of the cookie.</p>
+<h4 id='example' class='heading'>Example</h4>
 
-<p>This is an example of <code><a href="Classes/Session.html">Session</a></code> middleware with <a href="https://github.com/IBM-Swift/Kitura-Session-Redis"><code>KituraSessionRedis</code></a> plugin:</p>
-<pre class="highlight swift"><code><span class="kd">import</span> <span class="kt">KituraSession</span>
+<p>In this example, an instance of <code>RedisStore</code> is created that will be used to persist session data (see <a href="https://github.com/IBM-Swift/Kitura-Session-Redis"><code>KituraSessionRedis</code></a> for more information).  An instance of <code><a href="Classes/Session.html">Session</a></code> is then created, specifying <em>redisStore</em> as the session store.  Finally, the <em>session</em> instance is registered as a middleware on the desired path.</p>
+<pre class="highlight swift"><code><span class="kd">import</span> <span class="kt">Kitura</span>
+<span class="kd">import</span> <span class="kt">KituraSession</span>
 <span class="kd">import</span> <span class="kt">KituraSessionRedis</span>
 
 <span class="k">let</span> <span class="nv">redisStore</span> <span class="o">=</span> <span class="kt">RedisStore</span><span class="p">(</span><span class="nv">redisHost</span><span class="p">:</span> <span class="n">host</span><span class="p">,</span> <span class="nv">redisPort</span><span class="p">:</span> <span class="n">port</span><span class="p">)</span>
 <span class="k">let</span> <span class="nv">session</span> <span class="o">=</span> <span class="kt">Session</span><span class="p">(</span><span class="nv">secret</span><span class="p">:</span> <span class="s">"Some secret"</span><span class="p">,</span> <span class="nv">store</span><span class="p">:</span> <span class="n">redisStore</span><span class="p">)</span>
 <span class="n">router</span><span class="o">.</span><span class="nf">all</span><span class="p">(</span><span class="nv">middleware</span><span class="p">:</span> <span class="n">session</span><span class="p">)</span>
 </code></pre>
+<h4 id='storing-any-in-a-session' class='heading'>Storing Any in a session</h4>
 
-<p>First an instance of <code>RedisStore</code> is created (see <a href="https://github.com/IBM-Swift/Kitura-Session-Redis"><code>KituraSessionRedis</code></a> for more information), then an instance of <code><a href="Classes/Session.html">Session</a></code> with the store as parameter is created, and finally it is connected to the desired path.</p>
-<h2 id='codable-session-example' class='heading'>Codable Session Example</h2>
-
-<p>The example below defines a <code>User</code> struct and a <code>Router</code> with the sessions middleware.<br>
-The router has a POST route that decodes a <code>User</code> instance from the request body
-     and stores it in the request session using the user&rsquo;s id as the key.<br>
-The router has a GET route that reads a user id from the query parameters
-     and decodes the instance of <code>User</code> that is in the session for that id.  </p>
-<pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">User</span><span class="p">:</span> <span class="kt">Codable</span> <span class="p">{</span>
-        <span class="k">let</span> <span class="nv">id</span><span class="p">:</span> <span class="kt">String</span>
-        <span class="k">let</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span>
+<p>Within your Kitura routes, you can store <code>Any</code> type inside the <code>request.session</code> for a given key. This can then be retrieved as an <code>Any</code> and cast to the required type:</p>
+<pre class="highlight swift"><code><span class="n">router</span><span class="o">.</span><span class="nf">post</span><span class="p">(</span><span class="s">"/session"</span><span class="p">)</span> <span class="p">{</span><span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">next</span> <span class="k">in</span>
+    <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">?[</span><span class="s">"key"</span><span class="p">]</span> <span class="o">=</span> <span class="s">"value"</span>
+    <span class="nf">next</span><span class="p">()</span>
 <span class="p">}</span>
-<span class="k">let</span> <span class="nv">router</span> <span class="o">=</span> <span class="kt">Router</span><span class="p">()</span>
-<span class="n">router</span><span class="o">.</span><span class="nf">all</span><span class="p">(</span><span class="nv">middleware</span><span class="p">:</span> <span class="kt">Session</span><span class="p">(</span><span class="nv">secret</span><span class="p">:</span> <span class="s">"secret"</span><span class="p">))</span>
+<span class="n">router</span><span class="o">.</span><span class="nf">get</span><span class="p">(</span><span class="s">"/session"</span><span class="p">)</span> <span class="p">{</span><span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">next</span> <span class="k">in</span>
+    <span class="k">let</span> <span class="nv">value</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">?[</span><span class="s">"key"</span><span class="p">]</span> <span class="k">as?</span> <span class="kt">String</span>
+    <span class="nf">next</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre>
+
+<p>This <code>Any</code> type must be JSON serializable, otherwise the session will fail when it attempts to save the session.</p>
+<h4 id='storing-codable-in-a-session' class='heading'>Storing Codable in a Session</h4>
+
+<p>Available from <strong>Swift 4.1</strong> or later</p>
+
+<p>Within your Kitura routes, you can also store <code>Codable</code> objects inside the <code>request.session</code> for a given key. This can then be retrieved as the declared type:</p>
+<pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">User</span><span class="p">:</span> <span class="kt">Codable</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span>
+<span class="p">}</span>
 <span class="n">router</span><span class="o">.</span><span class="nf">post</span><span class="p">(</span><span class="s">"/user"</span><span class="p">)</span> <span class="p">{</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">next</span> <span class="k">in</span>
-         <span class="k">let</span> <span class="nv">user</span> <span class="o">=</span> <span class="k">try</span> <span class="n">request</span><span class="o">.</span><span class="nf">read</span><span class="p">(</span><span class="nv">as</span><span class="p">:</span> <span class="kt">User</span><span class="o">.</span><span class="k">self</span><span class="p">)</span>
-         <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">?[</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">user</span>
-         <span class="n">response</span><span class="o">.</span><span class="nf">status</span><span class="p">(</span><span class="o">.</span><span class="n">created</span><span class="p">)</span>
-         <span class="n">response</span><span class="o">.</span><span class="nf">send</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
-         <span class="nf">next</span><span class="p">()</span>
+    <span class="k">let</span> <span class="nv">user</span> <span class="o">=</span> <span class="kt">User</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="s">"Kitura"</span><span class="p">)</span>
+    <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">?[</span><span class="s">"User"</span><span class="p">]</span> <span class="o">=</span> <span class="n">user</span>
+    <span class="nf">next</span><span class="p">()</span>
 <span class="p">}</span>
 <span class="n">router</span><span class="o">.</span><span class="nf">get</span><span class="p">(</span><span class="s">"/user"</span><span class="p">)</span> <span class="p">{</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">next</span> <span class="k">in</span>
-         <span class="k">guard</span> <span class="k">let</span> <span class="nv">userID</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">queryParameters</span><span class="p">[</span><span class="s">"userid"</span><span class="p">]</span> <span class="k">else</span> <span class="p">{</span>
-            <span class="k">return</span> <span class="k">try</span> <span class="n">response</span><span class="o">.</span><span class="nf">status</span><span class="p">(</span><span class="o">.</span><span class="n">notFound</span><span class="p">)</span><span class="o">.</span><span class="nf">end</span><span class="p">()</span>
-         <span class="p">}</span>
-         <span class="k">guard</span> <span class="k">let</span> <span class="nv">user</span><span class="p">:</span> <span class="kt">User</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">?[</span><span class="n">userID</span><span class="p">]</span> <span class="k">else</span> <span class="p">{</span>
-            <span class="k">return</span> <span class="k">try</span> <span class="n">response</span><span class="o">.</span><span class="nf">status</span><span class="p">(</span><span class="o">.</span><span class="n">internalServerError</span><span class="p">)</span><span class="o">.</span><span class="nf">end</span><span class="p">()</span>
-         <span class="p">}</span>
-         <span class="n">response</span><span class="o">.</span><span class="nf">status</span><span class="p">(</span><span class="o">.</span><span class="kt">OK</span><span class="p">)</span>
-         <span class="n">response</span><span class="o">.</span><span class="nf">send</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
-         <span class="nf">next</span><span class="p">()</span>
+    <span class="k">let</span> <span class="nv">user</span><span class="p">:</span> <span class="kt">User</span><span class="p">?</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">?[</span><span class="s">"Kitura"</span><span class="p">]</span>
+    <span class="nf">next</span><span class="p">()</span>
 <span class="p">}</span>
+</code></pre>
+<h2 id='typesafesession-example' class='heading'>TypeSafeSession Example</h2>
+
+<p>To use sessions on a Codable route, declare a type that conforms to the TypeSafeSession protocol:</p>
+<pre class="highlight swift"><code><span class="c1">// Defines the session instance data</span>
+<span class="kd">final</span> <span class="kd">class</span> <span class="kt">MySession</span><span class="p">:</span> <span class="kt">TypeSafeSession</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">sessionId</span><span class="p">:</span> <span class="kt">String</span>                       <span class="c1">// Requirement: every session must have an ID</span>
+    <span class="k">var</span> <span class="nv">books</span><span class="p">:</span> <span class="p">[</span><span class="kt">Book</span><span class="p">]</span>                           <span class="c1">// User-defined type, where Book conforms to Codable</span>
+
+    <span class="nf">init</span><span class="p">(</span><span class="nv">sessionId</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="p">{</span>                   <span class="c1">// Requirement: must be able to create a new (empty)</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">sessionId</span> <span class="o">=</span> <span class="n">sessionId</span>              <span class="c1">// session containing just an ID. Assign a default or</span>
+        <span class="n">books</span> <span class="o">=</span> <span class="p">[]</span>                              <span class="c1">// empty value for any non-optional properties.</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// Defines the configuration of the user's type: how the cookie is constructed, and how the session is persisted.</span>
+<span class="kd">extension</span> <span class="kt">MySession</span> <span class="p">{</span>
+    <span class="kd">static</span> <span class="k">let</span> <span class="nv">sessionCookie</span><span class="p">:</span> <span class="kt">SessionCookie</span> <span class="o">=</span> <span class="kt">SessionCookie</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="s">"MySession"</span><span class="p">,</span> <span class="nv">secret</span><span class="p">:</span> <span class="s">"Top Secret"</span><span class="p">)</span>
+    <span class="kd">static</span> <span class="k">var</span> <span class="nv">store</span><span class="p">:</span> <span class="kt">Store</span><span class="p">?</span>
+<span class="p">}</span>
+</code></pre>
+
+<p>The MySession type can then be included in the application&rsquo;s Codable route handlers. For example:</p>
+<pre class="highlight swift"><code><span class="kd">struct</span> <span class="kt">Book</span><span class="p">:</span> <span class="kt">Codable</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">title</span><span class="p">:</span> <span class="kt">String</span>
+    <span class="k">let</span> <span class="nv">author</span><span class="p">:</span> <span class="kt">String</span>
+<span class="p">}</span>
+
+<span class="n">router</span><span class="o">.</span><span class="nf">get</span><span class="p">(</span><span class="s">"/cart"</span><span class="p">)</span> <span class="p">{</span> <span class="p">(</span><span class="nv">session</span><span class="p">:</span> <span class="kt">MySession</span><span class="p">,</span> <span class="nv">respondWith</span><span class="p">:</span> <span class="p">([</span><span class="kt">Book</span><span class="p">]?,</span> <span class="kt">RequestError</span><span class="p">?)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span> <span class="k">in</span>
+    <span class="nf">respondWith</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">books</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="n">router</span><span class="o">.</span><span class="nf">post</span><span class="p">(</span><span class="s">"/cart"</span><span class="p">)</span> <span class="p">{</span> <span class="p">(</span><span class="nv">session</span><span class="p">:</span> <span class="kt">MySession</span><span class="p">,</span> <span class="nv">book</span><span class="p">:</span> <span class="kt">Book</span><span class="p">,</span> <span class="nv">respondWith</span><span class="p">:</span> <span class="p">(</span><span class="kt">Book</span><span class="p">?,</span> <span class="kt">RequestError</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span> <span class="k">in</span>
+    <span class="k">var</span> <span class="nv">session</span> <span class="o">=</span> <span class="n">session</span>       <span class="c1">// Required when mutating a Struct</span>
+    <span class="n">session</span><span class="o">.</span><span class="n">books</span><span class="o">.</span><span class="nf">append</span><span class="p">(</span><span class="n">book</span><span class="p">)</span>
+    <span class="n">session</span><span class="o">.</span><span class="nf">save</span><span class="p">()</span>
+    <span class="nf">respondWith</span><span class="p">(</span><span class="n">book</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
+<span class="p">}</span>
+
 </code></pre>
 <h2 id='plugins' class='heading'>Plugins</h2>
 
@@ -212,6 +258,12 @@ The router has a GET route that reads a user id from the query parameters
 <li><a href="https://github.com/IBM-Swift/Kitura-Session-Redis">Redis store</a></li>
 <li><a href="https://github.com/krzyzanowskim/Kitura-Session-Kuery">SQL store using Kuery</a> (community authored)</li>
 </ul>
+<h2 id='api-documentation' class='heading'>API Documentation</h2>
+
+<p>For more information visit our <a href="https://ibm-swift.github.io/Kitura-Session/index.html">API reference</a>.</p>
+<h2 id='community' class='heading'>Community</h2>
+
+<p>We love to talk server-side Swift, and Kitura. Join our <a href="http://swift-at-ibm-slack.mybluemix.net/">Slack</a> to meet the team!</p>
 <h2 id='license' class='heading'>License</h2>
 
 <p>This library is licensed under Apache 2.0. Full license text is available in <a href="LICENSE.txt">LICENSE</a>.</p>
@@ -223,7 +275,7 @@ The router has a GET route that reads a user id from the query parameters
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2019 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2019-01-30)</p>
+      <p>&copy; 2019 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2019-02-13)</p>
       <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.1</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>

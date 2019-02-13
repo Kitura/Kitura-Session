@@ -42,8 +42,8 @@ internal struct CookieParameters {
 }
 
 /// Defines the properties of an HTTP Cookie which will be used for a `TypeSafeSession`.
-/// It is valid for multiple `TypeSafeSession` types to use the same name (ie. same cookie),
-/// provided that they also use the same secret.
+/// It is valid for multiple `TypeSafeSession` types to use the same name (i.e. same cookie),
+/// provided they also use the same secret.
 /// ### Usage Example: ###
 /// ```swift
 /// static let sessionCookie = SessionCookie(name: "kitura-session-id", secret: "xyz789", secure: false, maxAge: 300)
@@ -72,9 +72,9 @@ public struct SessionCookie {
     /// ```swift
     /// static let sessionCookie = SessionCookie(name: "kitura-session-id", secret: "xyz789", secure: false, maxAge: 300)
     /// ```
-    /// - Parameter name: The name of the cookie, for example, 'kitura-session-id'
-    /// - Parameter secret: The secret data used to encrypt and decrypt session cookies with this name
-    /// - Parameter secure: Whether the cookie should be provided only over secure (https) connections. Defaults to false
+    /// - Parameter name: The name of the cookie, for example, 'kitura-session-id'.
+    /// - Parameter secret: The secret data used to encrypt and decrypt session cookies with this name.
+    /// - Parameter secure: Whether the cookie should be provided only over secure (https) connections. Defaults to false.
     /// - Parameter path: The path for which this cookie should be supplied. Defaults to allow any path.
     /// - Parameter domain: The domain to which this cookie applies. Defaults to the subdomain of the server issuing the cookie.
     /// - Parameter maxAge: The maximum age (in seconds) from the time of issue that the cookie should be kept for. This is a request to the client and may not be honoured.

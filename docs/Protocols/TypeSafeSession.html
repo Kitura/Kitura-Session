@@ -112,7 +112,7 @@
 
                 </div>
               </div>
-            <p>A <code>TypeSafeMiddleware</code> for managing user sessions. The user defines a final class with the fields they wish to use within  the session. This class can then save or destroy itself from a static <code><a href="../Protocols/Store.html">Store</a></code>, which is keyed by a <code>sessionId</code>. The sessionId can be extracted from the session cookie to initialise an instance of the users class with the session data. If no store is defined, the session will default to an in-memory store.</p>
+            <p>A <code>TypeSafeMiddleware</code> for managing user sessions. The user defines a final class with the fields they wish to use within the session. This class can then save or destroy itself from a static <code><a href="../Protocols/Store.html">Store</a></code>, which is keyed by a <code>sessionId</code>. The sessionId can be extracted from the session cookie to initialise an instance of the user&rsquo;s class with the session data. If no store is defined, the session will default to an in-memory store.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
 
 <p>In this example, a class conforming to the TypeSafeSession protocol is defined containing an optional <q>name</q> field. Then a route on <q>/session</q> is set up that stores a received name into the session.</p>
@@ -134,7 +134,7 @@
 <span class="p">}</span>
 </code></pre>
 
-<p><strong>Note</strong>: When using multiple TypeSafeSession classes together, If the cookie names are the same, the cookie secret must also be the same. Otherwise the sessions will conflict and overwrite each others cookies. (Different cookie names can use different secrets)</p>
+<p><strong>Note</strong>: When using multiple TypeSafeSession classes together, if the cookie names are the same, the cookie secret must also be the same. Otherwise the sessions will conflict and overwrite each others cookies. (Different cookie names can use different secrets).</p>
 
           </div>
         </section>
@@ -260,7 +260,7 @@ development and testing purposes only.</p>
                         <p>Create a new instance (an empty session), where the only known value is the
 (newly created) session id. Non-optional fields must be given a default value.</p>
 
-<p>Existing sessions are restored via the Codable API by decoding a retreived JSON
+<p>Existing sessions are restored via the Codable API by decoding a retrieved JSON
 representation.</p>
 
                       </div>
@@ -307,7 +307,7 @@ representation.</p>
                       </div>
                       <h4>Default Implementation</h4>
                       <div class="default_impl abstract">
-                        <p>Save the current session instance to the store</p>
+                        <p>Save the current session instance to the store.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
 <pre class="highlight swift"><code><span class="n">router</span><span class="o">.</span><span class="nf">post</span><span class="p">(</span><span class="s">"/session"</span><span class="p">)</span> <span class="p">{</span> <span class="p">(</span><span class="nv">session</span><span class="p">:</span> <span class="kt">MySession</span><span class="p">,</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="nv">respondWith</span><span class="p">:</span> <span class="p">(</span><span class="kt">String</span><span class="p">?,</span> <span class="kt">RequestError</span><span class="p">?)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span> <span class="k">in</span>
     <span class="n">session</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
@@ -373,7 +373,7 @@ representation.</p>
                       </div>
                       <h4>Default Implementation</h4>
                       <div class="default_impl abstract">
-                        <p>Destroy the session, removing it and all its associated data from the store</p>
+                        <p>Destroy the session, removing it and all its associated data from the store.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
 <pre class="highlight swift"><code><span class="n">router</span><span class="o">.</span><span class="nf">delete</span><span class="p">(</span><span class="s">"/session"</span><span class="p">)</span> <span class="p">{</span> <span class="p">(</span><span class="nv">session</span><span class="p">:</span> <span class="kt">MySession</span><span class="p">,</span> <span class="nv">respondWith</span><span class="p">:</span> <span class="p">(</span><span class="kt">RequestError</span><span class="p">?)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span> <span class="k">in</span>
     <span class="n">session</span><span class="o">.</span><span class="nf">destroy</span><span class="p">()</span>
@@ -441,7 +441,7 @@ expiry before sending the response).</p>
                       </div>
                       <h4>Default Implementation</h4>
                       <div class="default_impl abstract">
-                        <p>Touch the session, refreshing its expiry time in the store</p>
+                        <p>Touch the session, refreshing its expiry time in the store.</p>
 
                       </div>
                       <div class="declaration">
@@ -499,7 +499,7 @@ expiry before sending the response).</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Static handle function that will try and create an instance if Self. It will check the request for the session cookie. If the cookie is not present it will create a cookie and initialize a new session for the user. If a session cookie is found, this function will decode and return an instance of itself from the store.</p>
+                        <p>Static handle function that will try and create an instance of Self. It will check the request for the session cookie. If the cookie is not present it will create a cookie and initialize a new session for the user. If a session cookie is found, this function will decode and return an instance of itself from the store.</p>
 
                       </div>
                       <div class="declaration">
@@ -569,7 +569,7 @@ expiry before sending the response).</p>
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2019 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2019-01-30)</p>
+      <p>&copy; 2019 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2019-02-13)</p>
       <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.1</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>

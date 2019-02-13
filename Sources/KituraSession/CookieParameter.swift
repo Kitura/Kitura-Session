@@ -18,18 +18,27 @@ import Foundation
 
 // MARK CookieParameter
 
-/// The parameters for configurating the cookies used to send the session IDs to the clients.
+/// The parameters for configuring the cookies used to send the session IDs to the clients.
+///
+/// ### Usage Example: ###
+/// ```swift
+/// let session = Session(secret: "Something very secret", cookie: [.name("mySessionId")])
+/// router.all(middleware: session)
+/// ```
+/// In the example, an instance of `Session` is created with a custom value for the `CookieParameter` name.
 public enum CookieParameter {
 
-    /// The cookie's name.
+    /// The cookie's name. Defaults to "kitura-session-id".
     case name(String)
 
-    /// The cookie's Path attribute.
+    /// The cookie's path attribute. This specifies the path for which the cookie is valid. The client should only provide this cookie for requests on this path.
     case path(String)
 
-    /// The cookie's Secure attribute.
+    /// The cookie's secure attribute, indicating whether the cookie should be provided only
+    /// over secure (https) connections. Defaults to false.
     case secure(Bool)
 
-    /// The cookie's Max-Age attribute.
+    /// The cookie's maxAge attribute, that is, the maximum age (in seconds) from the time of issue that
+    /// the cookie should be kept for. Defaults to -1.0, i.e. no expiration.
     case maxAge(TimeInterval)
 }
