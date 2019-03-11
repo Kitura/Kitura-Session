@@ -63,14 +63,9 @@ class CookieCryptography {
         }
 
         let plainData = CryptoUtils.byteArray(from: plain)
-        var dataToCipher = plainData
-        // Padding
-        if plainData.count % Cryptor.Algorithm.aes.blockSize != 0 {
-            dataToCipher = CryptoUtils.zeroPad(byteArray: plainData, blockSize: Cryptor.Algorithm.aes.blockSize)
-        }
         
         do {
-            guard let cipherData = try Cryptor(operation: .encrypt, algorithm: .aes, options: .none, key: encryptionKey, iv: iv).update(byteArray: dataToCipher)?.final() else {
+            guard let cipherData = try Cryptor(operation: .encrypt, algorithm: .aes, options: .pkcs7Padding, key: encryptionKey, iv: iv).update(byteArray: plainData)?.final() else {
                 Log.error("Failed to encrypt cookie")
                 return nil
             }
@@ -124,16 +119,12 @@ class CookieCryptography {
         // Decryption
         do {
             
-            guard let decryptedData = try Cryptor(operation: .decrypt, algorithm: .aes, options: .none, key: encryptionKey, iv: iv).update(byteArray: cipherData)?.final() else {
+            guard let decryptedData = try Cryptor(operation: .decrypt, algorithm: .aes, options: .pkcs7Padding, key: encryptionKey, iv: iv).update(byteArray: cipherData)?.final() else {
                 Log.error("Failed to decrypt cookie")
                 return nil
             }
             
-            var resultData = decryptedData
-            // Remove padding
-            resultData.removeSubrange(originalLength ..< decryptedData.count)
-            
-            return String(data: Data(bytes: resultData), encoding: .utf8)
+            return String(data: Data(bytes: decryptedData), encoding: .utf8)
             
         } catch {
             Log.error("Error decoding cookie: \(error)")
