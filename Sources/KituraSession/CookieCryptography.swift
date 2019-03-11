@@ -35,11 +35,6 @@ class CookieCryptography {
     ///
     private var signatureKey: [UInt8]
 
-    ///
-    /// Length of cookie value before padding
-    ///
-    private let originalLength = 36
-
     init (secret: String) throws {
         let encryptionKeySalt = "If two witches would watch two watches, which witch would watch which watch?"
         let signatureKeySalt = "Six sick hicks nick six slick bricks with picks and sticks."
