@@ -36,6 +36,7 @@ class TestSession: XCTestCase, KituraTest {
                    ("testSimpleSession", testSimpleSession),
                    ("testCookieName", testCookieName),
                    ("testCookieValue", testCookieValue),
+                   ("testInvalidCookie", testInvalidCookie),
         ]
     }
 
@@ -172,6 +173,15 @@ class TestSession: XCTestCase, KituraTest {
         })
     }
 
+    func testInvalidCookie() {
+        let router = setupBasicSessionRouter()
+        performServerTest(router: router, asyncTasks: {
+            self.performRequest(method: "get", path: "/3/session", callback: {response in
+
+            }, headers: ["Cookie": "\(cookieDefaultName)=!.!.!"])
+        })
+    }
+    
     func setupBasicSessionRouter() -> Router {
         let router = Router()
 
