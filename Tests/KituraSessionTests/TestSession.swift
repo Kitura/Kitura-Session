@@ -176,8 +176,11 @@ class TestSession: XCTestCase, KituraTest {
     func testInvalidCookie() {
         let router = setupBasicSessionRouter()
         performServerTest(router: router, asyncTasks: {
-            self.performRequest(method: "get", path: "/3/session", callback: {response in
-
+            self.performRequest(method: "get", path: "/3/session", callback: { response in
+				guard let response = response else {
+					return
+				}
+				XCTAssertEqual(response.statusCode, HTTPStatusCode.noContent)
             }, headers: ["Cookie": "\(cookieDefaultName)=!.!.!"])
         })
     }
