@@ -118,8 +118,11 @@ class CookieCryptography {
                 Log.error("Failed to decrypt cookie")
                 return nil
             }
-            
+            #if swift(>=5.0)
+            return String(data: Data(decryptedData), encoding: .utf8)
+            #else 
             return String(data: Data(bytes: decryptedData), encoding: .utf8)
+            #endif
             
         } catch {
             Log.error("Error decoding cookie: \(error)")
