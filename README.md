@@ -61,8 +61,8 @@ public init(secret: String, cookie: [CookieParameter]?=nil, store: Store?=nil)
    - *cookie* is a list of options for session's cookies. The options are (as specified in the `CookieParameter` enumeration):
      - `name` - cookie's name, defaults to "kitura-session-id".
      - `path` - cookie's path attribute, this defines the path for which this cookie should be supplied. Defaults to "/" which means allow any path.
-     - `secure` - cookie's secure attribute, this indicates whwether the cookie should be provided only over secure (https) connections. Defaults to false.
-     - `maxAge` - cookie's maxAge attribute, that is, the maximum age (in seconds) from the time of issue that the cookie should be kept for. Defaults to -1.0, i.e. no expiration.
+     - `secure` - cookie's secure attribute, this indicates whether the cookie should be provided only over secure (https) connections. Defaults to false.
+     - `maxAge` - cookie's maxAge attribute, that is, the maximum age (in seconds) from the time of issue that the cookie should be kept for. Defaults to -1.0, i.e., no expiration.
    - *store* is an instance of a plugin for a session backing store that implements the `Store` protocol. If not set, `InMemoryStore` is used.
    <br>
 
@@ -72,7 +72,7 @@ public init(secret: String, cookie: [CookieParameter]?=nil, store: Store?=nil)
 
 #### Example
 
-In this example, an instance of `RedisStore` is created that will be used to persist session data (see [`KituraSessionRedis`](https://github.com/IBM-Swift/Kitura-Session-Redis) for more information).  An instance of `Session` is then created, specifying *redisStore* as the session store.  Finally, the *session* instance is registered as a middleware on the desired path.
+In this example, an instance of `RedisStore` is created that will be used to persist session data (see [`KituraSessionRedis`](https://github.com/IBM-Swift/Kitura-Session-Redis) for more information).  An instance of `Session` is then created, specifying *redisStore* as the session store.  Finally, the *session* instance is registered as middleware on the desired path.
 
 ```swift
 import Kitura
@@ -99,7 +99,7 @@ router.get("/session") {request, response, next in
 }
 ```
 
-This `Any` type must be JSON serializable, otherwise the session will fail when it attempts to save the session.
+This `Any` type must be JSON serializable. Otherwise, the session will fail when it attempts to save the session.
 
 #### Storing Codable in a Session
 
@@ -178,4 +178,4 @@ For more information visit our [API reference](https://ibm-swift.github.io/Kitur
 We love to talk server-side Swift, and Kitura. Join our [Slack](http://swift-at-ibm-slack.mybluemix.net/) to meet the team!
 
 ## License
-This library is licensed under Apache 2.0. Full license text is available in [LICENSE](LICENSE.txt).
+This library is licensed under Apache 2.0. The full license text is available in [LICENSE](LICENSE.txt).
