@@ -18,6 +18,11 @@ import Kitura
 import LoggerAPI
 
 import Foundation
+#if swift(>=4.1)
+  #if canImport(FoundationNetworking)
+    import FoundationNetworking
+  #endif
+#endif
 
 internal class CookieManagement {
 
