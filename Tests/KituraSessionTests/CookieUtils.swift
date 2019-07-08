@@ -18,6 +18,11 @@
 import KituraNet
 import Foundation
 import XCTest
+#if swift(>=4.1)
+  #if canImport(FoundationNetworking)
+    import FoundationNetworking
+  #endif
+#endif
 
 class CookieUtils {
 
