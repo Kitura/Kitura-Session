@@ -1,6 +1,6 @@
 module: KituraSession
-author: IBM
-github_url: https://github.com/IBM-Swift/Kitura-Session/
+author: IBM & Kitura project authors
+github_url: https://github.com/Kitura/Kitura-Session/
 
 theme: fullwidth
 clean: true
@@ -10,6 +10,4 @@ readme: README.md
 
 skip_undocumented: false
 hide_documentation_coverage: false
-
-xcodebuild_arguments: [-project, Kitura-Session.xcodeproj, -target, KituraSession, LIBRARY_SEARCH_PATHS=.build/debug]
 

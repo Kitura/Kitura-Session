@@ -1,16 +1,16 @@
 <p align="center">
     <a href="http://kitura.io/">
-        <img src="https://raw.githubusercontent.com/IBM-Swift/Kitura/master/Sources/Kitura/resources/kitura-bird.svg?sanitize=true" height="100" alt="Kitura">
+        <img src="https://raw.githubusercontent.com/Kitura/Kitura/master/Sources/Kitura/resources/kitura-bird.svg?sanitize=true" height="100" alt="Kitura">
     </a>
 </p>
 
 
 <p align="center">
-    <a href="https://ibm-swift.github.io/Kitura-Session/index.html">
+    <a href="https://kitura.github.io/Kitura-Session/index.html">
     <img src="https://img.shields.io/badge/apidoc-KituraSession-1FBCE4.svg?style=flat" alt="APIDoc">
     </a>
-    <a href="https://travis-ci.org/IBM-Swift/Kitura-Session">
-    <img src="https://travis-ci.org/IBM-Swift/Kitura-Session.svg?branch=master" alt="Build Status - Master">
+    <a href="https://travis-ci.org/Kitura/Kitura-Session">
+    <img src="https://travis-ci.org/Kitura/Kitura-Session.svg?branch=master" alt="Build Status - Master">
     </a>
     <img src="https://img.shields.io/badge/os-macOS-green.svg?style=flat" alt="macOS">
     <img src="https://img.shields.io/badge/os-linux-green.svg?style=flat" alt="Linux">
@@ -30,10 +30,10 @@ The latest version of Kitura-Session requires **Swift 4.0** or later. You can do
 
 #### Add dependencies
 
-Add the `Kitura-Session` package to the dependencies within your application’s `Package.swift` file. Substitute `"x.x.x"` with the latest `Kitura-Session` [release](https://github.com/IBM-Swift/Kitura-Session/releases).
+Add the `Kitura-Session` package to the dependencies within your application’s `Package.swift` file. Substitute `"x.x.x"` with the latest `Kitura-Session` [release](https://github.com/Kitura/Kitura-Session/releases).
 
 ```swift
-.package(url: "https://github.com/IBM-Swift/Kitura-Session.git", from: "x.x.x")
+.package(url: "https://github.com/Kitura/Kitura-Session.git", from: "x.x.x")
 ```
 
 Add `KituraSession` to your target's dependencies:
@@ -72,7 +72,7 @@ public init(secret: String, cookie: [CookieParameter]?=nil, store: Store?=nil)
 
 #### Example
 
-In this example, an instance of `RedisStore` is created that will be used to persist session data (see [`KituraSessionRedis`](https://github.com/IBM-Swift/Kitura-Session-Redis) for more information).  An instance of `Session` is then created, specifying *redisStore* as the session store.  Finally, the *session* instance is registered as middleware on the desired path.
+In this example, an instance of `RedisStore` is created that will be used to persist session data (see [`KituraSessionRedis`](https://github.com/Kitura/Kitura-Session-Redis) for more information).  An instance of `Session` is then created, specifying *redisStore* as the session store.  Finally, the *session* instance is registered as middleware on the desired path.
 
 ```swift
 import Kitura
@@ -167,11 +167,11 @@ router.post("/cart") { (session: MySession, book: Book, respondWith: (Book?, Req
 ```
 ## Plugins
 
-* [Redis store](https://github.com/IBM-Swift/Kitura-Session-Redis)
+* [Redis store](https://github.com/Kitura/Kitura-Session-Redis)
 * [SQL store using Kuery](https://github.com/krzyzanowskim/Kitura-Session-Kuery) (community authored)
 
 ## API Documentation
-For more information visit our [API reference](https://ibm-swift.github.io/Kitura-Session/index.html).
+For more information visit our [API reference](https://kitura.github.io/Kitura-Session/index.html).
 
 ## Community
 
