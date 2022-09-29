@@ -141,16 +141,22 @@ public class SessionState {
             }
             if let data = try? JSONEncoder().encode(value) {
                 let mirror = Mirror(reflecting: value)
-                if mirror.displayStyle == .collection {
+                switch mirror.displayStyle {
+                case .collection, .enum:
                     guard let array = try? JSONSerialization.jsonObject(with: data) as? [Any] else {
                         return
                     }
                     json = array as Any
-                } else {
+
+                case .dictionary, .struct:
                     guard let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
                         return
                     }
                     json = dict as Any
+                case nil:
+                    json = value
+                default:
+                    return // ignore types we can't do anything with
                 }
             } else {
                 json = value

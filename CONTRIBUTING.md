@@ -18,7 +18,7 @@ trying to do and what went wrong. Provide as much context as possible so we can 
 ### Contributor License Agreement
 
 In order for us to accept pull-requests, the contributor must first complete
-a Contributor License Agreement (CLA). Please see our [CLA repo](http://github.com/IBM-Swift/CLA) for more information.
+a Contributor License Agreement (CLA). Please see our [CLA repo](http://github.com/Kitura/CLA) for more information.
 
 This clarifies the intellectual property license granted with any contribution. It is for your protection as a
 Contributor as well as the protection of IBM and its customers; it does not
