@@ -24,7 +24,7 @@
 A pluggable framework for managing user sessions in a Swift server using Kitura.
 
 ## Swift version
-The latest version of Kitura-Session requires **Swift 4.0** or later. You can download this version of the Swift binaries by following this [link](https://swift.org/download/). Compatibility with other Swift versions is not guaranteed.
+The latest version of Kitura-Session requires **Swift 5.2** or later. You can download this version of the Swift binaries by following this [link](https://swift.org/download/). Compatibility with other Swift versions is not guaranteed.
 
 ## Usage
 

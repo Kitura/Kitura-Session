@@ -94,7 +94,7 @@ public class Session: RouterMiddleware {
             guard let request = request else {previousOnEndInvoked(); return}
             guard let response = response else {previousOnEndInvoked(); return}
             if  let session = request.session {
-                if  newSession  &&  !session.isEmpty {
+                if !self.cookieManager.cookieExists(response: response) {
                     guard self.cookieManager.addCookie(sessionId: session.id, domain: request.hostname, response: response) == true else {
                         return previousOnEndInvoked()
                     }

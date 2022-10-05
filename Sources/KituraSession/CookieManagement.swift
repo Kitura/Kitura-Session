@@ -116,6 +116,10 @@ internal class CookieManagement {
         }
     }
 
+    internal func cookieExists(response: RouterResponse) -> Bool {
+        return response.cookies[name] != nil
+    }
+    
     internal func addCookie(sessionId: String, domain: String, response: RouterResponse) -> Bool {
         guard let encodedSessionId = crypto.encode(sessionId) else {
             return false

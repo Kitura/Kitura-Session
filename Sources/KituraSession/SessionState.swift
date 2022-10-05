@@ -146,11 +146,15 @@ public class SessionState {
                         return
                     }
                     json = array as Any
-                } else {
+                } else if mirror.displayStyle == .dictionary {
                     guard let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
                         return
                     }
                     json = dict as Any
+                } else if let object = try? JSONSerialization.jsonObject(with: data) {
+                    json = object
+                } else {
+                    json = value as Any
                 }
             } else {
                 json = value
